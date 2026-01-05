@@ -34,10 +34,13 @@ export async function POST(req: Request) {
   const env = getEnv();
   const email = parsed.data.email.toLowerCase();
 
+  const adminEmail = env.ADMIN_EMAIL?.toLowerCase();
+  const shouldBeAdmin = !!adminEmail && email === adminEmail;
+
   const user = await prisma.user.upsert({
     where: { email },
-    update: {},
-    create: { email },
+    update: shouldBeAdmin ? { role: "ADMIN" } : {},
+    create: { email, role: shouldBeAdmin ? "ADMIN" : "USER" },
     select: { id: true, email: true },
   });
 

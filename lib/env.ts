@@ -5,6 +5,7 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().min(32),
   AUTH_TOKEN_PEPPER: z.string().min(16),
   APP_URL: z.string().url().optional(),
+  ADMIN_EMAIL: z.string().email().optional(),
   SMTP_HOST: z.string().min(1).optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),
   SMTP_USER: z.string().min(1).optional(),

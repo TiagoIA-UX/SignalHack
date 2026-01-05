@@ -15,37 +15,33 @@ O SignalHack opera com uma rede de agentes especializados (mocks e/ou IA real):
 - Noise Killer Agent: filtra hype e picos artificiais
 - Strategist Agent: sugere estratégia e prioridade (decisão final humana)
 
-## Getting Started
+## Deploy (Vercel + Postgres)
 
-First, run the development server:
+Pré-requisitos:
+- Um banco PostgreSQL (Neon/Supabase/Railway/etc.) e a `DATABASE_URL`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 1) Variáveis de ambiente (Vercel)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Configure em **Project → Settings → Environment Variables**:
+- `DATABASE_URL`
+- `AUTH_SECRET` (>= 32 chars)
+- `AUTH_TOKEN_PEPPER` (>= 16 chars)
+- `APP_URL` (ex.: `https://seu-projeto.vercel.app`)
+- (opcional) `GROQ_API_KEY`
+- (opcional, para magic link por email) `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Dica (gerar secrets localmente):
+- `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2) Migrações do Prisma (produção)
 
-## Learn More
+Depois de criar o banco e setar `DATABASE_URL`, rode:
+- `npx prisma migrate deploy`
 
-To learn more about Next.js, take a look at the following resources:
+### 3) Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+O projeto roda `prisma generate` no `postinstall` e faz `next build` normalmente na Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dev
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev`

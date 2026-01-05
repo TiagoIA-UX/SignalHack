@@ -5,8 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",

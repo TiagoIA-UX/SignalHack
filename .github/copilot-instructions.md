@@ -1,0 +1,4 @@
+- Priorize Next.js (App Router), TypeScript, TailwindCSS, Prisma, PostgreSQL, Groq API, auth por magic link e deploy compatível com Vercel.
+- Mantenha o UI minimalista, dark mode padrão, sem cores hard-coded fora do Tailwind.
+- Proteja rotas via middleware; evite runtime edge quando precisar de Prisma.
+- Prefira código modular em `lib/` e `services/`, com validação simples.

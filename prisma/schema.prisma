@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Plan {
+  FREE
+  PRO
+  ELITE
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AuthTokenType {
+  MAGIC_LINK
+}
+
+enum SignalIntent {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  plan      Plan     @default(FREE)
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authTokens   AuthToken[]
+  sessions     Session[]
+  accessLogs   AccessLog[]
+  signals      Signal[]
+  usageDays    UsageDay[]
+  badgeUnlocks BadgeUnlock[]
+}
+
+model AuthToken {
+  id         String        @id @default(cuid())
+  type       AuthTokenType @default(MAGIC_LINK)
+  identifier String // email
+  tokenHash  String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime      @default(now())
+  ip         String?
+  userAgent  String?
+  userId     String?
+  user       User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([identifier])
+  @@index([expiresAt])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  ip        String?
+  userAgent String?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AccessLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  path      String
+  method    String
+  ip        String?
+  userAgent String?
+  status    Int?
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Signal {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  source     String
+  title      String
+  summary    String
+  intent     SignalIntent
+  score      Int
+  growthPct  Int
+  raw        Json?
+  delayUntil DateTime?
+
+  insights Insight[]
+
+  @@index([userId, createdAt])
+  @@index([score])
+}
+
+model Insight {
+  id         String   @id @default(cuid())
+  signalId   String
+  signal     Signal   @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  strategic  String
+  actionable String
+  confidence Int
+  model      String?
+
+  @@index([signalId])
+}
+
+model UsageDay {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day         DateTime
+  signalsSeen Int      @default(0)
+  points      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, day])
+  @@index([day])
+}
+
+model BadgeUnlock {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, key])
+}

@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes sh-glowPulse {
+  0%, 100% {
+    opacity: 0.18;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.28;
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes sh-scanDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 24px, 0);
+  }
+}
+
+@keyframes sh-shimmer {
+  0% {
+    transform: translate3d(-30%, 0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.28;
+  }
+  50% {
+    opacity: 0.18;
+  }
+  100% {
+    transform: translate3d(30%, 0, 0);
+    opacity: 0;
+  }
+}
+
+.sh-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to bottom, currentColor 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.35;
+}
+
+.sh-scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    currentColor 0px,
+    currentColor 1px,
+    transparent 2px,
+    transparent 7px
+  );
+  opacity: 0.18;
+  animation: sh-scanDrift 9s linear infinite;
+}
+
+.sh-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(700px 380px at 18% 8%, currentColor, transparent 60%),
+    radial-gradient(520px 280px at 78% 18%, currentColor, transparent 65%);
+  opacity: 0.22;
+  animation: sh-glowPulse 6s ease-in-out infinite;
+}
+
+.sh-surface {
+  position: relative;
+}
+
+.sh-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: sh-shimmer 3.2s ease-in-out infinite;
+}

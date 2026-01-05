@@ -1,4 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## SignalHack
+
+SignalHack é uma plataforma de inteligência de sinais com IA para identificar tendências emergentes, atenção e intenção comercial antes do mercado.
+
+"Hackear sinais" aqui significa reduzir ruído, acelerar leitura e transformar dados dispersos em clareza acionável — sem promessas de previsão, garantia ou certeza.
+
+O projeto está em evolução contínua: o MVP já funciona e é expandido incrementalmente.
+
+### Rede de agentes (conceitual)
+
+O SignalHack opera com uma rede de agentes especializados (mocks e/ou IA real):
+
+- Scout Agent: detecta sinais emergentes e crescimento inicial
+- Decoder Agent: decodifica intenção e contexto
+- Noise Killer Agent: filtra hype e picos artificiais
+- Strategist Agent: sugere estratégia e prioridade (decisão final humana)
 
 ## Getting Started
 

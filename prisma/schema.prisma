@@ -153,3 +153,10 @@ model BadgeUnlock {
 
   @@unique([userId, key])
 }
+
+model AppSecret {
+  key       String   @id
+  valueEnc  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

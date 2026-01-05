@@ -1,4 +1,5 @@
 import { getEnv } from "@/lib/env";
+import { getSecret } from "@/lib/appSecrets";
 
 type Intent = "LOW" | "MEDIUM" | "HIGH";
 
@@ -14,7 +15,8 @@ export async function analyzeSignalWithGroq(input: {
   summary: string;
 }) : Promise<ScoredSignal> {
   const env = getEnv();
-  if (!env.GROQ_API_KEY) {
+  const apiKey = env.GROQ_API_KEY ?? (await getSecret("groq_api_key").catch(() => null));
+  if (!apiKey) {
     // Mock inteligente e determinístico o suficiente para demo
     const base = Math.min(95, Math.max(40, input.title.length + input.summary.length / 8));
     const score = Math.round(base);
@@ -39,7 +41,7 @@ SUMMARY: ${input.summary}`;
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${env.GROQ_API_KEY}`,
+      authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: "llama-3.1-70b-versatile",

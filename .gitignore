@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local helper files
+env1.txt
+
 # local assets / exports
 /logo_files/
 /logo.html

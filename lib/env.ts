@@ -6,6 +6,8 @@ const envSchema = z.object({
   AUTH_TOKEN_PEPPER: z.string().min(16),
   APP_URL: z.string().url().optional(),
   ADMIN_EMAIL: z.string().email().optional(),
+  ADMIN_BOOTSTRAP_TOKEN: z.string().min(16).optional(),
+  BILLING_WEBHOOK_TOKEN: z.string().min(8).optional(),
   SMTP_HOST: z.string().min(1).optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),
   SMTP_USER: z.string().min(1).optional(),
@@ -17,7 +19,17 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function getEnv(): Env {
-  const parsed = envSchema.safeParse(process.env);
+  // Normalize environment values to avoid invalid data caused by accidental
+  // trailing CR/LF or literal `\r`/`\n` sequences introduced via UI/CLI.
+  const raw: Record<string, unknown> = { ...process.env };
+  for (const key of Object.keys(raw)) {
+    const v = raw[key];
+    if (typeof v === "string") {
+      raw[key] = v.replace(/\\r/g, "").replace(/\\n/g, "").replace(/\r/g, "").replace(/\n/g, "").trim();
+    }
+  }
+
+  const parsed = envSchema.safeParse(raw);
   if (!parsed.success) {
     const details = parsed.error.issues
       .map((i) => `${i.path.join(".")}: ${i.message}`)

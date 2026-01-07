@@ -6,19 +6,21 @@ import { Button, Card, Container } from "@/components/ui";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
-  const canSubmit = useMemo(() => email.trim().length > 3 && status !== "loading", [email, status]);
+  const canSubmit = useMemo(() => email.trim().length > 3 && password.length >= 6 && status !== "loading", [email, password, status]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("loading");
-    const res = await fetch("/api/auth/request", {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, password }),
     });
-    setStatus(res.ok ? "sent" : "error");
+    setStatus(res.ok ? "ok" : "error");
+    if (res.ok) window.location.href = "/dashboard";
   }
 
   return (
@@ -29,7 +31,7 @@ export default function LoginPage() {
           <div className="mx-auto max-w-lg">
             <Card className="p-6">
               <h1 className="text-xl font-semibold tracking-tight">Entrar</h1>
-              <p className="mt-2 text-sm text-zinc-300">Você recebe um link de acesso no email.</p>
+              <p className="mt-2 text-sm text-zinc-300">Entre com email e senha.</p>
 
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 <div>
@@ -45,16 +47,33 @@ export default function LoginPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="text-xs text-zinc-400">Senha</label>
+                  <input
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="senha"
+                    className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-black px-3 text-sm outline-none focus:ring-2 focus:ring-white/10"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+
                 <Button type="submit" disabled={!canSubmit}>
-                  Enviar magic link
+                  Entrar
                 </Button>
 
-                {status === "sent" ? (
-                  <div className="text-sm text-zinc-300">Se o email existir, o link foi enviado. (Em dev, aparece no console.)</div>
+                {status === "ok" ? (
+                  <div className="text-sm text-zinc-300">Logado com sucesso. Redirecionando...</div>
                 ) : null}
                 {status === "error" ? (
-                  <div className="text-sm text-zinc-300">Não foi possível enviar agora. Tente novamente.</div>
+                  <div className="text-sm text-zinc-300">Credenciais inválidas. Tente novamente ou recupere sua senha.</div>
                 ) : null}
+
+                <div className="mt-3 text-sm">
+                  <a href="/forgot" className="text-emerald-400">Esqueci minha senha</a>
+                </div>
               </form>
             </Card>
           </div>

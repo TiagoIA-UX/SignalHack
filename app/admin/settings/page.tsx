@@ -21,6 +21,11 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [magicEmail, setMagicEmail] = useState("");
+  const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [magicLoading, setMagicLoading] = useState(false);
+  const [magicError, setMagicError] = useState<string | null>(null);
+
   const [groqApiKey, setGroqApiKey] = useState("");
   const [mpToken, setMpToken] = useState("");
 
@@ -67,6 +72,30 @@ export default function AdminSettingsPage() {
       setSmtpPass("");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function generateMagicLink() {
+    setMagicError(null);
+    setMagicLink(null);
+    setMagicLoading(true);
+    try {
+      const res = await fetch("/api/admin/magic-link", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: magicEmail }),
+      });
+
+      const data = (await res.json().catch(() => null)) as any;
+      if (!res.ok) {
+        const code = data?.error || "unknown";
+        throw new Error(code);
+      }
+      setMagicLink(String(data.url || ""));
+    } catch (e: any) {
+      setMagicError(e?.message || "Falha ao gerar link.");
+    } finally {
+      setMagicLoading(false);
     }
   }
 
@@ -229,6 +258,38 @@ export default function AdminSettingsPage() {
                       Salvar Mercado Pago
                     </Button>
                   </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="space-y-3">
+                  <div className="text-sm font-medium">Credencial manual (fallback)</div>
+                  <div className="text-sm text-muted-foreground">
+                    Gera um magic link direto para liberar acesso enquanto o envio por SMTP estiver instável.
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      value={magicEmail}
+                      onChange={(e) => setMagicEmail(e.target.value)}
+                      placeholder="email@dominio.com"
+                      className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm outline-none"
+                    />
+                    <Button onClick={generateMagicLink} disabled={magicLoading || !magicEmail}>
+                      {magicLoading ? "Gerando..." : "Gerar link"}
+                    </Button>
+                  </div>
+
+                  {magicError ? (
+                    <div className="text-sm text-destructive">{magicError}</div>
+                  ) : null}
+
+                  {magicLink ? (
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground">Link gerado (15 min):</div>
+                      <div className="break-all rounded-md border border-border bg-background p-3 text-xs">{magicLink}</div>
+                    </div>
+                  ) : null}
                 </div>
               </Card>
             </div>

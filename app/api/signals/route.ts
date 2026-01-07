@@ -58,7 +58,7 @@ export async function GET(req: Request) {
   const now = new Date();
   const delayUntil = isFree ? new Date(now.getTime() + 24 * 60 * 60_000) : null;
 
-  // Para o MVP: garantir que existam alguns sinais na conta
+  // Garantir que existam alguns sinais na conta
   const existingCount = await prisma.signal.count({ where: { userId: user.id } });
   if (existingCount === 0) {
     await prisma.signal.createMany({

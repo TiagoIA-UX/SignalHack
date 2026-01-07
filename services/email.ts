@@ -16,6 +16,9 @@ export async function sendMagicLinkEmail(opts: { to: string; url: string }) {
   const hasSmtp = !!(smtpHost && smtpPort && smtpUser && smtpPass && smtpFrom);
 
   if (!hasSmtp) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SMTP_NOT_CONFIGURED");
+    }
     console.log(`[SignalHack] Magic link for ${opts.to}: ${opts.url}`);
     return;
   }

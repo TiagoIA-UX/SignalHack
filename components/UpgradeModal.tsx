@@ -23,8 +23,8 @@ export function UpgradeModal(props: {
 
   const body =
     props.variant === "strategist_limit"
-      ? `Você usou ${usedLabel} insights estratégicos hoje. No Elite, o Strategist é ilimitado.`
-      : "Este insight é gerado pelo Strategist Agent. No Pro, você desbloqueia contexto estratégico em tempo real (com limite diário).";
+      ? `Uso do dia: ${usedLabel}. No Elite, o Strategist é ilimitado.`
+      : "Acesso restrito. No Pro, o Strategist libera contexto estratégico (com limite diário).";
 
   const ctaHref = "/plans";
   const ctaText = props.variant === "strategist_limit" ? "Upgrade para Elite" : "Upgrade para Pro";
@@ -43,11 +43,11 @@ export function UpgradeModal(props: {
           </div>
 
           <p className="mt-3 text-sm text-zinc-300">{body}</p>
-          <p className="mt-2 text-xs text-zinc-500">IA interpreta, não decide sozinha.</p>
+          <p className="mt-2 text-xs text-zinc-500">IA interpreta. Decisão é sua.</p>
 
           <div className="mt-6 flex items-center justify-end gap-2">
             <Button variant="ghost" onClick={props.onClose}>
-              Agora não
+              Fechar
             </Button>
             <Button href={ctaHref}>{ctaText}</Button>
           </div>

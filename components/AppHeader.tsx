@@ -35,7 +35,7 @@ export function AppHeader(props: { authed?: boolean }) {
                 <Button href="/login" variant="ghost">
                   Entrar
                 </Button>
-                <Button href="/register">Começar</Button>
+                <Button href="/register">Solicitar credencial</Button>
               </>
             )}
           </nav>

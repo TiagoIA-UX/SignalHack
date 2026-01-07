@@ -1,15 +1,16 @@
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, Button, Card, Container } from "@/components/ui";
+import { PlanUpgradeButton } from "@/components/PlanUpgradeButton";
 
 export default function PlansPage() {
   return (
     <div className="min-h-screen">
-      <AppHeader />
+      <AppHeader authed />
       <main className="py-16">
         <Container>
           <div className="mx-auto max-w-5xl">
             <h1 className="text-3xl font-semibold tracking-tight">Planos</h1>
-            <p className="mt-2 text-sm text-zinc-300">Upgrade in-app com limites por plano (sem cobrança real ainda; gateway depois).</p>
+            <p className="mt-2 text-sm text-zinc-300">Níveis de acesso. Silencioso. Direto.</p>
 
             <div className="mt-10 grid gap-4 lg:grid-cols-3">
               <Card className="p-6">
@@ -27,7 +28,7 @@ export default function PlansPage() {
                 </ul>
                 <div className="mt-6">
                   <Button href="/register" variant="ghost">
-                    Começar no Free
+                    Solicitar credencial (Free)
                   </Button>
                 </div>
               </Card>
@@ -46,7 +47,7 @@ export default function PlansPage() {
                   <li>• Histórico</li>
                 </ul>
                 <div className="mt-6">
-                  <Button href="/register">Upgrade para Pro (em breve)</Button>
+                  <PlanUpgradeButton plan="PRO" />
                 </div>
               </Card>
 
@@ -65,9 +66,7 @@ export default function PlansPage() {
                   <li>• Relatórios premium</li>
                 </ul>
                 <div className="mt-6">
-                  <Button href="/register" variant="ghost">
-                    Upgrade para Elite (lista)
-                  </Button>
+                  <PlanUpgradeButton plan="ELITE" variant="ghost" />
                 </div>
               </Card>
             </div>

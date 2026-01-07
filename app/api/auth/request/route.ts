@@ -63,8 +63,21 @@ export async function POST(req: Request) {
   url.searchParams.set("email", email);
   url.searchParams.set("token", token);
 
-  await sendMagicLinkEmail({ to: email, url: url.toString() });
-  await logAccess({ userId: user.id, path: "/api/auth/request", method: "POST", status: 200, ip, userAgent: ua });
+  try {
+    await sendMagicLinkEmail({ to: email, url: url.toString() });
+  } catch (err) {
+    const e = err as { code?: unknown; responseCode?: unknown; message?: unknown } | null;
+    console.error("[SignalHack] Magic link email send failed", {
+      to: email,
+      code: e?.code,
+      responseCode: e?.responseCode,
+      message: e?.message,
+    });
 
+    await logAccess({ userId: user.id, path: "/api/auth/request", method: "POST", status: 503, ip, userAgent: ua });
+    return NextResponse.json({ error: "email_unavailable" }, { status: 503 });
+  }
+
+  await logAccess({ userId: user.id, path: "/api/auth/request", method: "POST", status: 200, ip, userAgent: ua });
   return NextResponse.json({ ok: true });
 }

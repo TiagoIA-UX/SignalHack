@@ -30,6 +30,10 @@ function hasInsight(res: InsightResponse): res is { insight: { id: string; strat
   return "insight" in res;
 }
 
+function isUpgradeRequired(res: InsightResponse): res is { error: "upgrade_required" } {
+  return typeof res === "object" && !!res && "error" in res && (res as { error?: unknown }).error === "upgrade_required";
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<SignalsResponse | null>(null);
   const [insightBySignalId, setInsightBySignalId] = useState<Record<string, InsightResponse>>({});
@@ -94,9 +98,17 @@ export default function DashboardPage() {
     });
     const json = (await res.json()) as InsightResponse;
     setInsightBySignalId((prev) => ({ ...prev, [signalId]: json }));
+
+    if (res.status === 402 && isUpgradeRequired(json)) {
+      setUpgradeVariant(plan === "PRO" ? "strategist_limit" : "strategist_locked");
+      setUpgradeOpen(true);
+    }
     if (res.ok && strategistLimited && strategistLimit !== null && meId) {
-      const next = incrementStrategistUsed(meId);
-      setStrategistUsed(next);
+      const maybeCached = "cached" in json ? (json as { cached?: boolean }).cached : undefined;
+      if (!maybeCached) {
+        const next = incrementStrategistUsed(meId);
+        setStrategistUsed(next);
+      }
     }
     setLoadingInsightId(null);
   }
@@ -228,7 +240,7 @@ export default function DashboardPage() {
                   ) : null}
 
                   {insightRes && "error" in insightRes ? (
-                    <div className="mt-4 text-sm text-zinc-300">Insight indisponível. Faça upgrade ou tente novamente.</div>
+                    <div className="mt-4 text-sm text-zinc-300">Insight indisponível.</div>
                   ) : null}
                 </Card>
               );

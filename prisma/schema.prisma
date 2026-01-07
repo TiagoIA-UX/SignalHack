@@ -136,6 +136,7 @@ model UsageDay {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   day         DateTime
   signalsSeen Int      @default(0)
+  insightsUsed Int     @default(0)
   points      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

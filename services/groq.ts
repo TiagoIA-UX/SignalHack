@@ -3,6 +3,49 @@ import { getSecret } from "@/lib/appSecrets";
 
 type Intent = "LOW" | "MEDIUM" | "HIGH";
 
+const GROQ_MODEL = "llama-3.1-70b-versatile";
+const STRATEGIST_PROMPT_VERSION = "sh_strategist_v1";
+
+function strategistSystemPrompt() {
+  return [
+    "Você é o Strategist Agent do SignalHack.",
+    "Você opera como analista de inteligência estratégica dentro de um sistema privado.",
+    "Seu papel: interpretar sinais, eliminar ruído e produzir insight acionável.",
+    "Restrições: sem previsões absolutas, sem hype, sem marketing, sem emojis.",
+    "Tom: objetivo, frio, técnico, orientado à decisão.",
+    "Formato obrigatório (use exatamente estes títulos):",
+    "1. Contexto essencial",
+    "2. O que o sinal realmente indica",
+    "3. Risco principal",
+    "4. Oportunidade principal",
+    "5. Próximo passo sugerido",
+  ].join("\n");
+}
+
+function strategistUserPrompt(input: { title: string; summary: string }) {
+  return [
+    "SINAL:",
+    `TITLE: ${input.title}`,
+    `SUMMARY: ${input.summary}`,
+    "\nRetorne JSON válido com as chaves:",
+    "intent (LOW|MEDIUM|HIGH)",
+    "score (0-100)",
+    "strategic (string)  // deve conter os 5 blocos no formato acima",
+    "actionable (string) // 1 ação objetiva em 1-2 frases",
+  ].join("\n");
+}
+
+function hasFiveBlocks(text: string) {
+  const required = [
+    "1. Contexto essencial",
+    "2. O que o sinal realmente indica",
+    "3. Risco principal",
+    "4. Oportunidade principal",
+    "5. Próximo passo sugerido",
+  ];
+  return required.every((h) => text.includes(h));
+}
+
 export type ScoredSignal = {
   intent: Intent;
   score: number;
@@ -29,51 +72,67 @@ export async function analyzeSignalWithGroq(input: {
     };
   }
 
-  // Implementação real mínima (sem SDK) via fetch
-  const prompt = `Você é um analista de inteligência de sinais B2B.
-Dado o sinal abaixo, devolva JSON válido com as chaves:
-intent (LOW|MEDIUM|HIGH), score (0-100), strategic (string), actionable (string).
-Sinal:
-TITLE: ${input.title}
-SUMMARY: ${input.summary}`;
+  async function callGroq(temperature: number) {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: "system", content: strategistSystemPrompt() },
+          { role: "user", content: strategistUserPrompt(input) },
+        ],
+        temperature,
+      }),
+    });
 
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.1-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.2,
-    }),
-  });
+    if (!res.ok) throw new Error("Groq request failed");
+    const data: unknown = await res.json();
 
-  if (!res.ok) throw new Error("Groq request failed");
-  const data: unknown = await res.json();
+    const content = (() => {
+      if (!data || typeof data !== "object") return null;
+      const choices = (data as { choices?: unknown }).choices;
+      if (!Array.isArray(choices) || choices.length === 0) return null;
+      const message = (choices[0] as { message?: unknown } | undefined)?.message;
+      if (!message || typeof message !== "object") return null;
+      const c = (message as { content?: unknown }).content;
+      return typeof c === "string" ? c : null;
+    })();
 
-  const content = (() => {
-    if (!data || typeof data !== "object") return null;
-    const choices = (data as { choices?: unknown }).choices;
-    if (!Array.isArray(choices) || choices.length === 0) return null;
-    const message = (choices[0] as { message?: unknown } | undefined)?.message;
-    if (!message || typeof message !== "object") return null;
-    const c = (message as { content?: unknown }).content;
-    return typeof c === "string" ? c : null;
-  })();
+    if (!content) throw new Error("Invalid Groq response");
 
-  if (!content) throw new Error("Invalid Groq response");
+    const jsonStart = content.indexOf("{");
+    const jsonEnd = content.lastIndexOf("}");
+    const jsonText = jsonStart >= 0 && jsonEnd >= 0 ? content.slice(jsonStart, jsonEnd + 1) : content;
+    const parsed = JSON.parse(jsonText) as {
+      intent: Intent;
+      score: number;
+      strategic: string;
+      actionable: string;
+    };
 
-  const jsonStart = content.indexOf("{");
-  const jsonEnd = content.lastIndexOf("}");
-  const jsonText = jsonStart >= 0 && jsonEnd >= 0 ? content.slice(jsonStart, jsonEnd + 1) : content;
-  const parsed = JSON.parse(jsonText);
+    return parsed;
+  }
+
+  const first = await callGroq(0.2);
+  const strategicOk = typeof first.strategic === "string" && hasFiveBlocks(first.strategic);
+  const actionableOk = typeof first.actionable === "string" && first.actionable.trim().length > 0;
+
+  const parsed = strategicOk && actionableOk ? first : await callGroq(0.1);
 
   return {
     intent: parsed.intent,
     score: parsed.score,
-    strategic: parsed.strategic,
-    actionable: parsed.actionable,
+    strategic:
+      `[${STRATEGIST_PROMPT_VERSION}]\n` +
+      (typeof parsed.strategic === "string" && hasFiveBlocks(parsed.strategic)
+        ? parsed.strategic
+        : "1. Contexto essencial\nSinal recebido.\n\n2. O que o sinal realmente indica\nIndício insuficiente para inferência confiável.\n\n3. Risco principal\nLeitura enviesada por ruído.\n\n4. Oportunidade principal\nColetar evidência rápida e barata.\n\n5. Próximo passo sugerido\nValidar 3 fontes independentes antes de agir."),
+    actionable: typeof parsed.actionable === "string" && parsed.actionable.trim().length > 0
+      ? parsed.actionable
+      : "Defina 1 hipótese e valide com 5 conversas em 72h.",
   } as ScoredSignal;
 }

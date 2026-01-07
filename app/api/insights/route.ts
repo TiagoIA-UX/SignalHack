@@ -14,6 +14,10 @@ const bodySchema = z.object({
   signalId: z.string().min(10),
 });
 
+function startOfDayUTC(d: Date) {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
 export async function POST(req: Request) {
   const ip = getClientIp(req);
   const ua = req.headers.get("user-agent");
@@ -59,7 +63,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ insight: existing, cached: true });
   }
 
-  const analysis = await analyzeSignalWithGroq({ title: signal.title, summary: signal.summary });
+  // Enforce PRO daily limit server-side (client-side localStorage can be bypassed).
+  if (user.plan === "PRO") {
+    const today = startOfDayUTC(new Date());
+    const usage = await prisma.usageDay.upsert({
+      where: { userId_day: { userId: user.id, day: today } },
+      update: {},
+      create: { userId: user.id, day: today },
+      select: { id: true, insightsUsed: true },
+    });
+
+    if (usage.insightsUsed >= 5) {
+      await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 402, ip, userAgent: ua });
+      return NextResponse.json({ error: "upgrade_required" }, { status: 402 });
+    }
+  }
+
+  let analysis;
+  try {
+    analysis = await analyzeSignalWithGroq({ title: signal.title, summary: signal.summary });
+  } catch {
+    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 503, ip, userAgent: ua });
+    return NextResponse.json({ error: "insight_unavailable" }, { status: 503 });
+  }
 
   const insight = await prisma.insight.create({
     data: {
@@ -82,6 +108,14 @@ export async function POST(req: Request) {
     where: { userId: user.id, day: { gte: new Date(Date.now() - 36 * 60 * 60_000) } },
     data: { points: { increment: 5 } },
   });
+
+  if (user.plan === "PRO") {
+    const today = startOfDayUTC(new Date());
+    await prisma.usageDay.update({
+      where: { userId_day: { userId: user.id, day: today } },
+      data: { insightsUsed: { increment: 1 } },
+    });
+  }
 
   await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 200, ip, userAgent: ua });
   return NextResponse.json({ insight, cached: false });

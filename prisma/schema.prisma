@@ -26,6 +26,7 @@ enum Role {
 
 enum AuthTokenType {
   MAGIC_LINK
+  PASSWORD_RESET
 }
 
 enum SignalIntent {

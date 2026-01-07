@@ -37,6 +37,13 @@ yarn-error.log*
 # local helper files
 env1.txt
 
+# ignore other local envs and sensitive files
+env*.txt
+*.secret
+db_*.txt
+smtp_pass.txt
+.local_secrets_backup/
+
 # local assets / exports
 /logo_files/
 /logo.html

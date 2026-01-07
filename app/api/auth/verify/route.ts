@@ -34,55 +34,7 @@ export async function GET(req: Request) {
   if (!parsed.success) {
     await logAccess({ path: "/api/auth/verify", method: "GET", status: 400, ip, userAgent: ua });
     return NextResponse.json({ error: "invalid_link" }, { status: 400 });
-  }
-
-  const env = getEnv();
-  const email = parsed.data.email.toLowerCase();
-  const tokenHash = sha256(`${env.AUTH_TOKEN_PEPPER}:${parsed.data.token}`);
-
-  const record = await prisma.authToken.findFirst({
-    where: {
-      type: "MAGIC_LINK",
-      identifier: email,
-      consumedAt: null,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, tokenHash: true, userId: true },
-  });
-
-  if (!record || !timingSafeEqualHex(record.tokenHash, tokenHash)) {
-    await logAccess({ path: "/api/auth/verify", method: "GET", status: 401, ip, userAgent: ua });
-    return NextResponse.json({ error: "invalid_or_expired" }, { status: 401 });
-  }
-
-  await prisma.authToken.update({ where: { id: record.id }, data: { consumedAt: new Date() } });
-
-  const user = await prisma.user.findUnique({
-    where: { id: record.userId! },
-    select: { id: true, email: true, plan: true, role: true },
-  });
-
-  if (!user) {
-    await logAccess({ path: "/api/auth/verify", method: "GET", status: 404, ip, userAgent: ua });
-    return NextResponse.json({ error: "user_not_found" }, { status: 404 });
-  }
-
-  const session = await prisma.session.create({
-    data: {
-      userId: user.id,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
-      ip,
-      userAgent: ua,
-    },
-    select: { id: true },
-  });
-
-  const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-  await prisma.usageDay.upsert({
-    where: { userId_day: { userId: user.id, day: today } },
-    update: { points: { increment: 10 } },
-    create: { userId: user.id, day: today, points: 10 },
+  // Endpoint removido. Login por email+senha agora é feito via /api/auth/login.
   });
   await prisma.badgeUnlock.upsert({
     where: { userId_key: { userId: user.id, key: "first_login" } },

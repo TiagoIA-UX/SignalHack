@@ -8,11 +8,7 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.string().email().optional(),
   ADMIN_BOOTSTRAP_TOKEN: z.string().min(16).optional(),
   BILLING_WEBHOOK_TOKEN: z.string().min(8).optional(),
-  SMTP_HOST: z.string().min(1).optional(),
-  SMTP_PORT: z.coerce.number().int().positive().optional(),
-  SMTP_USER: z.string().min(1).optional(),
-  SMTP_PASS: z.string().min(1).optional(),
-  SMTP_FROM: z.string().email().optional(),
+  // SMTP removido para login minimalista
   GROQ_API_KEY: z.string().min(1).optional(),
 });
 

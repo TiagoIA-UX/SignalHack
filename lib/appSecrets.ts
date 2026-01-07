@@ -3,11 +3,7 @@ import { decryptSecret, encryptSecret } from "@/lib/secrets";
 
 export type SecretKey =
   | "groq_api_key"
-  | "smtp_host"
-  | "smtp_port"
-  | "smtp_user"
-  | "smtp_pass"
-  | "smtp_from"
+  // SMTP removido para login minimalista
   | "mercadopago_access_token";
 
 export async function setSecret(key: SecretKey, plaintext: string) {
@@ -37,12 +33,6 @@ export async function getSecretsStatus() {
   const set = new Set(rows.map((r) => r.key));
   return {
     groq: set.has("groq_api_key"),
-    smtp:
-      set.has("smtp_host") &&
-      set.has("smtp_port") &&
-      set.has("smtp_user") &&
-      set.has("smtp_pass") &&
-      set.has("smtp_from"),
     mercadopago: set.has("mercadopago_access_token"),
   };
 }

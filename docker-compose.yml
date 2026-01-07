@@ -6,8 +6,25 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: edgemind
     ports:
-      - "5432:5432"
+      - "5433:5432" # map host 5433 -> container 5432
     volumes:
       - edgemind_pg:/var/lib/postgresql/data
+
+  app:
+    build: .
+    command: npm run dev
+    environment:
+      - DATABASE_URL
+      - AUTH_SECRET
+      - AUTH_TOKEN_PEPPER
+      - APP_URL
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+      - /app/node_modules
+
 volumes:
   edgemind_pg:

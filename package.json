@@ -4,10 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:compose": "docker compose up --build",
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:migrate": "npx prisma migrate dev --name init",
+    "db:seed": "npx tsx scripts/seed-admin.ts"
   },
   "engines": {
     "node": ">=18"

@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { getAppUrl, getEnv } from "@/lib/env";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
 import { randomToken, sha256 } from "@/lib/token";
-import { sendMagicLinkEmail } from "@/services/email";
 import { logAccess } from "@/lib/accessLog";
 
 export const runtime = "nodejs";
@@ -55,28 +54,12 @@ export async function POST(req: Request) {
       ip,
       userAgent: ua,
       userId: user.id,
-      type: "MAGIC_LINK",
+      // type removido (magic link)
     },
   });
 
   const url = new URL("/api/auth/verify", getAppUrl());
-  url.searchParams.set("email", email);
-  url.searchParams.set("token", token);
-
-  try {
-    await sendMagicLinkEmail({ to: email, url: url.toString() });
-  } catch (err) {
-    const e = err as { code?: unknown; responseCode?: unknown; message?: unknown } | null;
-    console.error("[SignalHack] Magic link email send failed", {
-      to: email,
-      code: e?.code,
-      responseCode: e?.responseCode,
-      message: e?.message,
-    });
-
-    await logAccess({ userId: user.id, path: "/api/auth/request", method: "POST", status: 503, ip, userAgent: ua });
-    return NextResponse.json({ error: "email_unavailable" }, { status: 503 });
-  }
+  // Lógica de magic link removida
 
   await logAccess({ userId: user.id, path: "/api/auth/request", method: "POST", status: 200, ip, userAgent: ua });
   return NextResponse.json({ ok: true });

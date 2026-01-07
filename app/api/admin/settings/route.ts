@@ -10,15 +10,7 @@ export const dynamic = "force-dynamic";
 const putSchema = z.object({
   groqApiKey: z.string().min(1).optional(),
   mercadopagoAccessToken: z.string().min(1).optional(),
-  smtp: z
-    .object({
-      host: z.string().min(1).optional(),
-      port: z.union([z.number().int().positive(), z.string().min(1)]).optional(),
-      user: z.string().min(1).optional(),
-      pass: z.string().min(1).optional(),
-      from: z.string().email().optional(),
-    })
-    .optional(),
+  // smtp removido
 });
 
 async function requireAdmin(req: NextRequest) {
@@ -58,12 +50,7 @@ export async function PUT(req: NextRequest) {
     if (body.mercadopagoAccessToken) await setSecret("mercadopago_access_token", body.mercadopagoAccessToken);
 
     if (body.smtp) {
-      const { host, port, user, pass, from } = body.smtp;
-      if (host) await setSecret("smtp_host", host);
-      if (port) await setSecret("smtp_port", String(port));
-      if (user) await setSecret("smtp_user", user);
-      if (pass) await setSecret("smtp_pass", pass);
-      if (from) await setSecret("smtp_from", from);
+      // smtp removido
     }
 
     const status = await getSecretsStatus();

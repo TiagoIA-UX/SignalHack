@@ -19,6 +19,9 @@ export default function PlansPage() {
                   <Badge>base</Badge>
                 </div>
                 <div className="mt-4 text-3xl font-semibold">R$ 0</div>
+                <p className="mt-2 text-sm text-zinc-300">
+                  Para conhecer o radar. Bom para testar o fluxo — não para operar timing.
+                </p>
                 <ul className="mt-4 space-y-2 text-sm text-zinc-200">
                   <li>• 3 sinais/dia</li>
                   <li>• Delay de 24h</li>
@@ -38,14 +41,21 @@ export default function PlansPage() {
                   <div className="text-sm font-semibold">Pro</div>
                   <Badge>recomendado</Badge>
                 </div>
-                <div className="mt-4 text-3xl font-semibold">R$ 49</div>
+                <div className="mt-4 text-3xl font-semibold">R$ 29/mês</div>
+                <p className="mt-2 text-sm text-zinc-300">
+                  Para quem executa de verdade: detectar intenção cedo, filtrar ruído e decidir antes do feed.
+                </p>
                 <ul className="mt-4 space-y-2 text-sm text-zinc-200">
                   <li>• Sinais ilimitados</li>
                   <li>• Scout + Decoder + Noise Killer</li>
                   <li>• Strategist (até 5 insights estratégicos/dia)</li>
-                  <li>• Insight acionável no momento da intenção</li>
-                  <li>• Histórico</li>
+                  <li>• Brief semanal (1x/semana)</li>
+                  <li>• Histórico pesquisável</li>
+                  <li>• Playbook por sinal (plano de execução)</li>
                 </ul>
+                <div className="mt-4 text-xs text-zinc-400">
+                  Se você compete por atenção/CPM, operar sem leitura de intenção e sem playbook vira apostar no escuro.
+                </div>
                 <div className="mt-6">
                   <PlanUpgradeButton plan="PRO" />
                 </div>
@@ -56,15 +66,22 @@ export default function PlansPage() {
                   <div className="text-sm font-semibold">Elite</div>
                   <Badge>preparado</Badge>
                 </div>
-                <div className="mt-4 text-3xl font-semibold">R$ 199</div>
+                <div className="mt-4 text-3xl font-semibold">R$ 79/mês</div>
+                <p className="mt-2 text-sm text-zinc-300">
+                  Para operação séria: mais velocidade, mais consistência e menos &quot;achismo&quot; quando o sinal vira oportunidade.
+                </p>
                 <ul className="mt-4 space-y-2 text-sm text-zinc-200">
                   <li>• Acesso total à rede de agentes</li>
                   <li>• Strategist ilimitado</li>
                   <li>• Alertas antecipados</li>
-                  <li>• Comunidade privada</li>
+                  <li>• Brief semanal (1x/semana)</li>
+                  <li>• Playbook por sinal (plano de execução)</li>
                   <li>• API futura</li>
                   <li>• Relatórios premium</li>
                 </ul>
+                <div className="mt-4 text-xs text-zinc-400">
+                  Quando o mercado acelera, quem não tem rotina de sinal→decisão fica reagindo. Elite é para não ficar de fora do jogo.
+                </div>
                 <div className="mt-6">
                   <PlanUpgradeButton plan="ELITE" variant="ghost" />
                 </div>

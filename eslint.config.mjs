@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+
+    // MVP: exemplos e scripts auxiliares não fazem parte do app
+    "examples/**",
+    "scripts/sendgrid-setup-playwright.js",
   ]),
 ]);
 

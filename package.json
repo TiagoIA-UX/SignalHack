@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "dev:compose": "docker compose up --build",
+    "prebuild": "prisma generate",
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
-    "db:migrate": "npx prisma migrate dev --name init",
+    "db:migrate": "npx prisma migrate dev",
+    "db:deploy": "npx prisma migrate deploy",
     "db:seed": "npx tsx scripts/seed-admin.ts"
   },
   "engines": {
@@ -20,7 +22,10 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@upstash/ratelimit": "^2.0.7",
+    "@upstash/redis": "^1.36.1",
     "argon2": "^0.44.0",
+    "firebase": "^12.7.0",
     "jose": "^6.1.3",
     "next": "16.1.1",
     "nodemailer": "^7.0.12",
@@ -28,6 +33,7 @@
     "prisma": "^7.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-firebase-hooks": "^5.1.1",
     "zod": "^4.3.5"
   },
   "devDependencies": {

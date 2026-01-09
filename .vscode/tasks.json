@@ -1,0 +1,155 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dev",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "dev:local",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "smoke-test:3001",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Remove-Item Env:GROQ_API_KEY -ErrorAction SilentlyContinue; ./scripts/smoke-test.ps1 -BaseUrl http://localhost:3001"
+			],
+			"options": {
+				"env": {
+					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
+					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "validate:orchestration:3001",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"./scripts/validate-orchestration.ps1",
+				"-BaseUrl",
+				"http://localhost:3001"
+			],
+			"options": {
+				"env": {
+					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
+					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "validate:orchestration:3001:require-ai",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"./scripts/validate-orchestration.ps1",
+				"-BaseUrl",
+				"http://localhost:3001",
+				"-RequireAi"
+			],
+			"options": {
+				"env": {
+					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
+					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "dev:3001",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"3001"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "dev+validate:3001",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"./scripts/dev-and-validate.ps1",
+				"-Port",
+				"3001"
+			],
+			"options": {
+				"env": {
+					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
+					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "dev+validate:3001:require-ai",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"./scripts/dev-and-validate.ps1",
+				"-Port",
+				"3001",
+				"-RequireAi"
+			],
+			"options": {
+				"env": {
+					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
+					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		}
+	]
+}

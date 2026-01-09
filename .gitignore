@@ -30,12 +30,24 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# local runtime logs/artifacts
+dev.err
+dev.log
+smoke.out
+smoke2.out
+*.out
+*.log
+
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+!.env.production.example
 
 # local helper files
 env1.txt
+
+# scripts temp artifacts
+*.cookies.txt
 
 # ignore other local envs and sensitive files
 env*.txt

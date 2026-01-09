@@ -49,10 +49,6 @@ export async function PUT(req: NextRequest) {
     if (body.groqApiKey) await setSecret("groq_api_key", body.groqApiKey);
     if (body.mercadopagoAccessToken) await setSecret("mercadopago_access_token", body.mercadopagoAccessToken);
 
-    if (body.smtp) {
-      // smtp removido
-    }
-
     const status = await getSecretsStatus();
     return NextResponse.json({ ok: true, status });
   } catch {

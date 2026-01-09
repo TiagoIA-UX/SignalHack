@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     : `${appUrl.replace(/\/$/, "")}/api/billing/webhook`;
 
   const isElite = requested === "ELITE";
-  const amount = isElite ? 199 : 49;
+  const amount = isElite ? 79 : 29;
 
   const externalReference = `sh:${user.id}:${requested}:${Date.now()}`;
   const backUrl = `${appUrl.replace(/\/$/, "")}/plans?status=return`;
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
   try {
     const created = await createPreapproval({
       accessToken,
-      reason: isElite ? "SignalHack • Elite access" : "SignalHack • Pro access",
+      reason: isElite ? "Signal Hacker • Elite access" : "Signal Hacker • Pro access",
       payerEmail: user.email,
       backUrl,
       notificationUrl,

@@ -3,13 +3,15 @@ import { z } from "zod";
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   AUTH_SECRET: z.string().min(32),
-  AUTH_TOKEN_PEPPER: z.string().min(16),
+  // Opcional: só é necessário se você habilitar fluxos baseados em tokens (ex: recuperação de senha por email).
+  AUTH_TOKEN_PEPPER: z.string().min(16).optional(),
   APP_URL: z.string().url().optional(),
   ADMIN_EMAIL: z.string().email().optional(),
   ADMIN_BOOTSTRAP_TOKEN: z.string().min(16).optional(),
   BILLING_WEBHOOK_TOKEN: z.string().min(8).optional(),
   // SMTP removido para login minimalista
   GROQ_API_KEY: z.string().min(1).optional(),
+  GROQ_MODEL: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

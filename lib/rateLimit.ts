@@ -5,7 +5,58 @@ type Bucket = {
 
 const store = new Map<string, Bucket>();
 
+type RateLimitResult = { ok: boolean; remaining: number; resetAtMs: number };
+
+let upstashInitAttempted = false;
+let upstashAvailable = false;
+let upstashRedis: import("@upstash/redis").Redis | null = null;
+const upstashLimiters = new Map<string, import("@upstash/ratelimit").Ratelimit>();
+
+function msToWindowString(windowMs: number): import("@upstash/ratelimit").Duration {
+  const seconds = Math.max(1, Math.ceil(windowMs / 1000));
+  return `${seconds} s` as import("@upstash/ratelimit").Duration;
+}
+
+async function getUpstashLimiter(opts: { windowMs: number; max: number }) {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null;
+
+  if (!upstashInitAttempted) {
+    upstashInitAttempted = true;
+    try {
+      const { Redis } = await import("@upstash/redis");
+      upstashRedis = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      });
+      upstashAvailable = true;
+    } catch {
+      upstashAvailable = false;
+      upstashRedis = null;
+    }
+  }
+
+  if (!upstashAvailable || !upstashRedis) return null;
+
+  const key = `${opts.max}:${opts.windowMs}`;
+  const existing = upstashLimiters.get(key);
+  if (existing) return existing;
+
+  const { Ratelimit } = await import("@upstash/ratelimit");
+  const limiter = new Ratelimit({
+    redis: upstashRedis,
+    limiter: Ratelimit.fixedWindow(opts.max, msToWindowString(opts.windowMs)),
+    analytics: true,
+    prefix: "signalhack:rl",
+  });
+
+  upstashLimiters.set(key, limiter);
+  return limiter;
+}
+
 export function rateLimit(key: string, opts: { windowMs: number; max: number }) {
+  // Upstash (distribuído) se disponível.
+  // Nota: mantemos a assinatura sync; a implementação Upstash é melhor-esforço via fallback.
+  // Para rotas que já são async, prefira usar `rateLimitAsync`.
   const now = Date.now();
   const existing = store.get(key);
   if (!existing || existing.resetAtMs <= now) {
@@ -20,6 +71,21 @@ export function rateLimit(key: string, opts: { windowMs: number; max: number }) 
 
   existing.count += 1;
   return { ok: true, remaining: opts.max - existing.count, resetAtMs: existing.resetAtMs };
+}
+
+export async function rateLimitAsync(key: string, opts: { windowMs: number; max: number }): Promise<RateLimitResult> {
+  const limiter = await getUpstashLimiter(opts);
+  if (limiter) {
+    try {
+      const r = await limiter.limit(key);
+      const resetAtMs = typeof r.reset === "number" ? r.reset : Date.now() + opts.windowMs;
+      return { ok: r.success, remaining: r.remaining, resetAtMs };
+    } catch {
+      // fallback
+    }
+  }
+
+  return rateLimit(key, opts);
 }
 
 export function getClientIp(req: Request): string {

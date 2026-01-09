@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -25,11 +26,12 @@ export default function Home() {
                 </p>
 
                 <p className="mt-4 text-zinc-300">
-                  Feito para quem depende de timing: donos de marketplaces, afiliados, e-commerce, creators, B2B. Você recebe alertas quando a janela abre.
+                  Feito para quem depende de timing: donos de marketplaces, afiliados, e-commerce, creators, B2B. Você recebe sinais com contexto e trilha de execução
+                  (brief + playbook) para agir mais rápido.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button href="/login">Solicitar credencial</Button>
+                  <Button href="/login">Entrar</Button>
                   <Button href="/plans" variant="ghost">
                     Ver planos
                   </Button>
@@ -38,38 +40,53 @@ export default function Home() {
                 <div className="mt-8 space-y-2 text-sm text-zinc-200">
                   <div className="flex items-start gap-3">
                     <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span>Briefings prontos para execução — sem promessa vazia.</span>
+                    <span>Brief semanal + plano de execução por sinal (playbook) — sem promessa vazia.</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span>Prioridade clara e intenção de mercado: o que atacar primeiro.</span>
+                    <span>Diferencial: intenção e timing com OSINT legal + fontes públicas verificáveis.</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span>Alertas inteligentes quando o sinal muda de patamar.</span>
+                    <span>Histórico pesquisável e alertas quando o sinal muda de patamar.</span>
                   </div>
                 </div>
               </div>
               <Card className="p-6">
                 <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">rede de agentes</div>
-                <div className="mt-3 text-sm text-zinc-200">Três agentes. Uma missão: reduzir ruído e acelerar decisão.</div>
+                <div className="mt-3 text-sm text-zinc-200">Agentes orquestrados. Uma missão: reduzir ruído e acelerar decisão.</div>
 
                 <div className="mt-5 space-y-3">
                   <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-4">
-                    <div className="text-xs text-zinc-400">Agente Hacker de Sinal</div>
-                    <div className="mt-1 text-sm text-zinc-200">Varre sinais públicos, classifica intenção e corta o que é só barulho.</div>
+                    <div className="flex items-center gap-3">
+                      <Image src="/agents/scout.svg" alt="" width={32} height={32} className="h-8 w-8 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs text-zinc-400">Agente Hacker de Sinal</div>
+                        <div className="mt-1 text-sm text-zinc-200">Varre sinais públicos, classifica intenção e corta o que é só barulho.</div>
+                      </div>
+                    </div>
                   </div>
                   <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-4">
-                    <div className="text-xs text-zinc-400">Agente Hacker Estrategista</div>
-                    <div className="mt-1 text-sm text-zinc-200">Transforma sinal em leitura estratégica: hipótese, risco e ação sugerida.</div>
+                    <div className="flex items-center gap-3">
+                      <Image src="/agents/strategist.svg" alt="" width={32} height={32} className="h-8 w-8 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs text-zinc-400">Agente Hacker Estrategista</div>
+                        <div className="mt-1 text-sm text-zinc-200">Transforma sinal em leitura estratégica: hipótese, risco e ação sugerida.</div>
+                      </div>
+                    </div>
                   </div>
                   <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-4">
-                    <div className="text-xs text-zinc-400">Agente Hacker de Limites</div>
-                    <div className="mt-1 text-sm text-zinc-200">Controla acesso e mantém a operação enxuta por nível de credencial.</div>
+                    <div className="flex items-center gap-3">
+                      <Image src="/agents/noise-killer.svg" alt="" width={32} height={32} className="h-8 w-8 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs text-zinc-400">Agente Hacker de Limites</div>
+                        <div className="mt-1 text-sm text-zinc-200">Controla acesso e mantém a operação enxuta por nível de credencial.</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-6 text-xs text-zinc-400">Sem senha. Credencial por magic link.</div>
+                <div className="mt-6 text-xs text-zinc-400">Login com email e senha.</div>
               </Card>
             </div>
           </Container>
@@ -90,18 +107,18 @@ export default function Home() {
               </Card>
               <Card className="p-6">
                 <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">como entra</div>
-                <div className="mt-3 text-sm text-zinc-200">Email → credencial → painel.</div>
-                <p className="mt-3 text-sm text-zinc-300">Sem senha. Sem fricção. Entrada limpa e direta.</p>
+                <div className="mt-3 text-sm text-zinc-200">Email e senha → painel.</div>
+                <p className="mt-3 text-sm text-zinc-300">Email e senha segura. Entrada direta no painel.</p>
               </Card>
             </div>
 
             <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-500/15 bg-black/30 p-6">
               <div>
                 <div className="text-sm font-medium text-zinc-100">Pronto para operar do lado de dentro?</div>
-                <div className="mt-1 text-sm text-zinc-300">Solicite a credencial. Entre no painel em minutos.</div>
+                <div className="mt-1 text-sm text-zinc-300">Crie sua conta ou entre no painel.</div>
               </div>
               <div className="flex gap-3">
-                <Button href="/login">Solicitar credencial</Button>
+                <Button href="/login">Entrar</Button>
                 <Button href="/plans" variant="ghost">Ver planos</Button>
               </div>
             </div>

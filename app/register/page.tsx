@@ -31,7 +31,7 @@ export default function RegisterPage() {
           <div className="mx-auto max-w-lg">
             <Card className="p-6">
               <h1 className="text-xl font-semibold tracking-tight">Criar conta</h1>
-              <p className="mt-2 text-sm text-zinc-300">Crie uma conta com email, senha e 2FA.</p>
+              <p className="mt-2 text-sm text-zinc-300">Crie uma conta com email e senha.</p>
 
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 <div>

@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
-  const canSubmit = useMemo(() => email.trim().length > 3 && password.length >= 6 && status !== "loading", [email, password, status]);
+  const canSubmit = useMemo(() => email.trim().length > 3 && password.length >= 8 && status !== "loading", [email, password, status]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,12 +68,8 @@ export default function LoginPage() {
                   <div className="text-sm text-zinc-300">Logado com sucesso. Redirecionando...</div>
                 ) : null}
                 {status === "error" ? (
-                  <div className="text-sm text-zinc-300">Credenciais inválidas. Tente novamente ou recupere sua senha.</div>
+                  <div className="text-sm text-zinc-300">Credenciais inválidas. Tente novamente.</div>
                 ) : null}
-
-                <div className="mt-3 text-sm">
-                  <a href="/forgot" className="text-emerald-400">Esqueci minha senha</a>
-                </div>
               </form>
             </Card>
           </div>

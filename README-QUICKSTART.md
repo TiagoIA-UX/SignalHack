@@ -18,10 +18,32 @@
   ```
 
 ## 2. Configure o .env
-- O arquivo já está pronto:
+- Para rodar o app, crie um `.env` com o mínimo:
   ```
   DATABASE_URL=postgresql://postgres:postgres@localhost:5433/edgemind?schema=public
+  AUTH_SECRET=
+  APP_URL=http://localhost:3000
   ```
+
+- Dica (gerar `AUTH_SECRET`):
+  ```
+  node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
+  ```
+
+- Produção: veja o modelo em `.env.production.example` (não coloque segredos reais no repo).
+
+- (Opcional) IA via Groq:
+  ```
+  GROQ_API_KEY=
+  GROQ_MODEL=
+  ```
+
+- (Opcional — recomendado em produção/Vercel) Rate limit distribuído via Upstash Redis:
+  ```
+  UPSTASH_REDIS_REST_URL=
+  UPSTASH_REDIS_REST_TOKEN=
+  ```
+  Sem essas variáveis, o app usa fallback de rate limit em memória (ok para dev; menos confiável em serverless).
 
 ## 3. Instale dependências
 ```
@@ -62,12 +84,31 @@ A aplicação ficará disponível em `http://localhost:3000`.
 ```
 npx tsx scripts/seed-admin.ts
 ```
-- Email: zairyx.ai@gmail.com
-- Senha: #Aurelius170742
+
+O script promove para ADMIN o usuário mais recente (ou o email que você informar). Para definir senha explicitamente:
+```
+npx tsx scripts/seed-admin.ts --email seu@email.com --password "SuaSenhaForteAqui"
+```
 
 ## 7. Acesse a plataforma
 - Abra: http://localhost:3000
-- Use login/cadastro/reset de senha direto na tela (sem email/magic link)
+- Use login/cadastro direto na tela.
+
+## 8. Validar Brief + Busca + Playbook (opcional)
+
+Com o app rodando, você pode validar os 3 pontos via script:
+
+```powershell
+$env:SMOKE_TEST_EMAIL='seu@email.com'
+$env:SMOKE_TEST_PASSWORD='SuaSenhaForteAqui'
+./scripts/validate-orchestration.ps1 -BaseUrl http://localhost:3001
+```
+
+Para exigir IA configurada (falha se `GROQ_API_KEY`/`groq_api_key` não estiverem setados):
+
+```powershell
+./scripts/validate-orchestration.ps1 -BaseUrl http://localhost:3001 -RequireAi
+```
 
 ---
 

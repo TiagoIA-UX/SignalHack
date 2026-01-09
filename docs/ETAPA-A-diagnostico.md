@@ -16,7 +16,7 @@ Data: 2026-01-05
   - Delay de 24h (Free) via `delayUntil`.
   - Logging best-effort em `AccessLog`.
 - **Strategist (geração de insight)**
-  - `POST /api/insights` gera insight via Groq (ou mock) e faz cache por `signalId`.
+  - `POST /api/insights` gera insight via Groq (IA real, quando configurada) e faz cache por `signalId`.
   - Bloqueio de plano no backend para Free (`upgrade_required`, 402).
   - Logging best-effort em `AccessLog`.
 - **Admin-only settings (secrets)**

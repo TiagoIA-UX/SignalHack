@@ -122,7 +122,7 @@ export default function ProfilePage() {
                   <div className="mt-3 text-xs text-zinc-400">Você usou {strategistUsed}/{strategistLimit} insights estratégicos hoje.</div>
                 ) : null}
                 {plan === "ELITE" ? (
-                  <div className="mt-3 text-xs text-zinc-400">Acesso total à rede de agentes SignalHack.</div>
+                  <div className="mt-3 text-xs text-zinc-400">Acesso total à rede de agentes Signal Hacker.</div>
                 ) : null}
               </div>
 

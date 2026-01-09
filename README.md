@@ -8,7 +8,7 @@ O projeto está em evolução contínua: o MVP já funciona e é expandido incre
 
 ### Rede de agentes (conceitual)
 
-O SignalHack opera com uma rede de agentes especializados (mocks e/ou IA real):
+O SignalHack opera com uma rede de agentes especializados (conceitual). O Strategist usa IA real via Groq quando configurada.
 
 - Scout Agent: detecta sinais emergentes e crescimento inicial
 - Decoder Agent: decodifica intenção e contexto
@@ -22,13 +22,23 @@ Pré-requisitos:
 
 ### 1) Variáveis de ambiente (Vercel)
 
+Use o arquivo de referência: [.env.production.example](.env.production.example)
+
 Configure em **Project → Settings → Environment Variables**:
 - `DATABASE_URL`
 - `AUTH_SECRET` (>= 32 chars)
-- `AUTH_TOKEN_PEPPER` (>= 16 chars)
+- (opcional) `AUTH_TOKEN_PEPPER` (>= 16 chars)
 - `APP_URL` (ex.: `https://seu-projeto.vercel.app`)
 - (opcional) `GROQ_API_KEY`
-- (opcional, para magic link por email) `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+- (opcional) `GROQ_MODEL` (sobrescreve o modelo padrão)
+
+Rate limit distribuído (recomendado em produção/serverless):
+- (opcional) `UPSTASH_REDIS_REST_URL`
+- (opcional) `UPSTASH_REDIS_REST_TOKEN`
+
+Mercado Pago (planos recorrentes):
+- `MERCADOPAGO_ACCESS_TOKEN` (ou configure via **/admin/settings**, armazenado no banco)
+- (opcional) `BILLING_WEBHOOK_TOKEN` (protege o endpoint de webhook via query token)
 
 Dica (gerar secrets localmente):
 - `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`
@@ -45,3 +55,11 @@ O projeto roda `prisma generate` no `postinstall` e faz `next build` normalmente
 ## Dev
 
 - `npm run dev`
+
+## Operação (Guardian)
+
+Para automação de manutenção/health/backups em servidor Linux, use:
+- [scripts/guardian.sh](scripts/guardian.sh)
+- [scripts/guardian.env.example](scripts/guardian.env.example)
+
+O Guardian foi desenhado para evoluir junto do projeto: cada check (health/db/backup/tls) é uma função isolada, fácil de estender sem quebrar o fluxo.

@@ -4,7 +4,7 @@ import { Card, Container } from "@/components/ui";
 import { LEGAL_VERSION } from "@/lib/consent";
 
 export default function PrivacyPage() {
-  const controllerName = process.env.LEGAL_CONTROLLER_NAME ?? "SignalForge";
+  const controllerName = process.env.LEGAL_CONTROLLER_NAME ?? "ZAIRIX";
   const contactEmail = process.env.LEGAL_CONTACT_EMAIL ?? process.env.SMTP_FROM ?? null;
 
   return (
@@ -147,9 +147,9 @@ export default function PrivacyPage() {
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">sustentabilidade e apoio</div>
                   <p className="mt-2">
                     Este projeto é mantido de forma independente; aceita apoio financeiro voluntário para custos de
-                    infraestrutura, domínio e hospedagem. O projeto pode receber comissões por links de afiliado (por exemplo,
-                    Hostinger). Não coletamos dados adicionais nem rastreamos cliques sem seu consentimento; o uso do serviço não
-                    depende de contribuição financeira.
+                    infraestrutura, domínio e hospedagem. Alguns links podem ser afiliados; consulte `MONETIZATION.md` para a
+                    política completa. Não coletamos dados adicionais nem rastreamos cliques sem seu consentimento; o uso do
+                    serviço não depende de contribuição financeira.
                   </p>
                 </div>
               </div>

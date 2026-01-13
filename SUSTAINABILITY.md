@@ -20,7 +20,7 @@ Defina as variáveis públicas no seu `.env` ou na dashboard do provedor (Vercel
 
 ```
 NEXT_PUBLIC_AFFILIATE_HOSTING_URL=""
-NEXT_PUBLIC_SUPPORT_EMAIL="seu-email@exemplo.com"
+NEXT_PUBLIC_SUPPORT_EMAIL="zairyx.ai@gmail.com"
 NEXT_PUBLIC_DONATION_PROVIDER_ENABLED="true"
 NEXT_PUBLIC_DONATION_COPY_VARIANT="soft"
 NEXT_PUBLIC_PIX_KEY="31629689840"

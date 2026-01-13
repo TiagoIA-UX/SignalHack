@@ -1,3 +1,1 @@
-export const AFFILIATE_HOSTINGER = "https://hostinger.com.br?REFERRALCODE=1TIAGO1244";
-
-export const AFFILIATE_COPY = `Este projeto recomenda a Hostinger como opção de hospedagem.\nCaso você contrate pelo link abaixo, o projeto recebe uma pequena comissão sem custo adicional para você.\nIsso ajuda a manter o desenvolvimento ativo.`;
+export const AFFILIATE_COPY = `Para quem deseja hospedar ZAIRIX de forma simples e acessível, recomendamos provedores compatíveis com Node.js e PostgreSQL. Alguns links podem ser afiliados e ajudam a manter o projeto — sem custo adicional para você.`;

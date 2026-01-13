@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Container, Card } from "@/components/ui";
-import { AFFILIATE_HOSTINGER, AFFILIATE_COPY } from "@/lib/support";
+import { AFFILIATE_COPY } from "@/lib/support";
+import { getAffiliateHostingUrl } from "@/lib/env";
 
 export default function HostingPage() {
   return (
@@ -21,18 +22,15 @@ export default function HostingPage() {
                   hospedagem.
                 </p>
 
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Hostinger (afiliado)</div>
-                  <p className="mt-2 text-sm text-zinc-200">{AFFILIATE_COPY}</p>
-                  <Link
-                    href={AFFILIATE_HOSTINGER}
-                    className="inline-block mt-3 rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-black hover:bg-emerald-500"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Ver opção de hospedagem
-                  </Link>
-                </div>
+                {getAffiliateHostingUrl() ? (
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Infraestrutura recomendada</div>
+                    <p className="mt-2 text-sm text-zinc-200">{AFFILIATE_COPY}</p>
+                    <Link href={getAffiliateHostingUrl()} className="text-emerald-200 hover:underline" target="_blank" rel="noopener noreferrer">
+                      Ver provedores recomendados
+                    </Link>
+                  </div>
+                ) : null}
               </div>
             </Card>
 

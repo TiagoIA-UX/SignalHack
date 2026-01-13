@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container, Card } from "@/components/ui";
-import { AFFILIATE_HOSTINGER, AFFILIATE_COPY } from "@/lib/support";
+import { AFFILIATE_COPY } from "@/lib/support";
+import { getAffiliateHostingUrl, getSupportEmail, getPixKey, isDonationEnabled, getDonationCopyVariant } from "@/lib/env";
 import { AppHeader } from "@/components/AppHeader";
 
 export default function SupportPage() {
@@ -16,43 +17,42 @@ export default function SupportPage() {
             <Card className="mt-6 p-6">
               <div className="space-y-4 text-sm text-zinc-200">
                 <p>
-                  Este software é desenvolvido e mantido de forma independente. Atualmente não há investidores, empresa por
-                  trás ou financiamento externo. Qualquer apoio financeiro é voluntário e destinado exclusivamente a custos
-                  de infraestrutura, domínio e hospedagem.
+                  ZAIRIX é uma plataforma independente, construída com foco em clareza, controle e responsabilidade. Para
+                  manter a infraestrutura, evolução contínua e acesso público, disponibilizamos formas transparentes de apoio.
                 </p>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como ajudar</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como o apoio ajuda</div>
                   <ul className="mt-2 space-y-2">
-                    <li>
-                      • Doação: se preferir doar diretamente, você pode usar Pix, PayPal ou Stripe — usamos esses canais para
-                      facilitar doações (links/contas a critério do mantenedor).
-                    </li>
-                    <li>
-                      • Doação via Pix: chave: <strong>31629689840</strong>.
-                    </li>
-                    <li>
-                      • Para dúvidas sobre doações ou transparência financeira: <a className="text-emerald-200 hover:underline" href="mailto:zairyx.ai@gmail.com">zairyx.ai@gmail.com</a>.
-                    </li>
-                    <li>
-                      • Apoio indireto: contratar serviços de infraestrutura pelo link de afiliado abaixo ajuda o projeto sem
-                      custo adicional para você.
-                    </li>
+                    <li>• Infraestrutura: servidores, banco de dados e domínio.</li>
+                    <li>• Segurança e monitoramento: Sentry, backups e rotinas operacionais.</li>
+                    <li>• Evolução: melhorias, manutenção e testes.</li>
+                    <li>• Apoio é sempre voluntário e nunca condiciona recursos ou privilégios.</li>
                   </ul>
                 </div>
 
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Hostinger (afiliado)</div>
-                  <p className="mt-2 text-sm text-zinc-200">{AFFILIATE_COPY}</p>
-                  <Link
-                    href={AFFILIATE_HOSTINGER}
-                    className="inline-block mt-3 rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-black hover:bg-emerald-500"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Visitar Hostinger
-                  </Link>
-                </div>
+                {isDonationEnabled() ? (
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Apoio financeiro</div>
+                    <ul className="mt-2 space-y-2 text-sm text-zinc-200">
+                      <li>• PIX: {getPixKey() ? <strong>{getPixKey()}</strong> : "Disponível mediante contato"}.</li>
+                      <li>
+                        • PayPal: {getSupportEmail() ? <a className="text-emerald-200 hover:underline" href={`mailto:${getSupportEmail()}`}>{getSupportEmail()}</a> : "Disponível mediante contato"}.
+                      </li>
+                      <li>• Nota: Stripe não está disponível no momento.</li>
+                    </ul>
+                  </div>
+                ) : null}
+
+                {getAffiliateHostingUrl() ? (
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Infraestrutura recomendada</div>
+                    <p className="mt-2 text-sm text-zinc-200">{AFFILIATE_COPY}</p>
+                    <Link href={getAffiliateHostingUrl()} className="text-emerald-200 hover:underline" target="_blank" rel="noopener noreferrer">
+                      Ver provedores recomendados
+                    </Link>
+                  </div>
+                ) : null}
 
                 <div className="mt-4 rounded-2xl border border-white/10 bg-black/40 p-4 text-sm text-zinc-400">
                   <strong>Importante:</strong> o uso do software não depende de contribuição financeira. Apoios são

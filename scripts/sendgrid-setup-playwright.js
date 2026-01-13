@@ -88,7 +88,7 @@ function readEnvFromFile(p) {
     }
   } catch (e) {
     console.warn('Falha ao criar API Key automaticamente:', e.message);
-    console.log('Por favor crie a API Key manualmente no painel em Settings -> API Keys e adicione em env1.txt como SMTP_PASS="SG_..."');
+    console.log('Por favor crie a API Key manualmente no painel em Settings -> API Keys e adicione em env1.txt como SMTP_PASS="SG_EXAMPLE_KEY"  // exemplo público, NÃO commite a chave real');
   }
 
   console.log('\nScript finalizado — remova SENDGRID_PW do env1.txt assim que terminar por segurança.');

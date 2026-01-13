@@ -25,7 +25,7 @@ Passos resumidos:
 
 3) Gerar API Key (via UI ou via script)
 - Se o script capturou a API Key, copie e cole em `env1.txt`:
-  SMTP_PASS="SG_xxx..."
+  SMTP_PASS="SG_EXAMPLE_KEY"  # exemplo público, substitua pela sua chave privada localmente (não commitar)
 
 4) Autenticar domínio
 - No SendGrid: Settings → Sender Authentication → Domain Authentication → start
@@ -38,7 +38,7 @@ Passos resumidos:
 - 'smtp.sendgrid.net' | vercel env add SMTP_HOST production --force
 - '587' | vercel env add SMTP_PORT production --force
 - 'apikey' | vercel env add SMTP_USER production --force
-- 'SG_xxx...' | vercel env add SMTP_PASS production --force --sensitive
+- 'SG_EXAMPLE_KEY' | vercel env add SMTP_PASS production --force --sensitive  # exemplo público, use sua chave em ambiente seguro
 - 'no-reply@zairyx.com' | vercel env add SMTP_FROM production --force
 
 7) Teste final

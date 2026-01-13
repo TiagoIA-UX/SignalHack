@@ -37,7 +37,18 @@ export default function SupportPage() {
                     <ul className="mt-2 space-y-2 text-sm text-zinc-200">
                       <li>• PIX: {getPixKey() ? <strong>{getPixKey()}</strong> : "Disponível mediante contato"}.</li>
                       <li>
-                        • PayPal: {getSupportEmail() ? <a className="text-emerald-200 hover:underline" href={`mailto:${getSupportEmail()}`}>{getSupportEmail()}</a> : "Disponível mediante contato"}.
+                        • PayPal: {getSupportEmail() ? (
+                          <a
+                            className="text-emerald-200 hover:underline"
+                            href={`https://www.paypal.com/donate?business=${encodeURIComponent(getSupportEmail() ?? "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Doar via PayPal
+                          </a>
+                        ) : (
+                          "Disponível mediante contato"
+                        )}.
                       </li>
                       <li>• Nota: Stripe não está disponível no momento.</li>
                     </ul>

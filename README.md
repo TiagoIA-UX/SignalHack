@@ -54,7 +54,34 @@ O projeto roda `prisma generate` no `postinstall` e faz `next build` normalmente
 
 ## Dev
 
-- `npm run dev`
+- Local development (recommended without Docker):
+
+  1) Create a `.env` (or provide `.env.local`):
+
+  ```bash
+  # Use local SQLite for quick dev
+  DATABASE_URL="file:./dev.db"
+  AUTH_SECRET="your_auth_secret_here"
+  APP_URL="http://localhost:3000"
+  ```
+
+  2) Optionally seed an admin account by setting `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your environment, then run:
+
+  ```bash
+  npm run setup:local
+  ```
+
+  3) Start dev server:
+
+  ```bash
+  npm run dev:local
+  ```
+
+- Or run with Docker (optional, advanced):
+  - `npm run db:up` (starts DB container)
+  - `npm run db:migrate`
+  - `npm run dev`
+
 
 ## Sustentabilidade e Monetização (transparente)
 

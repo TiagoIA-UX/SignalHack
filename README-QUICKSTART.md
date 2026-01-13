@@ -18,11 +18,28 @@
   ```
 
 ## 2. Configure o .env
-- Para rodar o app, crie um `.env` com o mínimo:
+- Para rodar o app, crie um `.env` com o mínimo OR use o fallback local SQLite (recomendado para dev):
   ```
-  DATABASE_URL=postgresql://postgres:postgres@localhost:5433/edgemind?schema=public
-  AUTH_SECRET=
+  # Option A — Local (dev, no Docker):
+  DATABASE_URL="file:./dev.db"
+  AUTH_SECRET="sua_chave_long_aqui"
   APP_URL=http://localhost:3000
+
+  # Option B — PostgreSQL (prod-like / Docker / external):
+  # DATABASE_URL=postgresql://postgres:postgres@localhost:5432/edgemind?schema=public
+  ```
+
+- Inicializar local (recomendado uma vez por máquina):
+  ```bash
+  # opcional: export ADMIN_EMAIL and ADMIN_PASSWORD to seed the admin account
+  export ADMIN_EMAIL="seu@email.com"
+  export ADMIN_PASSWORD="SuaSenhaForteAqui"
+  npm run setup:local
+  ```
+
+- Rodando em modo dev (sem Docker):
+  ```bash
+  npm run dev:local
   ```
 
 - Dica (gerar `AUTH_SECRET`):

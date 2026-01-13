@@ -1,32 +1,57 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
+import { WELCOME_COOKIE_NAME, hasValidWelcomeAcceptance } from "@/lib/consent";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/profile", "/plans", "/admin"];
+const PROTECTED_PREFIXES = ["/dashboard", "/radar", "/profile", "/plans", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-request-id", requestId);
+
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  if (!isProtected) return NextResponse.next();
+  if (!isProtected) {
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.headers.set("x-request-id", requestId);
+    return res;
+  }
 
   const session = await getSessionFromRequest(req);
   if (!session) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    const res = NextResponse.redirect(url);
+    res.headers.set("x-request-id", requestId);
+    return res;
+  }
+
+  const hasAccepted = hasValidWelcomeAcceptance(req.cookies.get(WELCOME_COOKIE_NAME)?.value);
+  if (!hasAccepted) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/welcome";
+    url.searchParams.set("next", pathname);
+    const res = NextResponse.redirect(url);
+    res.headers.set("x-request-id", requestId);
+    return res;
   }
 
   if (pathname.startsWith("/admin") && session.role !== "ADMIN") {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    const res = NextResponse.redirect(url);
+    res.headers.set("x-request-id", requestId);
+    return res;
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set("x-request-id", requestId);
+  return res;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/plans/:path*", "/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|favicon.svg).*)"],
 };

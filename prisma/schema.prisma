@@ -205,3 +205,49 @@ model AppSecret {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Compliance / Auditoria (LGPD/GDPR)
+// Estas tabelas não alteram schema de produto; servem para prova, auditoria e governança mínima.
+model LegalAcceptance {
+  id                       String   @id @default(cuid())
+  acceptanceId             String?
+  userId                   String?
+  email                    String?
+  legalVersion             String
+  acceptedAt               DateTime
+  termsAccepted            Boolean
+  privacyAccepted          Boolean
+  essentialCookiesAccepted Boolean
+  metricsConsent           Boolean
+  personalizationConsent   Boolean
+  ip                       String?
+  userAgent                String?
+  source                   String
+  createdAt                DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
+  @@index([acceptanceId])
+  @@index([legalVersion])
+  @@index([acceptedAt])
+}
+
+model ConsentEvent {
+  id             String   @id @default(cuid())
+  acceptanceId   String?
+  userId         String?
+  email          String?
+  legalVersion   String
+  metrics        Boolean
+  personalization Boolean
+  ip             String?
+  userAgent      String?
+  source         String
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
+  @@index([acceptanceId])
+  @@index([legalVersion])
+  @@index([createdAt])
+}

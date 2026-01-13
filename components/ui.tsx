@@ -10,7 +10,7 @@ export function Card(props: { children: React.ReactNode; className?: string }) {
       className={`sh-surface rounded-2xl border border-emerald-500/15 bg-black/40 transition-colors hover:border-emerald-500/25 ${
         props.className ?? ""
       }`.trim()}
-      style={{ color: "rgba(16, 185, 129, 0.18)" }}
+      style={{ "--sh-accent": "rgba(16, 185, 129, 0.18)" } as React.CSSProperties}
     >
       {props.children}
     </div>

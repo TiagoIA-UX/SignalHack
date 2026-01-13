@@ -3,32 +3,39 @@ import { getSecret } from "@/lib/appSecrets";
 
 type Intent = "LOW" | "MEDIUM" | "HIGH";
 
-const DEFAULT_GROQ_MODEL = "llama-3.1-70b-versatile";
+// Nota: modelos Groq mudam com o tempo; mantenha este default em um modelo estável e suportado.
+const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+
+function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
-function strategistSystemPrompt() {
+function strategySystemPrompt() {
   return [
-    "Você é o Strategist Agent do SignalHack.",
-    "Você opera como analista de inteligência estratégica dentro de um sistema privado.",
-    "Seu papel: interpretar sinais, eliminar ruído e produzir insight acionável.",
+    "Você é o módulo de Estratégia do SignalForge.",
+    "Você opera como operador(a) de mercado dentro de um sistema privado.",
+    "Seu papel: interpretar sinais, eliminar ruído e produzir um sinal de compra acionável.",
     "Restrições: sem previsões absolutas, sem promessas garantidas, sem hype, sem emojis.",
     "Tom: claro, confiante e persuasivo (marketing B2B), mas sempre condicional e ancorado em hipótese e evidência.",
-    "Escreva para um(a) gerente de marketing/growth: foco em ICP, posicionamento, canais, criativos e próximos experimentos.",
-    "Evite jargão. Se usar siglas/termos (ex.: ICP, RevOps), defina em 1 frase.",
+    "Escreva para founders, agências e operadores de marketing/growth: foco em comprador ideal, posicionamento, canais, criativos e próximos experimentos.",
+    "Evite jargão. Se usar siglas/termos (ex.: RevOps), defina em 1 frase.",
     "Em cada bloco, inclua 1 linha explícita de 'Benefício esperado' (condicional) e 1 linha de 'Como medir' (métrica simples em 7 dias).",
     "Formato obrigatório (use exatamente estes títulos):",
     "1. Contexto essencial",
     "2. O que o sinal realmente indica",
     "3. Risco principal",
-    "4. Oportunidade principal",
+    "4. Oportunidade de ganhar dinheiro",
     "5. Próximo passo sugerido",
   ].join("\n");
 }
 
-function strategistUserPrompt(input: { title: string; summary: string }) {
+function strategyUserPrompt(input: { title: string; summary: string }) {
   return [
     "SINAL:",
     `TITLE: ${input.title}`,
@@ -46,10 +53,10 @@ function hasFiveBlocks(text: string) {
     "1. Contexto essencial",
     "2. O que o sinal realmente indica",
     "3. Risco principal",
-    "4. Oportunidade principal",
     "5. Próximo passo sugerido",
   ];
-  return required.every((h) => text.includes(h));
+  const has4 = text.includes("4. Oportunidade de ganhar dinheiro") || text.includes("4. Oportunidade principal") || text.includes("4. Tese principal");
+  return required.every((h) => text.includes(h)) && has4;
 }
 
 export type ScoredSignal = {
@@ -86,7 +93,7 @@ export async function analyzeSignalWithGroq(input: {
   }
 
   async function callGroq(temperature: number) {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const res = await fetchWithTimeout("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -95,12 +102,12 @@ export async function analyzeSignalWithGroq(input: {
       body: JSON.stringify({
         model,
         messages: [
-          { role: "system", content: strategistSystemPrompt() },
-          { role: "user", content: strategistUserPrompt(input) },
+          { role: "system", content: strategySystemPrompt() },
+          { role: "user", content: strategyUserPrompt(input) },
         ],
         temperature,
       }),
-    });
+    }, 15_000);
 
     if (!res.ok) throw new Error("Groq request failed");
     const data: unknown = await res.json();
@@ -150,7 +157,7 @@ export async function analyzeSignalWithGroq(input: {
 
 function weeklyBriefSystemPrompt() {
   return [
-    "Você é um Briefing Agent do SignalHack.",
+    "Você é o módulo de Brief Semanal do SignalForge.",
     "Seu papel: transformar uma lista de sinais em um briefing semanal curto, claro e operacional.",
     "Restrições: sem previsões absolutas, sem promessas garantidas, sem hype, sem emojis.",
     "Tom: persuasivo e executivo (B2B), mas sempre condicional e verificável.",
@@ -179,7 +186,7 @@ export async function generateWeeklyBriefWithGroq(input: {
   }
 
   async function callGroq(temperature: number) {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const res = await fetchWithTimeout("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -193,7 +200,7 @@ export async function generateWeeklyBriefWithGroq(input: {
         ],
         temperature,
       }),
-    });
+    }, 15_000);
     if (!res.ok) throw new Error("Groq request failed");
     const data: unknown = await res.json();
 

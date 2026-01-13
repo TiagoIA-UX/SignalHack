@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { attachUaField } from "@/lib/ua";
 
 export async function logAccess(params: {
   userId?: string | null;
@@ -6,7 +7,7 @@ export async function logAccess(params: {
   method: string;
   status?: number;
   ip?: string | null;
-  userAgent?: string | null;
+  ua?: string | null;
 }) {
   try {
     await prisma.accessLog.create({
@@ -16,10 +17,11 @@ export async function logAccess(params: {
         method: params.method,
         status: params.status ?? null,
         ip: params.ip ?? null,
-        userAgent: params.userAgent ?? null,
-      },
+        ...attachUaField({}, params.ua),
+      } as any,
     });
   } catch {
     // best-effort
   }
 }
+

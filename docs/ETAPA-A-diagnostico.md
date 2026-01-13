@@ -15,7 +15,7 @@ Data: 2026-01-05
   - `GET /api/signals` aplica limite diário do Free (3/dia) via `UsageDay`.
   - Delay de 24h (Free) via `delayUntil`.
   - Logging best-effort em `AccessLog`.
-- **Strategist (geração de insight)**
+- **Estratégia (geração de insight)**
   - `POST /api/insights` gera insight via Groq (IA real, quando configurada) e faz cache por `signalId`.
   - Bloqueio de plano no backend para Free (`upgrade_required`, 402).
   - Logging best-effort em `AccessLog`.
@@ -25,8 +25,8 @@ Data: 2026-01-05
 
 ## Parcial / Inconsistente (funciona, mas não é “comercial de elite” ainda)
 
-- **Limite do Strategist (Pro) está só no client**
-  - UI usa `localStorage` (`lib/strategistLimit.ts`) para bloquear após 5/dia.
+- **Limite de Estratégia (Pro) está só no client**
+  - UI usa `localStorage` (limite local no client) para bloquear após 5/dia.
   - Backend hoje só bloqueia Free; Pro pode gerar ilimitado via API.
   - Isso é o principal risco de monetização/gating (bypass simples).
 - **Estado do plano na sessão vs estado real do usuário**
@@ -45,9 +45,9 @@ Data: 2026-01-05
 - **Cobrança recorrente (modo test ok)**
   - Criar fluxo de checkout/assinatura e retorno.
   - Atualizar plano do usuário no DB de forma confiável.
-- **Enforcement de limites no backend para Strategist (Pro)**
+- **Enforcement de limites no backend para Estratégia (Pro)**
   - Persistir uso diário de insights no DB e aplicar limite no `POST /api/insights`.
-- **Tratamento de erro “digno” no momento do Strategist**
+- **Tratamento de erro “digno” no momento de Estratégia**
   - Se Groq falhar/timeout, retornar erro consistente (sem stack/sem ruído) e log mínimo.
 
 ## Riscos reais (não teóricos)
@@ -65,6 +65,6 @@ Data: 2026-01-05
 
 ## Próxima consolidação (ETAPA B)
 
-- Aplicar **limite do Strategist no backend** para Pro (persistente por dia).
+- Aplicar **limite de Estratégia no backend** para Pro (persistente por dia).
 - Ajustar `GET /api/auth/me` para refletir plano/role do DB (mesmo payload).
 - Garantir que erros no `POST /api/insights` sejam tratados com output minimalista.

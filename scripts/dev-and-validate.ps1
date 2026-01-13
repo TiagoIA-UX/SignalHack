@@ -34,7 +34,7 @@ Write-Host "Starting dev server on port $Port..." -ForegroundColor Cyan
 Push-Location $repo
 
 # Start Next dev as background process
-$dev = Start-Process -FilePath "npm" -ArgumentList @("run","dev","--","--port", "$Port") -PassThru -WindowStyle Hidden
+$dev = Start-Process -FilePath "npm.cmd" -ArgumentList @("run","dev","--","--port", "$Port") -PassThru -WindowStyle Hidden
 
 try {
   Write-Host "Waiting for health: $healthUrl" -ForegroundColor Cyan
@@ -43,12 +43,13 @@ try {
   }
 
   Write-Host "Running orchestration validation..." -ForegroundColor Cyan
-  $args = @('-NoProfile','-ExecutionPolicy','Bypass','-File', (Join-Path $repo 'scripts\validate-orchestration.ps1'), '-BaseUrl', $baseUrl)
-  if ($RequireAi) { $args += '-RequireAi' }
-
-  $p = Start-Process -FilePath "pwsh" -ArgumentList $args -Wait -PassThru
-  if ($p.ExitCode -ne 0) {
-    throw "Validation failed with exit code $($p.ExitCode)"
+  if ($RequireAi) {
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo 'scripts\validate-orchestration.ps1') -BaseUrl $baseUrl -RequireAi
+  } else {
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo 'scripts\validate-orchestration.ps1') -BaseUrl $baseUrl
+  }
+  if ($LASTEXITCODE -ne 0) {
+    throw "Validation failed with exit code $LASTEXITCODE"
   }
 
   Write-Host "Done." -ForegroundColor Green

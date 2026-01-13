@@ -7,9 +7,33 @@ import { isDbUnavailableError } from "@/lib/dbError";
 import { logAccess } from "@/lib/accessLog";
 import { Prisma } from "@prisma/client";
 import { generateWeeklyBriefWithGroq, type WeeklyBrief } from "@/services/groq";
+import { getUa } from "@/lib/ua";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function sanitizeBriefText(v: string) {
+  return v;
+}
+
+function sanitizeWeeklyBrief(brief: WeeklyBrief): WeeklyBrief {
+  return {
+    ...brief,
+    headline: sanitizeBriefText(brief.headline),
+    summary: sanitizeBriefText(brief.summary),
+    disclaimer: sanitizeBriefText(brief.disclaimer),
+    windowsOpen: brief.windowsOpen.map(sanitizeBriefText),
+    windowsClosing: brief.windowsClosing.map(sanitizeBriefText),
+    priorities: brief.priorities.map((p) => ({
+      ...p,
+      signalTitle: sanitizeBriefText(p.signalTitle),
+      whyNow: sanitizeBriefText(p.whyNow),
+      firstAction: sanitizeBriefText(p.firstAction),
+      metric7d: sanitizeBriefText(p.metric7d),
+      risk: sanitizeBriefText(p.risk),
+    })),
+  };
+}
 
 function startOfWeekUTC(d: Date) {
   // Segunda-feira como início da semana
@@ -22,7 +46,7 @@ function startOfWeekUTC(d: Date) {
 
 export async function GET(req: Request) {
   const ip = getClientIp(req);
-  const ua = req.headers.get("user-agent");
+  const ua = getUa(req.headers);
 
   const rl = await rateLimitAsync(`brief:get:${ip}`, { windowMs: 60_000, max: 30 });
   if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -50,9 +74,9 @@ export async function GET(req: Request) {
 
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const adminBypass = process.env.NODE_ENV !== "production" && user.role === "ADMIN";
+  const adminBypass = user.role === "ADMIN";
   if (!adminBypass && user.plan === "FREE") {
-    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 402, ip, userAgent: ua });
+    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 402, ip, ua });
     return NextResponse.json({ error: "upgrade_required" }, { status: 402 });
   }
 
@@ -70,8 +94,8 @@ export async function GET(req: Request) {
   }
 
   if (existing) {
-    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 200, ip, userAgent: ua });
-    return NextResponse.json({ brief: existing.content, cached: true, weekStart: weekStart.toISOString() });
+    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 200, ip, ua });
+    return NextResponse.json({ brief: sanitizeWeeklyBrief(existing.content as WeeklyBrief), cached: true, weekStart: weekStart.toISOString() });
   }
 
   const since = new Date(weekStart.getTime() - 7 * 24 * 60 * 60_000);
@@ -97,7 +121,7 @@ export async function GET(req: Request) {
   }
 
   if (!signals || signals.length === 0) {
-    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 200, ip, userAgent: ua });
+    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 200, ip, ua });
     return NextResponse.json({
       brief: {
         headline: "Brief semanal",
@@ -114,11 +138,33 @@ export async function GET(req: Request) {
 
   let brief: WeeklyBrief;
   try {
-    brief = await generateWeeklyBriefWithGroq({ signals });
-  } catch {
-    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 503, ip, userAgent: ua });
+    brief = await generateWeeklyBriefWithGroq({
+      signals: signals.map((s) => ({
+        ...s,
+        title: sanitizeBriefText(s.title),
+        summary: sanitizeBriefText(s.summary),
+      })),
+    });
+  } catch (err) {
+    await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 503, ip, ua });
+    const msg = err instanceof Error ? err.message : "";
+    if (msg === "groq_not_configured") {
+      return NextResponse.json(
+        {
+          error: "ai_not_configured",
+          message:
+            "IA não está configurada. Defina GROQ_API_KEY no .env (ou salve o segredo groq_api_key) e reinicie o servidor de dev.",
+        },
+        { status: 503 },
+      );
+    }
+
+    console.error("[brief] Groq failed:", msg || err);
     return NextResponse.json(
-      { error: "ai_not_configured", message: "Configure GROQ_API_KEY (ou o segredo groq_api_key) para gerar o brief semanal." },
+      {
+        error: "ai_failed",
+        message: "Brief indisponível agora. Verifique se GROQ_API_KEY/GROQ_MODEL estão válidos e tente novamente.",
+      },
       { status: 503 },
     );
   }
@@ -136,6 +182,6 @@ export async function GET(req: Request) {
     throw err;
   }
 
-  await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 200, ip, userAgent: ua });
-  return NextResponse.json({ brief, cached: false, weekStart: weekStart.toISOString() });
+  await logAccess({ userId: user.id, path: "/api/brief", method: "GET", status: 200, ip, ua });
+  return NextResponse.json({ brief: sanitizeWeeklyBrief(brief), cached: false, weekStart: weekStart.toISOString() });
 }

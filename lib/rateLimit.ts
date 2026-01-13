@@ -1,3 +1,5 @@
+import { logEvent } from "@/lib/logger";
+
 type Bucket = {
   count: number;
   resetAtMs: number;
@@ -11,6 +13,9 @@ let upstashInitAttempted = false;
 let upstashAvailable = false;
 let upstashRedis: import("@upstash/redis").Redis | null = null;
 const upstashLimiters = new Map<string, import("@upstash/ratelimit").Ratelimit>();
+
+const isProd = process.env.NODE_ENV === "production";
+let loggedProdNoUpstash = false;
 
 function msToWindowString(windowMs: number): import("@upstash/ratelimit").Duration {
   const seconds = Math.max(1, Math.ceil(windowMs / 1000));
@@ -54,9 +59,16 @@ async function getUpstashLimiter(opts: { windowMs: number; max: number }) {
 }
 
 export function rateLimit(key: string, opts: { windowMs: number; max: number }) {
-  // Upstash (distribuído) se disponível.
-  // Nota: mantemos a assinatura sync; a implementação Upstash é melhor-esforço via fallback.
-  // Para rotas que já são async, prefira usar `rateLimitAsync`.
+  // Em produção, não usamos fallback in-memory (não é distribuído).
+  // Rotas server-side devem usar `rateLimitAsync` + Upstash.
+  if (isProd) {
+    if (!loggedProdNoUpstash) {
+      loggedProdNoUpstash = true;
+      logEvent("error", "rate_limit.sync_called_in_production", { extra: { keyPrefix: key.split(":").slice(0, 2).join(":"), max: opts.max, windowMs: opts.windowMs } });
+    }
+    return { ok: false, remaining: 0, resetAtMs: Date.now() + opts.windowMs };
+  }
+
   const now = Date.now();
   const existing = store.get(key);
   if (!existing || existing.resetAtMs <= now) {
@@ -81,8 +93,24 @@ export async function rateLimitAsync(key: string, opts: { windowMs: number; max:
       const resetAtMs = typeof r.reset === "number" ? r.reset : Date.now() + opts.windowMs;
       return { ok: r.success, remaining: r.remaining, resetAtMs };
     } catch {
-      // fallback
+      // fallback apenas fora de produção
     }
+  }
+
+  if (isProd) {
+    if (!loggedProdNoUpstash) {
+      loggedProdNoUpstash = true;
+      logEvent("error", "rate_limit.upstash_not_configured", {
+        extra: {
+          hasUrl: !!process.env.UPSTASH_REDIS_REST_URL,
+          hasToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+          keyPrefix: key.split(":").slice(0, 2).join(":"),
+          max: opts.max,
+          windowMs: opts.windowMs,
+        },
+      });
+    }
+    return { ok: false, remaining: 0, resetAtMs: Date.now() + opts.windowMs };
   }
 
   return rateLimit(key, opts);

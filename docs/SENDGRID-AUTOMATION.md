@@ -9,8 +9,10 @@ Passos resumidos:
 1) Preparar `env1.txt`
 - Adicione no `env1.txt` (local, não comitar):
 
-  SENDGRID_EMAIL="zairyx.ai@gmail.com"
-  SENDGRID_PW="Senha=#Aurelius170742"
+  SENDGRID_EMAIL="seu-email@exemplo.com"
+  SENDGRID_PW="SUA_SENHA_AQUI"
+
+  Dica: não use senhas reais em documentação versionada. Use placeholders e configure os valores reais apenas em variáveis de ambiente locais/Vercel.
 
 2) Rodar o Playwright para criar conta
 - Instalação (no workspace):

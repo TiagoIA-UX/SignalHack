@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,12 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Signal Hacker",
-  description: "Hackeie os sinais antes do mercado.",
+  title: "SignalForge",
+  description: "Descubra demanda, crie ofertas e monetize com sinais de mercado.",
   icons: {
     icon: [
-      { url: "/favicon.ico" },
       { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
     ],
   },
 };
@@ -41,6 +42,7 @@ export default function RootLayout({
         <div className="pointer-events-none fixed inset-x-0 top-0 h-24 bg-gradient-to-b from-emerald-500/10 to-transparent" />
         <div className="pointer-events-none fixed inset-x-0 top-16 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

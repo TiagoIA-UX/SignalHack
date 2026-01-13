@@ -1,6 +1,8 @@
 param(
   [string]$BaseUrl = 'http://localhost:3000',
-  [switch]$RequireAi
+  [switch]$RequireAi,
+  [string]$Email,
+  [string]$Password
 )
 
 $ErrorActionPreference = 'Stop'
@@ -25,12 +27,12 @@ function Invoke-JsonPost {
   try {
     [System.IO.File]::WriteAllText($tmp, $json, [System.Text.Encoding]::UTF8)
 
-    $args = @('-s','-i','--max-time','25','-X','POST', $Url, '-H','content-type: application/json', '--data-binary', "@$tmp")
+    $curlArgs = @('-s','-i','--max-time','25','-X','POST', $Url, '-H','content-type: application/json', '--data-binary', "@$tmp")
     if ($CookieFile) {
-      $args += @('-c', $CookieFile, '-b', $CookieFile)
+      $curlArgs += @('-c', $CookieFile, '-b', $CookieFile)
     }
 
-    $output = @(& curl.exe @args 2>&1)
+    $output = @(& curl.exe @curlArgs 2>&1)
     $exitCode = $LASTEXITCODE
     if ($exitCode -ne 0) {
       throw "curl falhou ($exitCode) em POST ${Url}: $($output -join "`n")"
@@ -54,12 +56,12 @@ function Invoke-JsonPut {
   try {
     [System.IO.File]::WriteAllText($tmp, $json, [System.Text.Encoding]::UTF8)
 
-    $args = @('-s','-i','--max-time','25','-X','PUT', $Url, '-H','content-type: application/json', '--data-binary', "@$tmp")
+    $curlArgs = @('-s','-i','--max-time','25','-X','PUT', $Url, '-H','content-type: application/json', '--data-binary', "@$tmp")
     if ($CookieFile) {
-      $args += @('-c', $CookieFile, '-b', $CookieFile)
+      $curlArgs += @('-c', $CookieFile, '-b', $CookieFile)
     }
 
-    $output = @(& curl.exe @args 2>&1)
+    $output = @(& curl.exe @curlArgs 2>&1)
     $exitCode = $LASTEXITCODE
     if ($exitCode -ne 0) {
       throw "curl falhou ($exitCode) em PUT ${Url}: $($output -join "`n")"
@@ -76,12 +78,12 @@ function Invoke-Get {
     [string]$CookieFile
   )
 
-  $args = @('-s','-i','--max-time','25', $Url)
+  $curlArgs = @('-s','-i','--max-time','25', $Url)
   if ($CookieFile) {
-    $args += @('-c', $CookieFile, '-b', $CookieFile)
+    $curlArgs += @('-c', $CookieFile, '-b', $CookieFile)
   }
 
-  $output = @(& curl.exe @args 2>&1)
+  $output = @(& curl.exe @curlArgs 2>&1)
   $exitCode = $LASTEXITCODE
   if ($exitCode -ne 0) {
     throw "curl falhou ($exitCode) em GET ${Url}: $($output -join "`n")"
@@ -124,24 +126,106 @@ function Get-HttpStatusFromCurl {
   return $null
 }
 
+function Redact-SessionCookie {
+  param(
+    $CurlOutputLines
+  )
+  if (-not $CurlOutputLines) { return $CurlOutputLines }
+  return $CurlOutputLines | ForEach-Object {
+    $_ -replace '^(set-cookie:\s*em_session=)[^;\s]+', '${1}[redacted]'
+  }
+}
+
 $base = $BaseUrl.TrimEnd('/')
 $cookie = Join-Path $PSScriptRoot 'validate.cookies.txt'
 Remove-Item -ErrorAction SilentlyContinue $cookie
 
+$script:devProcess = $null
+
+function Wait-ForHealth {
+  param(
+    [string]$Url,
+    [int]$TimeoutSeconds = 90
+  )
+
+  $start = Get-Date
+  while (((Get-Date) - $start).TotalSeconds -lt $TimeoutSeconds) {
+    try {
+      $r = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 5
+      if ($r.StatusCode -eq 200) { return $true }
+    } catch {
+      Start-Sleep -Milliseconds 800
+    }
+  }
+  return $false
+}
+
+function Try-StartDevServerForBaseUrl {
+  param(
+    [Parameter(Mandatory=$true)][string]$Base
+  )
+
+  if ($script:devProcess -and -not $script:devProcess.HasExited) {
+    return $true
+  }
+
+  $uri = [Uri]$Base
+  $port = $uri.Port
+  if (-not $port -or $port -le 0) { return $false }
+
+  Write-Host "Health falhou; tentando iniciar dev server na porta $port..." -ForegroundColor DarkYellow
+
+  $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+  Push-Location $repo
+  try {
+    $script:devProcess = Start-Process -FilePath "npm.cmd" -ArgumentList @('run','dev','--','--port', "$port") -PassThru -WindowStyle Hidden
+  } finally {
+    Pop-Location
+  }
+
+  return $true
+}
+
+function Read-PlaintextPassword {
+  param(
+    [string]$Prompt = 'SMOKE_TEST_PASSWORD'
+  )
+
+  $secure = Read-Host -Prompt $Prompt -AsSecureString
+  $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+  try {
+    return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+  } finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+  }
+}
+
 Write-Host "[1/7] health" -ForegroundColor Cyan
-$health = Invoke-Get -Url "$base/api/health"
+$healthUrl = "$base/api/health"
+try {
+  $health = Invoke-Get -Url $healthUrl
+} catch {
+  Try-StartDevServerForBaseUrl -Base $base | Out-Null
+  if (-not (Wait-ForHealth -Url $healthUrl -TimeoutSeconds 90)) {
+    throw
+  }
+  $health = Invoke-Get -Url $healthUrl
+}
 $health | Select-Object -First 20 | Out-Host
 
 Write-Host "[2/7] login (captures cookie)" -ForegroundColor Cyan
-$email = if ($env:SMOKE_TEST_EMAIL) { $env:SMOKE_TEST_EMAIL } else { $null }
-$password = if ($env:SMOKE_TEST_PASSWORD) { $env:SMOKE_TEST_PASSWORD } else { $null }
+$email = if ($Email) { $Email } elseif ($env:SMOKE_TEST_EMAIL) { $env:SMOKE_TEST_EMAIL } else { $null }
+$password = if ($Password) { $Password } elseif ($env:SMOKE_TEST_PASSWORD) { $env:SMOKE_TEST_PASSWORD } else { $null }
 
-if (-not $email -or -not $password) {
-  throw "Defina SMOKE_TEST_EMAIL e SMOKE_TEST_PASSWORD para rodar validate-orchestration.ps1"
+if (-not $email) {
+  throw "Defina -Email (ou SMOKE_TEST_EMAIL) para rodar validate-orchestration.ps1"
+}
+if (-not $password) {
+  $password = Read-PlaintextPassword
 }
 
 $login = Invoke-JsonPost -Url "$base/api/auth/login" -Body @{ email = $email; password = $password } -CookieFile $cookie
-$login | Select-Object -First 30 | Out-Host
+(Redact-SessionCookie -CurlOutputLines $login) | Select-Object -First 30 | Out-Host
 
 $loginStatus = Get-HttpStatusFromCurl -CurlOutputLines $login
 $loginBody = Get-CurlBodyText -CurlOutputLines $login
@@ -150,6 +234,9 @@ if (-not $loginStatus) {
 }
 if ($loginStatus -ge 400) {
   $hint = ""
+  if ($loginBody -and $loginBody -match '"error"\s*:\s*"invalid_credentials"') {
+    $hint = "\nDica: credenciais inválidas. Passe -Email/-Password (ou defina SMOKE_TEST_EMAIL/SMOKE_TEST_PASSWORD). Se estiver em dev, rode a task 'admin:unlock' para resetar o usuário de teste e liberar o plano."
+  }
   if ($loginBody -and $loginBody -match '<!DOCTYPE html>' -and $loginBody -match 'Unexpected end of JSON input') {
     $hint = "\nDica: isso costuma acontecer quando o Next dev fica com manifest em .next corrompido no Windows. Pare o dev, apague a pasta .next e suba de novo (npm run dev -- --port 3001)."
   }
@@ -217,6 +304,9 @@ if ($briefStatus -eq 402) {
   if ($briefJson.error -eq 'ai_not_configured') {
     Write-Host "IA não configurada para brief (503 ai_not_configured)." -ForegroundColor Yellow
     if ($RequireAi) { throw "RequireAi ligado, mas IA não configurada." }
+  } elseif ($briefJson.error -eq 'ai_failed') {
+    Write-Host "IA falhou para brief (503 ai_failed)." -ForegroundColor Yellow
+    if ($RequireAi) { throw "RequireAi ligado, mas IA falhou." }
   } else {
     throw "Brief falhou (503). Body=$briefBody"
   }

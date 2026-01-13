@@ -1,5 +1,7 @@
 param(
-  [string]$BaseUrl = 'http://localhost:3000'
+  [string]$BaseUrl = 'http://localhost:3000',
+  [string]$Email,
+  [string]$Password
 )
 
 $ErrorActionPreference = 'Stop'
@@ -22,12 +24,12 @@ function Invoke-JsonPost {
   try {
     [System.IO.File]::WriteAllText($tmp, $json, [System.Text.Encoding]::UTF8)
 
-    $args = @('-s','-i','--max-time','20','-X','POST', $Url, '-H','content-type: application/json', '--data-binary', "@$tmp")
+    $curlArgs = @('-s','-i','--max-time','20','-X','POST', $Url, '-H','content-type: application/json', '--data-binary', "@$tmp")
     if ($CookieFile) {
-      $args += @('-c', $CookieFile, '-b', $CookieFile)
+      $curlArgs += @('-c', $CookieFile, '-b', $CookieFile)
     }
 
-    $output = @(& curl.exe @args 2>&1)
+    $output = @(& curl.exe @curlArgs 2>&1)
     $exitCode = $LASTEXITCODE
     if ($exitCode -ne 0) {
       throw "curl falhou ($exitCode) em POST ${Url}: $($output -join "`n")"
@@ -44,12 +46,12 @@ function Invoke-Get {
     [string]$CookieFile
   )
 
-  $args = @('-s','-i','--max-time','20', $Url)
+  $curlArgs = @('-s','-i','--max-time','20', $Url)
   if ($CookieFile) {
-    $args += @('-c', $CookieFile, '-b', $CookieFile)
+    $curlArgs += @('-c', $CookieFile, '-b', $CookieFile)
   }
 
-  $output = @(& curl.exe @args 2>&1)
+  $output = @(& curl.exe @curlArgs 2>&1)
   $exitCode = $LASTEXITCODE
   if ($exitCode -ne 0) {
     throw "curl falhou ($exitCode) em GET ${Url}: $($output -join "`n")"
@@ -81,6 +83,16 @@ function Get-CurlBodyText {
   return $body
 }
 
+function Redact-SessionCookie {
+  param(
+    $CurlOutputLines
+  )
+  if (-not $CurlOutputLines) { return $CurlOutputLines }
+  return $CurlOutputLines | ForEach-Object {
+    $_ -replace '^(set-cookie:\s*em_session=)[^;\s]+', '${1}[redacted]'
+  }
+}
+
 $base = $BaseUrl
 $cookie = Join-Path $PSScriptRoot 'smoke.cookies.txt'
 Remove-Item -ErrorAction SilentlyContinue $cookie
@@ -90,11 +102,36 @@ $health = Invoke-Get -Url "$base/api/health"
 $health | Select-Object -First 20 | Out-Host
 
 Write-Host "[2/6] register" -ForegroundColor Cyan
-$email = if ($env:SMOKE_TEST_EMAIL) { $env:SMOKE_TEST_EMAIL } else { "smoke_" + [Guid]::NewGuid().ToString('N').Substring(0, 8) + "@example.com" }
-$password = if ($env:SMOKE_TEST_PASSWORD) { $env:SMOKE_TEST_PASSWORD } else { 'Password123!' }
 
-if ($env:SMOKE_TEST_EMAIL) {
-  Write-Host "(pulando register: usando SMOKE_TEST_EMAIL)" -ForegroundColor DarkGray
+function Read-PlaintextPassword {
+  param(
+    [string]$Prompt = 'SMOKE_TEST_PASSWORD'
+  )
+
+  $secure = Read-Host -Prompt $Prompt -AsSecureString
+  $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+  try {
+    return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+  } finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+  }
+}
+
+$email = if ($Email) { $Email } elseif ($env:SMOKE_TEST_EMAIL) { $env:SMOKE_TEST_EMAIL } else { "smoke_" + [Guid]::NewGuid().ToString('N').Substring(0, 8) + "@example.com" }
+
+# Password: prefer param > env. Se o email for fixo (via -Email ou SMOKE_TEST_EMAIL) e a senha não vier, pedir interativamente.
+if ($Password) {
+  $password = $Password
+} elseif ($env:SMOKE_TEST_PASSWORD) {
+  $password = $env:SMOKE_TEST_PASSWORD
+} elseif ($Email -or $env:SMOKE_TEST_EMAIL) {
+  $password = Read-PlaintextPassword
+} else {
+  $password = 'Password123!'
+}
+
+if (($Email -or $env:SMOKE_TEST_EMAIL) -and -not ($email -like 'smoke_*@example.com')) {
+  Write-Host "(pulando register: usuário existente)" -ForegroundColor DarkGray
 } else {
   $reg = Invoke-JsonPost -Url "$base/api/auth/register" -Body @{ email = $email; password = $password } -CookieFile $null
   $reg | Select-Object -First 30 | Out-Host
@@ -102,7 +139,7 @@ if ($env:SMOKE_TEST_EMAIL) {
 
 Write-Host "[3/6] login (captures cookie)" -ForegroundColor Cyan
 $login = Invoke-JsonPost -Url "$base/api/auth/login" -Body @{ email = $email; password = $password } -CookieFile $cookie
-$login | Select-Object -First 30 | Out-Host
+(Redact-SessionCookie -CurlOutputLines $login) | Select-Object -First 30 | Out-Host
 
 Write-Host "[4/6] me" -ForegroundColor Cyan
 $me = Invoke-Get -Url "$base/api/auth/me" -CookieFile $cookie

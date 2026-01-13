@@ -1,19 +1,19 @@
 ## SignalHack
 
-SignalHack é uma plataforma de inteligência de sinais com IA para identificar tendências emergentes, atenção e intenção comercial antes do mercado.
+SignalHack é uma plataforma de inteligência de sinais para identificar tendências emergentes, atenção e intenção comercial antes do mercado.
 
-"Hackear sinais" aqui significa reduzir ruído, acelerar leitura e transformar dados dispersos em clareza acionável — sem promessas de previsão, garantia ou certeza.
+O objetivo aqui é reduzir ruído, acelerar leitura e transformar dados dispersos em clareza acionável — sem promessas de previsão, garantia ou certeza.
 
 O projeto está em evolução contínua: o MVP já funciona e é expandido incrementalmente.
 
-### Rede de agentes (conceitual)
+### Módulos (conceitual)
 
-O SignalHack opera com uma rede de agentes especializados (conceitual). O Strategist usa IA real via Groq quando configurada.
+O SignalHack opera com um conjunto de módulos especializados (conceitual). A etapa de geração de plano usa análise automatizada via Groq quando configurada.
 
-- Scout Agent: detecta sinais emergentes e crescimento inicial
-- Decoder Agent: decodifica intenção e contexto
-- Noise Killer Agent: filtra hype e picos artificiais
-- Strategist Agent: sugere estratégia e prioridade (decisão final humana)
+- Varredura (fontes públicas): detecta sinais emergentes e crescimento inicial
+- Leitura (intenção e contexto): interpreta intenção e contexto
+- Filtro (ruído removido): reduz hype e picos artificiais
+- Plano (execução em 7 dias): sugere tese e prioridade (decisão final humana)
 
 ## Deploy (Vercel + Postgres)
 

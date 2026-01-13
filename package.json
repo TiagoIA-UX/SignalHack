@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "local": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/run-local.ps1",
+    "admin:unlock": "node ./scripts/admin-unlock.mjs",
     "dev": "next dev --webpack",
     "dev:compose": "docker compose up --build",
     "prebuild": "prisma generate",
@@ -22,6 +24,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@sentry/nextjs": "^10.32.1",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.36.1",
     "argon2": "^0.44.0",

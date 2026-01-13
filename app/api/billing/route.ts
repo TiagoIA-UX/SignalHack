@@ -70,7 +70,7 @@ export async function POST(req: Request) {
   try {
     const created = await createPreapproval({
       accessToken,
-      reason: isElite ? "Signal Hacker • Elite access" : "Signal Hacker • Pro access",
+      reason: isElite ? "SignalForge • Elite access" : "SignalForge • Pro access",
       payerEmail: user.email,
       backUrl,
       notificationUrl,

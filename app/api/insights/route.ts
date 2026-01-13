@@ -7,6 +7,7 @@ import { analyzeSignalWithGroq } from "@/services/groq";
 import { getClientIp, rateLimitAsync } from "@/lib/rateLimit";
 import { logAccess } from "@/lib/accessLog";
 import { isDbUnavailableError } from "@/lib/dbError";
+import { getUa } from "@/lib/ua";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ function startOfDayUTC(d: Date) {
 
 export async function POST(req: Request) {
   const ip = getClientIp(req);
-  const ua = req.headers.get("user-agent");
+  const ua = getUa(req.headers);
 
   const rl = await rateLimitAsync(`insights:post:${ip}`, { windowMs: 60_000, max: 30 });
   if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -49,10 +50,10 @@ export async function POST(req: Request) {
   }
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const adminBypass = process.env.NODE_ENV !== "production" && user.role === "ADMIN";
+  const adminBypass = user.role === "ADMIN";
 
   if (!adminBypass && user.plan === "FREE") {
-    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 402, ip, userAgent: ua });
+    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 402, ip, ua });
     return NextResponse.json({ error: "upgrade_required" }, { status: 402 });
   }
 
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
     throw err;
   }
   if (existing) {
-    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 200, ip, userAgent: ua });
+    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 200, ip, ua });
     return NextResponse.json({ insight: existing, cached: true });
   }
 
@@ -101,7 +102,7 @@ export async function POST(req: Request) {
     }
 
     if (usage.insightsUsed >= 5) {
-      await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 402, ip, userAgent: ua });
+      await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 402, ip, ua });
       return NextResponse.json({ error: "upgrade_required" }, { status: 402 });
     }
   }
@@ -109,10 +110,26 @@ export async function POST(req: Request) {
   let analysis;
   try {
     analysis = await analyzeSignalWithGroq({ title: signal.title, summary: signal.summary });
-  } catch {
-    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 503, ip, userAgent: ua });
+  } catch (err) {
+    await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 503, ip, ua });
+    const msg = err instanceof Error ? err.message : "";
+    if (msg === "groq_not_configured") {
+      return NextResponse.json(
+        {
+          error: "ai_not_configured",
+          message:
+            "IA não está configurada. Defina GROQ_API_KEY no .env (ou salve o segredo groq_api_key) e reinicie o servidor de dev.",
+        },
+        { status: 503 }
+      );
+    }
+
+    console.error("[insights] Groq failed:", msg || err);
     return NextResponse.json(
-      { error: "ai_not_configured", message: "Configure GROQ_API_KEY (ou o segredo groq_api_key) para usar IA real." },
+      {
+        error: "ai_failed",
+        message: "IA indisponível agora. Verifique se GROQ_API_KEY/GROQ_MODEL estão válidos e tente novamente.",
+      },
       { status: 503 }
     );
   }
@@ -168,6 +185,6 @@ export async function POST(req: Request) {
     }
   }
 
-  await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 200, ip, userAgent: ua });
+  await logAccess({ userId: user.id, path: "/api/insights", method: "POST", status: 200, ip, ua });
   return NextResponse.json({ insight, cached: false });
 }

@@ -1,12 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
-import { Badge, Button, Card, Container } from "@/components/ui";
-import { AgentBadge } from "@/components/AgentBadge";
+import { Button, Card, Container } from "@/components/ui";
 import { SignalHackAvatar } from "@/components/SignalHackAvatar";
-import { UpgradeModal, type UpgradeModalVariant } from "@/components/UpgradeModal";
-import { getStrategistDailyLimit, incrementStrategistUsed, readStrategistUsed } from "@/lib/strategistLimit";
+
+type MoneyHunt =
+  | "REVOPS_AUTOMATION"
+  | "DUNNING"
+  | "B2B_LEADS"
+  | "COMPLIANCE"
+  | "ECOM"
+  | "OTHER";
 
 type Signal = {
   id: string;
@@ -32,446 +37,535 @@ type InsightResponse =
   | { error: string; message?: string }
   | { insight: { id: string; strategic: string; actionable: string; confidence: number }; cached: boolean };
 
-type Brief = {
-  headline: string;
-  summary: string;
-  windowsOpen: string[];
-  windowsClosing: string[];
-  priorities: Array<{ signalTitle: string; whyNow: string; firstAction: string; metric7d: string; risk: string }>;
-  disclaimer: string;
-};
-
-type BriefResponse =
-  | { error: string; message?: string }
-  | { brief: Brief; cached: boolean; weekStart: string };
-
 type PlaybookPlan = { id: string; hypothesis: string; experiment: string; metric: string; updatedAt: string };
 type PlaybookResponse = { plan: PlaybookPlan | null } | { error: string; message?: string };
 
+type ActivePlaybook = {
+  signalId: string;
+  signalTitle: string;
+  hunt: MoneyHunt;
+  hypothesis: string;
+  experiment: string;
+  metric: string;
+  updatedAt: string;
+};
+
+const ACTIVE_PLAYBOOK_STORAGE_KEY = "sh_active_playbook";
+
+function fmtIntent(intent: Signal["intent"]) {
+  return intent === "HIGH" ? "alta" : intent === "MEDIUM" ? "média" : "baixa";
+}
+
+function labelForHunt(h: MoneyHunt) {
+  switch (h) {
+    case "REVOPS_AUTOMATION":
+      return "Automatizar RevOps";
+    case "DUNNING":
+      return "Recuperar receita (dunning)";
+    case "B2B_LEADS":
+      return "Leads B2B";
+    case "COMPLIANCE":
+      return "Compliance & Privacidade";
+    case "ECOM":
+      return "E-commerce";
+    case "OTHER":
+      return "Outro";
+  }
+}
+
+function sanitizeCopy(text: string) {
+  if (!text || typeof text !== "string") return text;
+  return text
+    .replaceAll("Insights", "Sinais de compra")
+    .replaceAll("Insight", "Sinal de compra")
+    .replaceAll("insights", "sinais de compra")
+    .replaceAll("insight", "sinal de compra")
+    .replaceAll("Oportunidade principal", "Oportunidade de ganhar dinheiro")
+    .replaceAll("Tese principal", "Oportunidade de ganhar dinheiro");
+}
+
 function parseFiveBlocks(text: string): Array<{ title: string; body: string }> | null {
   if (!text || typeof text !== "string") return null;
-  const titles = [
+  const required = [
     "1. Contexto essencial",
     "2. O que o sinal realmente indica",
     "3. Risco principal",
-    "4. Oportunidade principal",
     "5. Próximo passo sugerido",
   ];
-  if (!titles.every((t) => text.includes(t))) return null;
+  const has4 =
+    text.includes("4. Oportunidade de ganhar dinheiro") || text.includes("4. Oportunidade principal") || text.includes("4. Tese principal");
+  if (!required.every((h) => text.includes(h)) || !has4) return null;
 
-  // Split mantendo o título como delimitador.
+  const titleMap = new Map<string, string>([
+    ["1. Contexto essencial", "1. Contexto essencial"],
+    ["2. O que o sinal realmente indica", "2. O que o sinal realmente indica"],
+    ["3. Risco principal", "3. Risco principal"],
+    ["4. Oportunidade principal", "4. Oportunidade de ganhar dinheiro"],
+    ["4. Tese principal", "4. Oportunidade de ganhar dinheiro"],
+    ["4. Oportunidade de ganhar dinheiro", "4. Oportunidade de ganhar dinheiro"],
+    ["5. Próximo passo sugerido", "5. Próximo passo sugerido"],
+  ]);
+
+  const canonical = [
+    "1. Contexto essencial",
+    "2. O que o sinal realmente indica",
+    "3. Risco principal",
+    "4. Oportunidade de ganhar dinheiro",
+    "5. Próximo passo sugerido",
+  ];
+
   const parts = text.split(/\n(?=\d\. )/g);
   const out: Array<{ title: string; body: string }> = [];
   for (const part of parts) {
     const trimmed = part.trim();
     const firstLineEnd = trimmed.indexOf("\n");
     const title = (firstLineEnd >= 0 ? trimmed.slice(0, firstLineEnd) : trimmed).trim();
-    if (!titles.includes(title)) continue;
+    const normalizedTitle = titleMap.get(title);
+    if (!normalizedTitle) continue;
     const body = (firstLineEnd >= 0 ? trimmed.slice(firstLineEnd + 1) : "").trim();
-    out.push({ title, body });
+    out.push({ title: normalizedTitle, body });
   }
-  return out.length === 5 ? out : null;
+
+  const hasAll = canonical.every((t) => out.some((b) => b.title === t));
+  return out.length === 5 && hasAll ? out : null;
 }
 
-function hasInsight(res: InsightResponse): res is { insight: { id: string; strategic: string; actionable: string; confidence: number }; cached: boolean } {
-  return "insight" in res;
+function scoreSignalForHunt(signal: Signal, hunt: MoneyHunt) {
+  const text = `${signal.title} ${signal.summary}`.toLowerCase();
+
+  const keywordGroups: Record<MoneyHunt, string[]> = {
+    REVOPS_AUTOMATION: ["revops", "pipeline", "receita", "crm", "autom", "follow", "leads", "cadência"],
+    DUNNING: ["dunning", "cobran", "inadimpl", "churn", "chargeback", "billing", "renov"],
+    B2B_LEADS: ["leads", "b2b", "outbound", "sdr", "abm", "prospec", "cold"],
+    COMPLIANCE: ["compliance", "lgpd", "risco", "auditoria", "privacidade", "seguran", "iso"],
+    ECOM: ["e-commerce", "ecommerce", "shopify", "checkout", "carrinho", "pix", "marketplace"],
+    OTHER: [],
+  };
+
+  let keywordHits = 0;
+  for (const kw of keywordGroups[hunt]) {
+    if (text.includes(kw)) keywordHits += 1;
+  }
+
+  const intentWeight = signal.intent === "HIGH" ? 16 : signal.intent === "MEDIUM" ? 8 : 2;
+  const scoreWeight = Math.max(0, Math.min(100, signal.score)) * 0.2;
+  const growthWeight = Math.max(0, Math.min(100, signal.growthPct)) * 0.12;
+  const keywordWeight = keywordHits * 10;
+
+  return keywordWeight + intentWeight + scoreWeight + growthWeight;
 }
 
-function isUpgradeRequired(res: InsightResponse): res is { error: "upgrade_required" } {
-  return typeof res === "object" && !!res && "error" in res && (res as { error?: unknown }).error === "upgrade_required";
+function pickTop3(signals: Signal[], hunt: MoneyHunt) {
+  const ranked = [...signals].sort((a, b) => scoreSignalForHunt(b, hunt) - scoreSignalForHunt(a, hunt));
+  return ranked.slice(0, 3);
 }
 
-export default function DashboardPage() {
-  const [data, setData] = useState<SignalsResponse | null>(null);
-  const [insightBySignalId, setInsightBySignalId] = useState<Record<string, InsightResponse>>({});
-  const [loadingInsightId, setLoadingInsightId] = useState<string | null>(null);
-  const [meId, setMeId] = useState<string | null>(null);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [upgradeVariant, setUpgradeVariant] = useState<UpgradeModalVariant>("strategist_locked");
-  const [strategistUsed, setStrategistUsed] = useState(0);
-  const [meRole, setMeRole] = useState<"USER" | "ADMIN" | null>(null);
-  const [searchQ, setSearchQ] = useState("");
-  const [briefRes, setBriefRes] = useState<BriefResponse | null>(null);
-  const [playbookBySignalId, setPlaybookBySignalId] = useState<Record<string, PlaybookPlan | null>>({});
-  const [playbookDraftBySignalId, setPlaybookDraftBySignalId] = useState<
-    Record<string, { hypothesis: string; experiment: string; metric: string }>
-  >({});
-  const [playbookSavingId, setPlaybookSavingId] = useState<string | null>(null);
+export default function DashboardOperatorPage() {
+  const [hunt, setHunt] = useState<MoneyHunt | null>(null);
+  const [signalsRes, setSignalsRes] = useState<SignalsResponse | null>(null);
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
 
-  const loadSignals = useCallback(async (query?: string) => {
-    const url = query && query.trim().length > 0 ? `/api/signals?q=${encodeURIComponent(query.trim())}` : "/api/signals";
-    const r = await fetch(url, { cache: "no-store" });
-    const j = (await r.json()) as SignalsResponse;
-    setData(j);
-  }, []);
+  const [activePlaybook, setActivePlaybook] = useState<ActivePlaybook | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/signals", { cache: "no-store" });
-        const j = (await r.json()) as SignalsResponse;
-        if (!cancelled) setData(j);
-      } catch {
-        if (!cancelled) setData({ error: "failed" });
-      }
-    })();
+  const [insightRes, setInsightRes] = useState<InsightResponse | null>(null);
+  const [loadingSignals, setLoadingSignals] = useState(false);
+  const [loadingInsight, setLoadingInsight] = useState(false);
 
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => {
-        const id = j?.user?.id ?? null;
-        const role = j?.user?.role ?? null;
-        setMeId(id);
-        setMeRole(role);
-        if (id) setStrategistUsed(readStrategistUsed(id));
-      })
-      .catch(() => setMeId(null));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const [playbook, setPlaybook] = useState<PlaybookPlan | null>(null);
+  const [draft, setDraft] = useState<{ hypothesis: string; experiment: string; metric: string }>({
+    hypothesis: "",
+    experiment: "",
+    metric: "",
+  });
+  const [saving, setSaving] = useState(false);
 
   const signals = useMemo(() => {
-    if (!data || "error" in data) return [];
-    return data.signals;
-  }, [data]);
+    if (!signalsRes || "error" in signalsRes) return [];
+    return signalsRes.signals;
+  }, [signalsRes]);
 
-  const plan = data && !("error" in data) ? data.plan : null;
-  const isAdmin = meRole === "ADMIN" || (data && !("error" in data) && data.role === "ADMIN");
-  const planLimited = data && "error" in data && data.error === "plan_limit";
-  const queryActive = data && !("error" in data) ? (data.query ?? "") : "";
+  const plan = signalsRes && !("error" in signalsRes) ? signalsRes.plan : null;
+  const isAdmin = signalsRes && !("error" in signalsRes) ? signalsRes.role === "ADMIN" : false;
 
-  const strategistLimit = useMemo(() => (plan ? getStrategistDailyLimit(plan) : 0), [plan]);
-  const strategistBlocked = plan === "FREE" && !isAdmin;
-  const strategistLimited = plan === "PRO" && !isAdmin;
+  const top3 = useMemo(() => {
+    if (!hunt) return [];
+    return pickTop3(signals, hunt);
+  }, [signals, hunt]);
 
-  useEffect(() => {
-    if (!plan) return;
-    if (plan === "FREE" && !isAdmin) return;
+  const selectedSignal = useMemo(() => {
+    if (!selectedSignalId) return null;
+    return signals.find((s) => s.id === selectedSignalId) ?? null;
+  }, [signals, selectedSignalId]);
 
-    fetch("/api/brief", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => setBriefRes(j as BriefResponse))
-      .catch(() => setBriefRes({ error: "failed" }));
-  }, [plan, isAdmin]);
+  async function loadSignals() {
+    setLoadingSignals(true);
+    setInsightRes(null);
+    setPlaybook(null);
+    setDraft({ hypothesis: "", experiment: "", metric: "" });
+    try {
+      const r = await fetch("/api/signals", { cache: "no-store" });
+      const j = (await r.json()) as SignalsResponse;
+      setSignalsRes(j);
+      if (!("error" in j) && j.signals?.[0]?.id) {
+        setSelectedSignalId(null);
+      }
+    } catch {
+      setSignalsRes({ error: "failed" });
+    } finally {
+      setLoadingSignals(false);
+    }
+  }
 
   async function loadPlaybook(signalId: string) {
     const res = await fetch(`/api/playbooks?signalId=${encodeURIComponent(signalId)}`, { cache: "no-store" });
     const json = (await res.json()) as PlaybookResponse;
     if ("plan" in json) {
-      const plan = json.plan;
-      setPlaybookBySignalId((prev) => ({ ...prev, [signalId]: plan }));
-      if (plan) {
-        setPlaybookDraftBySignalId((prev) => ({
-          ...prev,
-          [signalId]: {
-            hypothesis: plan.hypothesis,
-            experiment: plan.experiment,
-            metric: plan.metric,
-          },
-        }));
+      setPlaybook(json.plan);
+      if (json.plan) {
+        setDraft({ hypothesis: json.plan.hypothesis, experiment: json.plan.experiment, metric: json.plan.metric });
       }
     }
   }
 
-  async function savePlaybook(signalId: string) {
-    const draft = playbookDraftBySignalId[signalId];
-    if (!draft) return;
-    setPlaybookSavingId(signalId);
-    const res = await fetch("/api/playbooks", {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ signalId, ...draft }),
-    });
-    const json = (await res.json()) as PlaybookResponse;
-    if (res.ok && "plan" in json && json.plan) setPlaybookBySignalId((prev) => ({ ...prev, [signalId]: json.plan }));
-    setPlaybookSavingId(null);
+  async function generate(signalId: string) {
+    setLoadingInsight(true);
+    setInsightRes(null);
+    setPlaybook(null);
+    setDraft({ hypothesis: "", experiment: "", metric: "" });
+    try {
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ signalId }),
+      });
+      const json = (await res.json()) as InsightResponse;
+      setInsightRes(json);
+      if (res.ok && !("error" in json)) {
+        await loadPlaybook(signalId);
+      }
+    } catch {
+      setInsightRes({ error: "failed" });
+    } finally {
+      setLoadingInsight(false);
+    }
   }
 
-  async function loadInsight(signalId: string) {
-    if (!plan) return;
+  async function save(signalId: string) {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/playbooks", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ signalId, ...draft }),
+      });
+      const json = (await res.json()) as PlaybookResponse;
+      if (res.ok && "plan" in json) {
+        setPlaybook(json.plan);
 
-    if (strategistBlocked) {
-      setUpgradeVariant("strategist_locked");
-      setUpgradeOpen(true);
-      return;
-    }
-
-    if (strategistLimited && strategistLimit !== null && meId) {
-      const used = readStrategistUsed(meId);
-      if (used >= strategistLimit) {
-        setStrategistUsed(used);
-        setUpgradeVariant("strategist_limit");
-        setUpgradeOpen(true);
-        return;
+        if (json.plan && hunt && selectedSignal) {
+          const nextActive: ActivePlaybook = {
+            signalId,
+            signalTitle: selectedSignal.title,
+            hunt,
+            hypothesis: json.plan.hypothesis,
+            experiment: json.plan.experiment,
+            metric: json.plan.metric,
+            updatedAt: json.plan.updatedAt,
+          };
+          setActivePlaybook(nextActive);
+          try {
+            localStorage.setItem(ACTIVE_PLAYBOOK_STORAGE_KEY, JSON.stringify(nextActive));
+          } catch {
+            // noop
+          }
+        }
       }
+    } finally {
+      setSaving(false);
     }
-
-    setLoadingInsightId(signalId);
-    const res = await fetch("/api/insights", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ signalId }),
-    });
-    const json = (await res.json()) as InsightResponse;
-    setInsightBySignalId((prev) => ({ ...prev, [signalId]: json }));
-
-    if (res.ok && hasInsight(json)) {
-      loadPlaybook(signalId).catch(() => null);
-    }
-
-    if (res.status === 402 && isUpgradeRequired(json)) {
-      setUpgradeVariant(plan === "PRO" ? "strategist_limit" : "strategist_locked");
-      setUpgradeOpen(true);
-    }
-    if (res.ok && strategistLimited && strategistLimit !== null && meId) {
-      const maybeCached = "cached" in json ? (json as { cached?: boolean }).cached : undefined;
-      if (!maybeCached) {
-        const next = incrementStrategistUsed(meId);
-        setStrategistUsed(next);
-      }
-    }
-    setLoadingInsightId(null);
   }
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(ACTIVE_PLAYBOOK_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as ActivePlaybook;
+      if (parsed?.signalId && parsed?.hypothesis && parsed?.experiment && parsed?.metric && parsed?.hunt) {
+        setActivePlaybook(parsed);
+      }
+    } catch {
+      // noop
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hunt) return;
+    void loadSignals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hunt]);
 
   return (
     <div className="min-h-screen">
       <AppHeader authed />
       <main className="py-10">
         <Container>
-          {briefRes && !("error" in briefRes) ? (
-            <Card className="mb-6 p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <div className="flex items-end justify-between gap-4">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">brief semanal</div>
-                  <div className="mt-1 text-base font-semibold text-zinc-100">{briefRes.brief.headline}</div>
+                  <h1 className="text-2xl font-semibold tracking-tight">Modo Operador</h1>
+                  <p className="mt-1 text-sm text-zinc-300">Escolha o alvo → escolha 1 sinal → gere e salve um playbook de 7 dias.</p>
                 </div>
-                <div className="text-xs text-zinc-400">Semana: {new Date(briefRes.weekStart).toLocaleDateString("pt-BR")}</div>
+                <Button href="/radar" variant="ghost">
+                  Abrir Radar
+                </Button>
               </div>
-              <div className="mt-3 text-sm text-zinc-200">{briefRes.brief.summary}</div>
-
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <div className="text-xs font-medium text-zinc-200">Janelas abrindo</div>
-                  <div className="mt-2 space-y-1 text-sm text-zinc-200">
-                    {briefRes.brief.windowsOpen?.length ? (
-                      briefRes.brief.windowsOpen.map((t, idx) => (
-                        <div key={idx} className="text-zinc-200">
-                          • {t}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-zinc-400">Sem destaques.</div>
-                    )}
-                  </div>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <div className="text-xs font-medium text-zinc-200">Janelas fechando</div>
-                  <div className="mt-2 space-y-1 text-sm text-zinc-200">
-                    {briefRes.brief.windowsClosing?.length ? (
-                      briefRes.brief.windowsClosing.map((t, idx) => (
-                        <div key={idx} className="text-zinc-200">
-                          • {t}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-zinc-400">Sem alertas.</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {briefRes.brief.priorities?.length ? (
-                <div className="mt-4">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">prioridades</div>
-                  <div className="mt-3 grid gap-3 md:grid-cols-3">
-                    {briefRes.brief.priorities.slice(0, 3).map((p, idx) => (
-                      <div key={idx} className="rounded-xl border border-white/10 bg-black p-3">
-                        <div className="text-sm font-medium text-zinc-100">{p.signalTitle}</div>
-                        <div className="mt-2 text-xs text-zinc-400">Por que agora</div>
-                        <div className="mt-1 text-sm text-zinc-200">{p.whyNow}</div>
-                        <div className="mt-2 text-xs text-zinc-400">Primeira ação</div>
-                        <div className="mt-1 text-sm text-zinc-200">{p.firstAction}</div>
-                        <div className="mt-2 text-xs text-zinc-400">Métrica (7 dias)</div>
-                        <div className="mt-1 text-sm text-zinc-200">{p.metric7d}</div>
-                        <div className="mt-2 text-xs text-zinc-400">Risco</div>
-                        <div className="mt-1 text-sm text-zinc-200">{p.risk}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="mt-4 text-xs text-zinc-400">{briefRes.brief.disclaimer}</div>
-            </Card>
-          ) : briefRes && "error" in briefRes ? (
-            <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-200">
-              {briefRes.error === "upgrade_required"
-                ? "Brief semanal disponível no Pro."
-                : briefRes.error === "ai_not_configured"
-                  ? (briefRes.message ?? "IA não configurada para gerar o brief semanal.")
-                  : "Brief semanal indisponível."}
             </div>
-          ) : null}
 
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-              <p className="mt-1 text-sm text-zinc-300">Sinais ordenados por score. IA interpreta, você decide.</p>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <AgentBadge id="scout" />
-                <AgentBadge id="decoder" />
-                <AgentBadge id="noise_killer" locked={plan === "FREE" && !isAdmin} rightLabel={plan === "FREE" && !isAdmin ? "bloqueado" : undefined} />
-                <AgentBadge
-                  id="strategist"
-                  locked={plan === "FREE" && !isAdmin}
-                  rightLabel={
-                    plan === "FREE" && !isAdmin
-                      ? "bloqueado"
-                      : plan === "PRO" && strategistLimit !== null
-                        ? `${strategistUsed}/${strategistLimit}`
-                        : plan === "ELITE"
-                          ? "ilimitado"
-                          : undefined
-                  }
-                />
-                <span className="text-xs text-zinc-400">rede de agentes especializada (conceitual; insights exigem IA configurada)</span>
-              </div>
-              {plan === "ELITE" ? (
-                <div className="mt-2 text-xs text-zinc-400">Acesso total à rede de agentes Signal Hacker.</div>
-              ) : null}
-            </div>
-            <Button href="/plans" variant="ghost">
-              Upgrade
-            </Button>
-          </div>
-
-          <Card className="mt-6 p-5">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                loadSignals(searchQ).catch(() => null);
-              }}
-              className="flex flex-wrap items-end gap-3"
-            >
-              <div className="flex-1">
-                <label className="text-xs text-zinc-400">Buscar no histórico</label>
-                <input
-                  value={searchQ}
-                  onChange={(e) => setSearchQ(e.target.value)}
-                  placeholder="ex.: revops, copy, afiliado, IA"
-                  className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-black px-3 text-sm outline-none focus:ring-2 focus:ring-white/10"
-                />
-              </div>
-              <Button type="submit" variant="ghost">
-                Buscar
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setSearchQ("");
-                  loadSignals("").catch(() => null);
-                }}
-              >
-                Limpar
-              </Button>
-            </form>
-            {queryActive ? (
-              <div className="mt-3 text-xs text-zinc-400">Mostrando resultados para: <span className="text-zinc-200">{queryActive}</span></div>
-            ) : (
-              <div className="mt-3 text-xs text-zinc-400">Dica: use palavras do título, fonte ou resumo.</div>
-            )}
-          </Card>
-
-          {planLimited && !isAdmin ? (
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-200">
-              Limite diário do plano Free atingido. Faça upgrade para continuar.
-            </div>
-          ) : null}
-
-          <div className="mt-8 grid gap-4">
-            {signals.map((s) => {
-              const insightRes = insightBySignalId[s.id];
-              return (
-                <Card key={s.id} className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-base font-semibold tracking-tight">{s.title}</h2>
-                        <Badge>
-                          intenção {s.intent === "HIGH" ? "alta" : s.intent === "MEDIUM" ? "média" : "baixa"}
-                        </Badge>
-                      </div>
-                      <div className="mt-1 text-xs text-zinc-400">{s.source}</div>
-                      <div className="mt-2 text-xs text-zinc-400">
-                        Detectado pelo <span className="text-zinc-200">Scout Agent</span> • Decodificado pelo{" "}
-                        <span className="text-zinc-200">Decoder Agent</span>
-                        {plan === "FREE" ? (
-                          <>
-                            {" "}• Filtro avançado (Noise Killer): <span className="text-zinc-200">Pro</span>
-                          </>
-                        ) : (
-                          <>
-                            {" "}• Filtrado pelo <span className="text-zinc-200">Noise Killer</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-zinc-300">Score</div>
-                      <div className="text-2xl font-semibold">{s.score}</div>
-                      <div className="text-xs text-zinc-400">+{s.growthPct}%</div>
-                    </div>
+            <Card className="p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">missão ativa</div>
+                  <div className="mt-1 text-sm font-medium text-zinc-100">
+                    {activePlaybook ? activePlaybook.signalTitle : "Nenhuma"}
                   </div>
-                  <p className="mt-3 text-sm text-zinc-200">{s.summary}</p>
-                  <div className="mt-3 text-xs text-zinc-400">
-                    Registro do sinal: <span className="text-zinc-200">Scout Agent</span> • Classificação: {" "}
-                    <span className="text-zinc-200">Decoder Agent</span>
+                </div>
+                {activePlaybook ? (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setHunt(activePlaybook.hunt);
+                      setSelectedSignalId(activePlaybook.signalId);
+                    }}
+                  >
+                    Retomar
+                  </Button>
+                ) : null}
+              </div>
+
+              {activePlaybook ? (
+                <div className="mt-3 space-y-3">
+                  {(() => {
+                    const updatedAtMs = Date.parse(activePlaybook.updatedAt);
+                    const days = Number.isFinite(updatedAtMs) ? (Date.now() - updatedAtMs) / 86_400_000 : null;
+                    const status =
+                      days === null ? "em andamento" : days <= 7 ? `rodando (D+${Math.floor(days)})` : "fora da janela (7 dias)";
+
+                    return (
+                      <div className="text-xs text-zinc-400">
+                        Alvo: <span className="text-zinc-200">{labelForHunt(activePlaybook.hunt)}</span> • Status:{" "}
+                        <span className="text-zinc-200">{status}</span>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
+                    <div className="text-xs text-zinc-400">Hipótese</div>
+                    <div className="mt-1 text-sm text-zinc-100">{activePlaybook.hypothesis}</div>
                   </div>
-                  <div className="mt-4 flex gap-3">
-                    <Button onClick={() => loadInsight(s.id)} variant="ghost" disabled={loadingInsightId === s.id}>
-                      {loadingInsightId === s.id
-                        ? "Strategist Agent em execução…"
-                        : plan === "FREE"
-                          ? "Gerar insight acionável"
-                          : plan === "PRO" && strategistLimit !== null
-                            ? `Gerar insight acionável (${strategistUsed}/${strategistLimit})`
-                            : "Gerar insight acionável"}
+                  <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
+                    <div className="text-xs text-zinc-400">Experimento</div>
+                    <div className="mt-1 text-sm text-zinc-100">{activePlaybook.experiment}</div>
+                  </div>
+                  <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
+                    <div className="text-xs text-zinc-400">Métrica (7 dias)</div>
+                    <div className="mt-1 text-sm text-zinc-100">{activePlaybook.metric}</div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs text-zinc-500">Atualizado: {new Date(activePlaybook.updatedAt).toLocaleString("pt-BR")}</div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setActivePlaybook(null);
+                        try {
+                          localStorage.removeItem(ACTIVE_PLAYBOOK_STORAGE_KEY);
+                        } catch {
+                          // noop
+                        }
+                      }}
+                    >
+                      Limpar
                     </Button>
                   </div>
+                </div>
+              ) : (
+                <div className="mt-3 text-sm text-zinc-300">
+                  Salve um playbook e ele aparece aqui como seu painel de execução.
+                </div>
+              )}
+            </Card>
+          </div>
 
-                  {plan === "FREE" ? (
-                    <div className="mt-3 text-xs text-zinc-400">Insight estratégico disponível no Pro.</div>
+          {!hunt ? (
+            <Card className="mt-6 p-6">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 1</div>
+              <div className="mt-2 text-lg font-semibold text-zinc-100">Qual dinheiro você quer caçar esta semana?</div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {([
+                  "REVOPS_AUTOMATION",
+                  "DUNNING",
+                  "B2B_LEADS",
+                  "COMPLIANCE",
+                  "ECOM",
+                  "OTHER",
+                ] as MoneyHunt[]).map((h) => (
+                  <button
+                    key={h}
+                    onClick={() => setHunt(h)}
+                    className="rounded-2xl border border-emerald-500/15 bg-black/40 p-4 text-left transition-colors hover:border-emerald-500/25"
+                  >
+                    <div className="text-sm font-medium text-zinc-100">{labelForHunt(h)}</div>
+                    <div className="mt-1 text-xs text-zinc-400">Ver 3 sinais ativos agora.</div>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 text-xs text-zinc-500">Sem relatório. Só operação.</div>
+            </Card>
+          ) : (
+            <>
+              <Card className="mt-6 p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 1</div>
+                    <div className="mt-2 text-lg font-semibold text-zinc-100">Alvo: {labelForHunt(hunt)}</div>
+                    <div className="mt-2 text-sm text-zinc-300">Agora escolha 1 sinal e gere o playbook.</div>
+                    <div className="mt-3 text-xs text-zinc-400">
+                      Plano: {plan ?? "…"} {isAdmin ? "• admin" : ""}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setHunt(null);
+                        setSignalsRes(null);
+                        setSelectedSignalId(null);
+                        setInsightRes(null);
+                        setPlaybook(null);
+                      }}
+                    >
+                      Trocar alvo
+                    </Button>
+                    <Button variant="ghost" onClick={() => void loadSignals()} disabled={loadingSignals}>
+                      {loadingSignals ? "Atualizando…" : "Atualizar"}
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+
+              {hunt && loadingSignals ? (
+                <div className="mt-6 flex items-center gap-3 text-sm text-zinc-300">
+                  <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
+                  <span>Carregando sinais…</span>
+                </div>
+              ) : null}
+
+              {signalsRes && "error" in signalsRes ? (
+                <div className="mt-6 rounded-2xl border border-emerald-500/15 bg-black/40 p-4 text-sm text-zinc-200">
+                  {signalsRes.error === "plan_limit"
+                    ? "Limite diário do Free atingido. Faça upgrade para continuar operando."
+                    : signalsRes.error === "db_unavailable"
+                      ? "Banco indisponível agora."
+                      : "Falha ao carregar sinais."}
+                  <div className="mt-3 flex gap-2">
+                    <Button href="/plans" variant="ghost">
+                      Ver planos
+                    </Button>
+                    <Button href="/radar" variant="ghost">
+                      Abrir Radar
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {signalsRes && !("error" in signalsRes) ? (
+                <Card className="mt-6 p-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 2</div>
+                  <div className="mt-2 text-lg font-semibold text-zinc-100">Escolha 1 sinal (top 3)</div>
+                  <div className="mt-5 grid gap-3 lg:grid-cols-3">
+                    {top3.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          setSelectedSignalId(s.id);
+                          setInsightRes(null);
+                          setPlaybook(null);
+                          setDraft({ hypothesis: "", experiment: "", metric: "" });
+                        }}
+                        className={`rounded-2xl border bg-black/40 p-4 text-left transition-colors hover:border-emerald-500/25 ${
+                          selectedSignalId === s.id ? "border-emerald-500/35" : "border-emerald-500/15"
+                        }`}
+                      >
+                        <div className="text-xs text-zinc-400">{s.source}</div>
+                        <div className="mt-2 text-sm font-medium text-zinc-100">{s.title}</div>
+                        <div className="mt-2 text-xs text-zinc-400">{s.summary}</div>
+                        <div className="mt-3 text-xs text-zinc-400">
+                          intenção {fmtIntent(s.intent)} • score {s.score} • +{s.growthPct}%
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-xs text-zinc-500">Depois disso, você gera tese + plano e executa.</div>
+                </Card>
+              ) : null}
+
+              {selectedSignal ? (
+                <Card className="mt-6 p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 3</div>
+                      <div className="mt-2 text-lg font-semibold text-zinc-100">Transformar em dinheiro</div>
+                      <div className="mt-2 text-sm text-zinc-300">Escolhido: {selectedSignal.title}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" onClick={() => void generate(selectedSignal.id)} disabled={loadingInsight}>
+                        {loadingInsight ? "Gerando…" : "Gerar tese + plano"}
+                      </Button>
+                      <Button href="/radar" variant="ghost">
+                        Ver no Radar
+                      </Button>
+                    </div>
+                  </div>
+
+                  {insightRes && "error" in insightRes ? (
+                    <div className="mt-4 rounded-2xl border border-emerald-500/15 bg-black/40 p-4 text-sm text-zinc-200">
+                      {insightRes.error === "upgrade_required"
+                        ? "Upgrade necessário para gerar a tese + plano."
+                        : insightRes.error === "ai_not_configured"
+                          ? (insightRes.message ?? "IA não configurada.")
+                          : insightRes.error === "ai_failed"
+                            ? (insightRes.message ?? "IA indisponível agora.")
+                            : "Falha ao gerar."}
+                      <div className="mt-3 flex gap-2">
+                        <Button href="/plans" variant="ghost">
+                          Ver planos
+                        </Button>
+                      </div>
+                    </div>
                   ) : null}
 
-                  {plan === "PRO" && strategistLimit !== null ? (
-                    <div className="mt-3 text-xs text-zinc-400">Você usou {strategistUsed}/{strategistLimit} insights estratégicos hoje.</div>
-                  ) : null}
-
-                  {insightRes && hasInsight(insightRes) ? (
-                    <div className="mt-4 rounded-2xl border border-white/10 bg-black p-4">
+                  {insightRes && !("error" in insightRes) ? (
+                    <div className="mt-4 rounded-2xl border border-emerald-500/15 bg-black/40 p-4">
                       <div className="flex items-center justify-between gap-4">
-                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">agent insight</div>
+                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">tese + plano</div>
                         <SignalHackAvatar className="h-5 w-5 text-white/60" />
                       </div>
-                      <div className="mt-2 text-xs text-zinc-400">Estratégia sugerida pelo <span className="text-zinc-200">Strategist Agent</span></div>
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <div className="text-xs text-zinc-400">Resumo estratégico</div>
-                          {(() => {
-                            const blocks = parseFiveBlocks(insightRes.insight.strategic);
-                            if (!blocks) {
-                              return (
-                                <div className="mt-1 whitespace-pre-wrap text-sm text-zinc-200">{insightRes.insight.strategic}</div>
-                              );
-                            }
+                      <div className="mt-2 text-xs text-zinc-400">Confiança: {insightRes.insight.confidence}</div>
 
+                      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                        <div>
+                          <div className="text-xs text-zinc-400">Resumo</div>
+                          {(() => {
+                            const strategic = sanitizeCopy(insightRes.insight.strategic);
+                            const blocks = parseFiveBlocks(strategic);
+                            if (!blocks) {
+                              return <div className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">{strategic}</div>;
+                            }
                             return (
                               <div className="mt-2 space-y-3">
                                 {blocks.map((b) => (
-                                  <div key={b.title} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                                  <div key={b.title} className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
                                     <div className="text-xs font-medium text-zinc-200">{b.title}</div>
                                     <div className="mt-1 whitespace-pre-wrap text-sm text-zinc-200">{b.body}</div>
                                   </div>
@@ -480,160 +574,70 @@ export default function DashboardPage() {
                             );
                           })()}
                         </div>
+
                         <div>
                           <div className="text-xs text-zinc-400">Ação sugerida</div>
-                          <div className="mt-1 whitespace-pre-wrap text-sm text-zinc-200">{insightRes.insight.actionable}</div>
+                          <div className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">{sanitizeCopy(insightRes.insight.actionable)}</div>
 
-                          <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
-                            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">plano de execução (7 dias)</div>
+                          <div className="mt-4 rounded-xl border border-emerald-500/15 bg-black/40 p-3">
+                            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">playbook (7 dias)</div>
                             <div className="mt-3 space-y-3">
                               <div>
                                 <div className="text-xs text-zinc-400">Hipótese</div>
                                 <textarea
-                                  value={(playbookDraftBySignalId[s.id]?.hypothesis ?? playbookBySignalId[s.id]?.hypothesis ?? "").toString()}
-                                  onChange={(e) =>
-                                    setPlaybookDraftBySignalId((prev) => ({
-                                      ...prev,
-                                      [s.id]: {
-                                        hypothesis: e.target.value,
-                                        experiment: prev[s.id]?.experiment ?? playbookBySignalId[s.id]?.experiment ?? "",
-                                        metric: prev[s.id]?.metric ?? playbookBySignalId[s.id]?.metric ?? "",
-                                      },
-                                    }))
-                                  }
+                                  value={draft.hypothesis}
+                                  onChange={(e) => setDraft((p) => ({ ...p, hypothesis: e.target.value }))}
+                                  className="mt-2 min-h-[84px] w-full rounded-xl border border-emerald-500/15 bg-black px-3 py-2 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500/20"
                                   placeholder="Se eu atacar X com Y, espero ver Z."
-                                  className="mt-2 min-h-[84px] w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-white/10"
                                 />
                               </div>
                               <div>
                                 <div className="text-xs text-zinc-400">Experimento</div>
                                 <textarea
-                                  value={(playbookDraftBySignalId[s.id]?.experiment ?? playbookBySignalId[s.id]?.experiment ?? "").toString()}
-                                  onChange={(e) =>
-                                    setPlaybookDraftBySignalId((prev) => ({
-                                      ...prev,
-                                      [s.id]: {
-                                        hypothesis: prev[s.id]?.hypothesis ?? playbookBySignalId[s.id]?.hypothesis ?? "",
-                                        experiment: e.target.value,
-                                        metric: prev[s.id]?.metric ?? playbookBySignalId[s.id]?.metric ?? "",
-                                      },
-                                    }))
-                                  }
+                                  value={draft.experiment}
+                                  onChange={(e) => setDraft((p) => ({ ...p, experiment: e.target.value }))}
+                                  className="mt-2 min-h-[96px] w-full rounded-xl border border-emerald-500/15 bg-black px-3 py-2 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500/20"
                                   placeholder="Passo 1… Passo 2… Passo 3…"
-                                  className="mt-2 min-h-[96px] w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-white/10"
                                 />
                               </div>
                               <div>
                                 <div className="text-xs text-zinc-400">Métrica (7 dias)</div>
                                 <input
-                                  value={(playbookDraftBySignalId[s.id]?.metric ?? playbookBySignalId[s.id]?.metric ?? "").toString()}
-                                  onChange={(e) =>
-                                    setPlaybookDraftBySignalId((prev) => ({
-                                      ...prev,
-                                      [s.id]: {
-                                        hypothesis: prev[s.id]?.hypothesis ?? playbookBySignalId[s.id]?.hypothesis ?? "",
-                                        experiment: prev[s.id]?.experiment ?? playbookBySignalId[s.id]?.experiment ?? "",
-                                        metric: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="ex.: 10 respostas qualificadas, 3 calls, 2% CTR"
-                                  className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-black px-3 text-sm outline-none focus:ring-2 focus:ring-white/10"
+                                  value={draft.metric}
+                                  onChange={(e) => setDraft((p) => ({ ...p, metric: e.target.value }))}
+                                  className="mt-2 h-11 w-full rounded-xl border border-emerald-500/15 bg-black px-3 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                  placeholder="ex.: 10 respostas qualificadas, 3 calls"
                                 />
                               </div>
+
                               <div className="flex items-center gap-3">
                                 <Button
                                   variant="ghost"
-                                  onClick={() => savePlaybook(s.id)}
-                                  disabled={playbookSavingId === s.id}
+                                  onClick={() => void save(selectedSignal.id)}
+                                  disabled={
+                                    saving ||
+                                    draft.hypothesis.trim().length < 8 ||
+                                    draft.experiment.trim().length < 8 ||
+                                    draft.metric.trim().length < 4
+                                  }
                                 >
-                                  {playbookBySignalId[s.id] ? "Atualizar plano" : "Salvar plano"}
+                                  {saving ? "Salvando…" : playbook ? "Atualizar playbook" : "Salvar playbook"}
                                 </Button>
-                                {playbookBySignalId[s.id] ? (
-                                  <div className="text-xs text-zinc-400">Salvo.</div>
-                                ) : null}
+                                {playbook ? <div className="text-xs text-zinc-400">Salvo.</div> : null}
                               </div>
+                              <div className="text-xs text-zinc-500">Critério: se não bater a métrica, ajusta ou mata.</div>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div className="mt-3 text-xs text-zinc-400">
-                        Confiança: {insightRes.insight.confidence}
-                      </div>
-                      <div className="mt-2 text-xs text-zinc-400">IA interpreta, não decide sozinha.</div>
-                    </div>
-                  ) : null}
-
-                  {insightRes && "error" in insightRes ? (
-                    <div className="mt-4 text-sm text-zinc-300">
-                      {insightRes.error === "ai_not_configured" ? (
-                        <>
-                          {insightRes.message ?? "IA não configurada para gerar insights."}
-                          {isAdmin ? (
-                            <>
-                              {" "}
-                              <a href="/admin/settings" className="underline underline-offset-4">
-                                Abrir configurações
-                              </a>
-                            </>
-                          ) : null}
-                        </>
-                      ) : insightRes.error === "upgrade_required" ? (
-                        "Upgrade necessário para gerar insight."
-                      ) : (
-                        insightRes.message ?? "Insight indisponível."
-                      )}
                     </div>
                   ) : null}
                 </Card>
-              );
-            })}
-          </div>
-
-          {data && !("error" in data) && signals.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-              <div className="flex items-center gap-3">
-                <SignalHackAvatar className="h-6 w-6 text-white/60" />
-                <div>
-                  <div className="text-sm font-medium">Nenhum sinal disponível ainda</div>
-                  <div className="mt-1 text-xs text-zinc-400">Scout Agent não encontrou sinais relevantes no momento.</div>
-                </div>
-              </div>
-              <div className="mt-4 flex gap-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    window.location.reload();
-                  }}
-                >
-                  Rodar varredura novamente
-                </Button>
-                <Button href="/plans" variant="ghost">
-                  Ver planos
-                </Button>
-              </div>
-            </div>
-          ) : null}
-
-          {!data ? (
-            <div className="mt-6 flex items-center gap-3 text-sm text-zinc-300">
-              <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
-              <span>Scout Agent varrendo sinais…</span>
-            </div>
-          ) : null}
-          {data && "error" in data && data.error === "unauthorized" ? (
-            <div className="mt-6 text-sm text-zinc-300">Sessão inválida. Volte ao login.</div>
-          ) : null}
+              ) : null}
+            </>
+          )}
         </Container>
       </main>
-
-      <UpgradeModal
-        open={upgradeOpen}
-        onClose={() => setUpgradeOpen(false)}
-        variant={upgradeVariant}
-        strategistUsed={strategistUsed}
-        strategistLimit={strategistLimit === null ? undefined : strategistLimit}
-      />
     </div>
   );
 }

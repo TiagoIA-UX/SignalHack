@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
-import { AgentBadge } from "@/components/AgentBadge";
+import { ModuleBadge } from "@/components/ModuleBadge";
 import { SignalHackAvatar } from "@/components/SignalHackAvatar";
-import { getStrategistDailyLimit, readStrategistUsed } from "@/lib/strategistLimit";
+import { getStrategyDailyLimit, readStrategyUsed } from "@/lib/strategyLimit";
 
 type MeResponse =
   | { user: null }
@@ -16,7 +16,7 @@ type StatsResponse = {
   points: {
     today: number;
     total: number;
-    level: "Observer" | "Strategist" | "Insider";
+    level: "Iniciante" | "Operador" | "Insider";
     nextAt: number | null;
     rankLabel: string;
     top10Position: number | null;
@@ -26,20 +26,20 @@ type StatsResponse = {
 
 function badgeLabel(key: string) {
   if (key === "first_login") return "Primeiro acesso";
-  if (key === "first_insight") return "Primeiro insight";
+  if (key === "first_insight") return "Primeiro sinal de compra";
   return key;
 }
 
 function badgeAttribution(key: string) {
-  if (key === "first_login") return "Sinal captado: Scout Agent";
-  if (key === "first_insight") return "Estratégia sugerida: Strategist Agent";
-  return "Rede de agentes";
+  if (key === "first_login") return "Primeiro sinal registrado (fontes públicas)";
+  if (key === "first_insight") return "Primeira priorização com plano de execução";
+  return "Fluxo operacional";
 }
 
 export default function ProfilePage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [stats, setStats] = useState<StatsResponse | null>(null);
-  const [strategistUsed, setStrategistUsed] = useState(0);
+  const [strategyUsed, setStrategyUsed] = useState(0);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -47,7 +47,7 @@ export default function ProfilePage() {
       .then((j) => {
         setMe(j);
         const id = j?.user?.id ?? null;
-        if (id) setStrategistUsed(readStrategistUsed(id));
+        if (id) setStrategyUsed(readStrategyUsed(id));
       })
       .catch(() => setMe({ user: null }));
 
@@ -58,9 +58,9 @@ export default function ProfilePage() {
   }, []);
 
   const plan = me?.user ? me.user.plan : null;
-  const strategistLimit = useMemo(() => (plan ? getStrategistDailyLimit(plan) : 0), [plan]);
-  const strategistBlocked = plan === "FREE";
-  const strategistLimited = plan === "PRO";
+  const strategyLimit = useMemo(() => (plan ? getStrategyDailyLimit(plan) : 0), [plan]);
+  const strategyBlocked = plan === "FREE";
+  const strategyLimited = plan === "PRO";
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -84,28 +84,28 @@ export default function ProfilePage() {
                 ) : (
                   <div className="flex items-center gap-3">
                     <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
-                    <span>Decoder Agent sincronizando sessão…</span>
+                    <span>Carregando seu perfil…</span>
                   </div>
                 )}
               </div>
 
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">agentes online</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">módulos ativos</div>
                   <SignalHackAvatar className="h-5 w-5 text-white/60" />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <AgentBadge id="scout" />
-                  <AgentBadge id="decoder" />
-                  <AgentBadge id="noise_killer" locked={plan === "FREE"} rightLabel={plan === "FREE" ? "bloqueado" : undefined} />
-                  <AgentBadge
-                    id="strategist"
-                    locked={strategistBlocked}
+                  <ModuleBadge id="atlas" />
+                  <ModuleBadge id="nexus" />
+                  <ModuleBadge id="pulse" locked={plan === "FREE"} rightLabel={plan === "FREE" ? "bloqueado" : undefined} />
+                  <ModuleBadge
+                    id="artisan"
+                    locked={strategyBlocked}
                     rightLabel={
-                      strategistBlocked
+                      strategyBlocked
                         ? "bloqueado"
-                        : strategistLimited && strategistLimit !== null
-                          ? `${strategistUsed}/${strategistLimit}`
+                        : strategyLimited && strategyLimit !== null
+                          ? `${strategyUsed}/${strategyLimit}`
                           : plan === "ELITE"
                             ? "ilimitado"
                             : undefined
@@ -113,16 +113,16 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="mt-3 text-xs text-zinc-400">
-                  Scout detecta • Decoder decodifica • Noise Killer filtra • Strategist sugere ação
+                  Fontes públicas detectam • Validação organiza • Filtro de ruído reduz falsos positivos • Estratégia sugere plano
                 </div>
-                {strategistBlocked ? (
-                  <div className="mt-3 text-xs text-zinc-400">Insight estratégico disponível no Pro.</div>
+                {strategyBlocked ? (
+                  <div className="mt-3 text-xs text-zinc-400">Estratégia (priorização + plano) disponível no Pro.</div>
                 ) : null}
-                {strategistLimited && strategistLimit !== null ? (
-                  <div className="mt-3 text-xs text-zinc-400">Você usou {strategistUsed}/{strategistLimit} insights estratégicos hoje.</div>
+                {strategyLimited && strategyLimit !== null ? (
+                  <div className="mt-3 text-xs text-zinc-400">Você usou {strategyUsed}/{strategyLimit} teses estratégicas hoje.</div>
                 ) : null}
                 {plan === "ELITE" ? (
-                  <div className="mt-3 text-xs text-zinc-400">Acesso total à rede de agentes Signal Hacker.</div>
+                  <div className="mt-3 text-xs text-zinc-400">Acesso total ao fluxo operacional do SignalForge.</div>
                 ) : null}
               </div>
 
@@ -173,10 +173,15 @@ export default function ProfilePage() {
               ) : (
                 <div className="mt-6 flex items-center gap-3 text-sm text-zinc-300">
                   <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
-                  <span>Noise Killer normalizando ruído do perfil…</span>
+                  <span>Carregando métricas e histórico…</span>
                 </div>
               )}
               <div className="mt-6">
+                <Button href="/profile/privacy" variant="ghost">
+                  Privacidade & consentimento
+                </Button>
+              </div>
+              <div className="mt-2">
                 <Button onClick={logout} variant="ghost">
                   Sair
                 </Button>

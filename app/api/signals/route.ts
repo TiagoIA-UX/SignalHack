@@ -5,9 +5,22 @@ import { logAccess } from "@/lib/accessLog";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, verifySessionJwt } from "@/lib/auth";
 import { isDbUnavailableError } from "@/lib/dbError";
+import { getUa } from "@/lib/ua";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function sanitizeSignalText(v: string) {
+  return v;
+}
+
+function sanitizeSignal<T extends { title: string; summary: string }>(s: T): T {
+  return {
+    ...s,
+    title: sanitizeSignalText(s.title),
+    summary: sanitizeSignalText(s.summary),
+  };
+}
 
 function startOfDayUTC(d: Date) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -19,7 +32,7 @@ export async function GET(req: Request) {
   const q = qRaw ? qRaw.trim() : "";
 
   const ip = getClientIp(req);
-  const ua = req.headers.get("user-agent");
+  const ua = getUa(req.headers);
 
   const rl = await rateLimitAsync(`signals:get:${ip}`, { windowMs: 60_000, max: 60 });
   if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -46,12 +59,12 @@ export async function GET(req: Request) {
   }
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const adminBypass = process.env.NODE_ENV !== "production" && user.role === "ADMIN";
+  const adminBypass = user.role === "ADMIN";
 
   // Modo histórico pesquisável (não consome limite do Free e não incrementa signalsSeen)
   if (q.length > 0) {
     if (!adminBypass && user.plan === "FREE") {
-      await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 402, ip, userAgent: ua });
+      await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 402, ip, ua });
       return NextResponse.json({ error: "upgrade_required" }, { status: 402 });
     }
 
@@ -85,9 +98,9 @@ export async function GET(req: Request) {
       throw err;
     }
 
-    await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 200, ip, userAgent: ua });
+    await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 200, ip, ua });
     return NextResponse.json({
-      signals: matches,
+      signals: matches.map(sanitizeSignal),
       plan: user.plan,
       role: user.role,
       usage: { signalsSeen: null, limit: null },
@@ -114,7 +127,7 @@ export async function GET(req: Request) {
   const limit = isFree ? 3 : Infinity;
 
   if (isFree && usage.signalsSeen >= limit) {
-    await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 402, ip, userAgent: ua });
+    await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 402, ip, ua });
     return NextResponse.json(
       { error: "plan_limit", message: "Limite diário atingido no plano Free." },
       { status: 402 }
@@ -138,7 +151,7 @@ export async function GET(req: Request) {
         {
           userId: user.id,
           source: "Jobs + LinkedIn",
-          title: "Aumento súbito de vagas: RevOps + agentes internos",
+          title: "Aumento súbito de vagas: RevOps + automação interna",
           summary:
             "Empresas contratando perfis de automação para pipeline e atendimento — sinal de intenção de compra de IA aplicada.",
           intent: "HIGH",
@@ -157,7 +170,7 @@ export async function GET(req: Request) {
         {
           userId: user.id,
           source: "Comunidades",
-          title: "Discussões crescentes sobre 'agentic workflows'",
+          title: "Discussões crescentes sobre 'workflows automatizados'",
           summary: "Muita atenção, pouca intenção direta — útil para narrativa e timing de produto.",
           intent: "LOW",
           score: 63,
@@ -210,9 +223,9 @@ export async function GET(req: Request) {
     }
   }
 
-  await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 200, ip, userAgent: ua });
+  await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 200, ip, ua });
   return NextResponse.json({
-    signals,
+    signals: signals.map(sanitizeSignal),
     plan: user.plan,
     role: user.role,
     usage: { signalsSeen: usage.signalsSeen + consumed, limit: isFree ? 3 : null },

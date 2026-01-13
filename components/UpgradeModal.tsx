@@ -3,31 +3,31 @@
 import { Button, Card } from "@/components/ui";
 import { SignalHackAvatar } from "@/components/SignalHackAvatar";
 
-export type UpgradeModalVariant = "strategist_locked" | "strategist_limit";
+export type UpgradeModalVariant = "strategy_locked" | "strategy_limit";
 
 export function UpgradeModal(props: {
   open: boolean;
   onClose: () => void;
   variant: UpgradeModalVariant;
-  strategistUsed?: number;
-  strategistLimit?: number;
+  strategyUsed?: number;
+  strategyLimit?: number;
 }) {
   if (!props.open) return null;
 
-  const used = props.strategistUsed ?? 0;
-  const limit = props.strategistLimit ?? 0;
+  const used = props.strategyUsed ?? 0;
+  const limit = props.strategyLimit ?? 0;
   const usedLabel = limit > 0 ? `${used}/${limit}` : `${used}`;
 
   const title =
-    props.variant === "strategist_limit" ? "Limite diário do Strategist" : "Desbloquear Strategist";
+    props.variant === "strategy_limit" ? "Limite diário de Estratégia" : "Desbloquear Estratégia";
 
   const body =
-    props.variant === "strategist_limit"
-      ? `Uso do dia: ${usedLabel}. No Elite, o Strategist é ilimitado.`
-      : "Acesso restrito. No Pro, o Strategist libera contexto estratégico (com limite diário).";
+    props.variant === "strategy_limit"
+      ? `Uso do dia: ${usedLabel}. No Elite, a Estratégia é ilimitada.`
+      : "Acesso restrito. No Pro, você libera contexto estratégico e plano de execução (com limite diário).";
 
   const ctaHref = "/plans";
-  const ctaText = props.variant === "strategist_limit" ? "Upgrade para Elite" : "Upgrade para Pro";
+  const ctaText = props.variant === "strategy_limit" ? "Upgrade para Elite" : "Upgrade para Pro";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
@@ -43,7 +43,7 @@ export function UpgradeModal(props: {
           </div>
 
           <p className="mt-3 text-sm text-zinc-300">{body}</p>
-          <p className="mt-2 text-xs text-zinc-500">IA interpreta. Decisão é sua.</p>
+          <p className="mt-2 text-xs text-zinc-500">Análise automatizada apoia. Decisão é sua.</p>
 
           <div className="mt-6 flex items-center justify-end gap-2">
             <Button variant="ghost" onClick={props.onClose}>

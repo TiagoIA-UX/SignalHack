@@ -1,8 +1,8 @@
-export type Level = "Observer" | "Strategist" | "Insider";
+export type Level = "Iniciante" | "Operador" | "Insider";
 
 export function levelFromPoints(points: number): { level: Level; nextAt: number | null } {
-  if (points < 40) return { level: "Observer", nextAt: 40 };
-  if (points < 120) return { level: "Strategist", nextAt: 120 };
+  if (points < 40) return { level: "Iniciante", nextAt: 40 };
+  if (points < 120) return { level: "Operador", nextAt: 120 };
   return { level: "Insider", nextAt: null };
 }
 

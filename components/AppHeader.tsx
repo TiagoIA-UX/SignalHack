@@ -11,15 +11,21 @@ export function AppHeader(props: { authed?: boolean }) {
             href={props.authed ? "/dashboard" : "/"}
             className="text-sm font-semibold tracking-tight text-emerald-200 font-mono transition-colors hover:text-emerald-100 motion-reduce:transition-none"
           >
-            SIGNAL HACKER
+            SIGNALFORGE
           </Link>
           <nav className="flex items-center gap-2">
             {props.authed ? (
               <>
                 <div className="mr-1 hidden items-center gap-2 sm:flex">
-                  <SignalHackAvatar className="h-5 w-5 text-white/70" title="Signal Hacker" />
-                  <span className="text-xs uppercase tracking-[0.2em] text-zinc-400">agents</span>
+                  <SignalHackAvatar className="h-5 w-5 text-white/70" title="SignalForge" />
+                  <span className="text-xs uppercase tracking-[0.2em] text-zinc-400">módulos</span>
                 </div>
+                <Link className="text-sm text-zinc-300 hover:text-white" href="/dashboard">
+                  Operar
+                </Link>
+                <Link className="text-sm text-zinc-300 hover:text-white" href="/radar">
+                  Radar
+                </Link>
                 <Link className="text-sm text-zinc-300 hover:text-white" href="/plans">
                   Planos
                 </Link>
@@ -35,7 +41,7 @@ export function AppHeader(props: { authed?: boolean }) {
                 <Button href="/login" variant="ghost">
                   Entrar
                 </Button>
-                <Button href="/register">Solicitar credencial</Button>
+                <Button href="/register">Criar conta</Button>
               </>
             )}
           </nav>

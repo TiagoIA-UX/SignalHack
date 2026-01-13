@@ -35,7 +35,7 @@
 			"options": {
 				"env": {
 					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
-					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+					"SMOKE_TEST_PASSWORD": "${env:SMOKE_TEST_PASSWORD}"
 				}
 			},
 			"isBackground": false,
@@ -58,7 +58,7 @@
 			"options": {
 				"env": {
 					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
-					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+					"SMOKE_TEST_PASSWORD": "${env:SMOKE_TEST_PASSWORD}"
 				}
 			},
 			"isBackground": false,
@@ -82,7 +82,7 @@
 			"options": {
 				"env": {
 					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
-					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+					"SMOKE_TEST_PASSWORD": "${env:SMOKE_TEST_PASSWORD}"
 				}
 			},
 			"isBackground": false,
@@ -120,7 +120,7 @@
 			"options": {
 				"env": {
 					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
-					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+					"SMOKE_TEST_PASSWORD": "${env:SMOKE_TEST_PASSWORD}"
 				}
 			},
 			"isBackground": false,
@@ -144,12 +144,70 @@
 			"options": {
 				"env": {
 					"SMOKE_TEST_EMAIL": "globemarket7@gmail.com",
-					"SMOKE_TEST_PASSWORD": "Admin123!ChangeMe"
+					"SMOKE_TEST_PASSWORD": "${env:SMOKE_TEST_PASSWORD}"
 				}
 			},
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "test"
+		},
+		{
+			"label": "admin:unlock",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Set-Location 'G:\\AgentesIA\\SignalHacker'; if (-not $env:ADMIN_PASSWORD) { throw 'Defina ADMIN_PASSWORD no ambiente antes de rodar (ex.: $env:ADMIN_PASSWORD=\"...\")' }; npm run db:up; npm run db:migrate; npx tsx scripts/seed-admin.ts --email 'globemarket7@gmail.com'; npx tsx scripts/set-user-plan.ts --email 'globemarket7@gmail.com' --plan ELITE --reset-daily; npx tsx scripts/seed-admin.ts --email 'tiagorocha1777@gmail.com'; npx tsx scripts/set-user-plan.ts --email 'tiagorocha1777@gmail.com' --plan ELITE --reset-daily; node scripts/list-users.mjs"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "admin:unlock",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Set-Location \"G:\\AgentesIA\\SignalHacker\"; if (-not $env:ADMIN_PASSWORD) { throw 'Defina ADMIN_PASSWORD no ambiente antes de rodar (ex.: $env:ADMIN_PASSWORD=\"...\")' }; npm run db:up; npm run db:migrate; npx tsx scripts/seed-admin.ts --email \"globemarket7@gmail.com\"; npx tsx scripts/set-user-plan.ts --email \"globemarket7@gmail.com\" --plan ELITE --reset-daily; npx tsx scripts/seed-admin.ts --email \"tiagorocha1777@gmail.com\"; npx tsx scripts/set-user-plan.ts --email \"tiagorocha1777@gmail.com\" --plan ELITE --reset-daily; node scripts/list-users.mjs"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "security:scan:tracked",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"./scripts/security-scan-tracked.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "debug:port3001",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue | Select-Object -First 5 -Property LocalAddress,LocalPort,State,OwningProcess | Format-Table -AutoSize"
+			],
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }

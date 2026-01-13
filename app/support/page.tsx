@@ -29,6 +29,12 @@ export default function SupportPage() {
                       facilitar doações (links/contas a critério do mantenedor).
                     </li>
                     <li>
+                      • Doação via Pix: chave: <strong>31629689840</strong>.
+                    </li>
+                    <li>
+                      • Para dúvidas sobre doações ou transparência financeira: <a className="text-emerald-200 hover:underline" href="mailto:zairyx.ai@gmail.com">zairyx.ai@gmail.com</a>.
+                    </li>
+                    <li>
                       • Apoio indireto: contratar serviços de infraestrutura pelo link de afiliado abaixo ajuda o projeto sem
                       custo adicional para você.
                     </li>

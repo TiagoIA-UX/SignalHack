@@ -67,6 +67,8 @@ Se este projeto for útil para você e quiser apoiar sua continuidade, existem a
 
 https://hostinger.com.br?REFERRALCODE=1TIAGO1244
 
+Doações diretas (opcional): Pix: **31629689840** — contato: <mailto:zairyx.ai@gmail.com>
+
 
 ## Operação (Guardian)
 

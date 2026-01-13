@@ -7,6 +7,8 @@ Todo apoio recebido é usado exclusivamente para custos operacionais, como hospe
 
 ## Como ajudar
 - Doações diretas (Pix, PayPal, Stripe — se disponível)
+  - Pix: **31629689840** (doações diretas)
+  - Contato para esclarecimentos: **zairyx.ai@gmail.com**
 - Apoio indireto via link de afiliado da Hostinger
 
 **Link de afiliado (Hostinger)**: https://hostinger.com.br?REFERRALCODE=1TIAGO1244

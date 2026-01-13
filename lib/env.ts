@@ -22,7 +22,13 @@ const envSchema = z.object({
   NEXT_PUBLIC_DONATION_PROVIDER_ENABLED: z.enum(["true", "false"]).optional(),
   // Variante de copy para doações (soft | neutral | minimal)
   NEXT_PUBLIC_DONATION_COPY_VARIANT: z.enum(["soft", "neutral", "minimal"]).optional(),
+  // PIX key pública para exibir na página de apoio (opcional)
+  NEXT_PUBLIC_PIX_KEY: z.string().min(1).optional(),
 });
+
+export function getPixKey(): string | undefined {
+  return process.env.NEXT_PUBLIC_PIX_KEY;
+}
 
 export type Env = z.infer<typeof envSchema>;
 

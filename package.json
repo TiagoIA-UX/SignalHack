@@ -13,7 +13,7 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
-    "setup:local": "ts-node ./scripts/setup-local.ts",
+    "setup:local": "npx tsx scripts/setup-local.ts",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:migrate": "npx prisma migrate dev",

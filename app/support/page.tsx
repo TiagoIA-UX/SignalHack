@@ -5,6 +5,12 @@ import { getAffiliateHostingUrl, getSupportEmail, getPixKey, isDonationEnabled, 
 import { AppHeader } from "@/components/AppHeader";
 
 export default function SupportPage() {
+  const affiliateUrl = getAffiliateHostingUrl();
+  const supportEmail = getSupportEmail();
+  const pixKey = getPixKey();
+  const donationsEnabled = isDonationEnabled();
+  const donationVariant = getDonationCopyVariant();
+
   return (
     <div className="min-h-screen">
       <AppHeader />
@@ -31,16 +37,16 @@ export default function SupportPage() {
                   </ul>
                 </div>
 
-                {isDonationEnabled() ? (
+                {donationsEnabled ? (
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Apoio financeiro</div>
                     <ul className="mt-2 space-y-2 text-sm text-zinc-200">
-                      <li>• PIX: {getPixKey() ? <strong>{getPixKey()}</strong> : "Disponível mediante contato"}.</li>
+                      <li>• PIX: {pixKey ? <strong>{pixKey}</strong> : "Disponível mediante contato"}.</li>
                       <li>
-                        • PayPal: {getSupportEmail() ? (
+                        • PayPal: {supportEmail ? (
                           <a
                             className="text-emerald-200 hover:underline"
-                            href={`https://www.paypal.com/donate?business=${encodeURIComponent(getSupportEmail() ?? "")}`}
+                            href={`https://www.paypal.com/donate?business=${encodeURIComponent(supportEmail ?? "")}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -55,11 +61,11 @@ export default function SupportPage() {
                   </div>
                 ) : null}
 
-                {getAffiliateHostingUrl() ? (
+                {affiliateUrl ? (
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Infraestrutura recomendada</div>
                     <p className="mt-2 text-sm text-zinc-200">{AFFILIATE_COPY}</p>
-                    <Link href={getAffiliateHostingUrl()} className="text-emerald-200 hover:underline" target="_blank" rel="noopener noreferrer">
+                    <Link href={affiliateUrl} className="text-emerald-200 hover:underline" target="_blank" rel="noopener noreferrer">
                       Ver provedores recomendados
                     </Link>
                   </div>

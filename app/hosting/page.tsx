@@ -5,6 +5,8 @@ import { AFFILIATE_COPY } from "@/lib/support";
 import { getAffiliateHostingUrl } from "@/lib/env";
 
 export default function HostingPage() {
+  const affiliateUrl = getAffiliateHostingUrl();
+
   return (
     <div className="min-h-screen">
       <AppHeader />
@@ -22,11 +24,11 @@ export default function HostingPage() {
                   hospedagem.
                 </p>
 
-                {getAffiliateHostingUrl() ? (
+                {affiliateUrl ? (
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Infraestrutura recomendada</div>
                     <p className="mt-2 text-sm text-zinc-200">{AFFILIATE_COPY}</p>
-                    <Link href={getAffiliateHostingUrl()} className="text-emerald-200 hover:underline" target="_blank" rel="noopener noreferrer">
+                    <Link href={affiliateUrl} className="text-emerald-200 hover:underline" target="_blank" rel="noopener noreferrer">
                       Ver provedores recomendados
                     </Link>
                   </div>

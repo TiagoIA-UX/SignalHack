@@ -72,7 +72,7 @@ function readEnvFromFile(p) {
   try {
     await page.goto('https://app.sendgrid.com/settings/api_keys');
     await page.click('button:has-text("Create API Key")');
-    await page.fill('input[name="name"]', 'SignalHack-Key');
+    await page.fill('input[name="name"]', 'ZAIRIX-Key');
     // Selecionar permissão Mail Send (a UI pode variar)
     await page.click('button:has-text("Create & View")');
     // Espera e captura da chave

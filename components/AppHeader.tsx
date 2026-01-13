@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Container, Button } from "@/components/ui";
-import { SignalHackAvatar } from "@/components/SignalHackAvatar";
+import { ZairixAvatar } from "@/components/ZairixAvatar";
 
 export function AppHeader(props: { authed?: boolean }) {
   return (
@@ -11,13 +11,13 @@ export function AppHeader(props: { authed?: boolean }) {
             href={props.authed ? "/dashboard" : "/"}
             className="text-sm font-semibold tracking-tight text-emerald-200 font-mono transition-colors hover:text-emerald-100 motion-reduce:transition-none"
           >
-            SIGNALFORGE
+            ZAIRIX
           </Link>
           <nav className="flex items-center gap-2">
             {props.authed ? (
               <>
                 <div className="mr-1 hidden items-center gap-2 sm:flex">
-                  <SignalHackAvatar className="h-5 w-5 text-white/70" title="SignalForge" />
+                  <ZairixAvatar className="h-5 w-5 text-white/70" title="Zairix" />
                   <span className="text-xs uppercase tracking-[0.2em] text-zinc-400">módulos</span>
                 </div>
                 <Link className="text-sm text-zinc-300 hover:text-white" href="/dashboard">
@@ -29,6 +29,9 @@ export function AppHeader(props: { authed?: boolean }) {
                 <Link className="text-sm text-zinc-300 hover:text-white" href="/plans">
                   Planos
                 </Link>
+                <Link className="text-sm text-zinc-300 hover:text-white" href="/support">
+                  Apoio
+                </Link>
                 <Link className="text-sm text-zinc-300 hover:text-white" href="/profile">
                   Perfil
                 </Link>
@@ -37,6 +40,9 @@ export function AppHeader(props: { authed?: boolean }) {
               <>
                 <Link className="text-sm text-zinc-300 hover:text-white" href="/plans">
                   Planos
+                </Link>
+                <Link className="text-sm text-zinc-300 hover:text-white" href="/support">
+                  Apoio
                 </Link>
                 <Button href="/login" variant="ghost">
                   Entrar

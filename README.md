@@ -56,6 +56,18 @@ O projeto roda `prisma generate` no `postinstall` e faz `next build` normalmente
 
 - `npm run dev`
 
+## Sustentabilidade do Projeto
+
+Se este projeto for útil para você e quiser apoiar sua continuidade, existem algumas formas de ajudar:
+
+- Apoio direto por doação (Pix, PayPal, Stripe — conforme disponibilidade)
+- Apoio indireto usando o link de afiliado a seguir (sem custo adicional para você)
+
+**Este projeto recomenda a Hostinger como opção de hospedagem. Caso você contrate pelo link abaixo, o projeto recebe uma pequena comissão sem custo adicional para você. Isso ajuda a manter o desenvolvimento ativo.**
+
+https://hostinger.com.br?REFERRALCODE=1TIAGO1244
+
+
 ## Operação (Guardian)
 
 Para automação de manutenção/health/backups em servidor Linux, use:

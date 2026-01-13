@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
 import { ModuleBadge } from "@/components/ModuleBadge";
-import { SignalHackAvatar } from "@/components/SignalHackAvatar";
+import { ZairixAvatar } from "@/components/ZairixAvatar";
 import { getStrategyDailyLimit, readStrategyUsed } from "@/lib/strategyLimit";
 
 type MeResponse =
@@ -83,7 +83,7 @@ export default function ProfilePage() {
                   </>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
+                    <ZairixAvatar className="h-5 w-5 animate-pulse text-white/60" />
                     <span>Carregando seu perfil…</span>
                   </div>
                 )}
@@ -92,7 +92,7 @@ export default function ProfilePage() {
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center justify-between">
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">módulos ativos</div>
-                  <SignalHackAvatar className="h-5 w-5 text-white/60" />
+                  <ZairixAvatar className="h-5 w-5 text-white/60" />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <ModuleBadge id="atlas" />
@@ -172,7 +172,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="mt-6 flex items-center gap-3 text-sm text-zinc-300">
-                  <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
+                  <ZairixAvatar className="h-5 w-5 animate-pulse text-white/60" />
                   <span>Carregando métricas e histórico…</span>
                 </div>
               )}

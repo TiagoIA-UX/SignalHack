@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card } from "@/components/ui";
-import { SignalHackAvatar } from "@/components/SignalHackAvatar";
+import { ZairixAvatar } from "@/components/ZairixAvatar";
 
 export type UpgradeModalVariant = "strategy_locked" | "strategy_limit";
 
@@ -39,7 +39,7 @@ export function UpgradeModal(props: {
               <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">planos</div>
               <h2 className="mt-2 text-xl font-semibold tracking-tight">{title}</h2>
             </div>
-            <SignalHackAvatar className="h-7 w-7 text-white/60" />
+            <ZairixAvatar className="h-7 w-7 text-white/60" />
           </div>
 
           <p className="mt-3 text-sm text-zinc-300">{body}</p>

@@ -668,7 +668,7 @@ export default function RadarPage() {
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black p-4">
                       <div className="flex items-center justify-between gap-4">
                         <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">tese de dinheiro + plano</div>
-                        <SignalHackAvatar className="h-5 w-5 text-white/60" />
+                        <ZairixAvatar className="h-5 w-5 text-white/60" />
                       </div>
                       <div className="mt-2 text-xs text-zinc-400">
                         Plano sugerido para execução em 7 dias
@@ -792,7 +792,7 @@ export default function RadarPage() {
           {data && !("error" in data) && signals.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
               <div className="flex items-center gap-3">
-                <SignalHackAvatar className="h-6 w-6 text-white/60" />
+                <ZairixAvatar className="h-6 w-6 text-white/60" />
                 <div>
                   <div className="text-sm font-medium">Nenhum sinal disponível ainda</div>
                       <div className="mt-1 text-xs text-zinc-400">Nenhuma oportunidade clara encontrada no momento.</div>
@@ -816,7 +816,7 @@ export default function RadarPage() {
 
           {!data ? (
             <div className="mt-6 flex items-center gap-3 text-sm text-zinc-300">
-              <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
+              <ZairixAvatar className="h-5 w-5 animate-pulse text-white/60" />
               <span>Varrendo sinais públicos…</span>
             </div>
           ) : null}

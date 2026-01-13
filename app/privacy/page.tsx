@@ -142,11 +142,23 @@ export default function PrivacyPage() {
                 </div>
               </div>
 
+              <div className="mt-6 space-y-4 text-sm text-zinc-200">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">sustentabilidade e apoio</div>
+                  <p className="mt-2">
+                    Este projeto é mantido de forma independente; aceita apoio financeiro voluntário para custos de
+                    infraestrutura, domínio e hospedagem. O projeto pode receber comissões por links de afiliado (por exemplo,
+                    Hostinger). Não coletamos dados adicionais nem rastreamos cliques sem seu consentimento; o uso do serviço não
+                    depende de contribuição financeira.
+                  </p>
+                </div>
+              </div>
+
               <div className="mt-6 text-sm text-zinc-300">
                 <Link className="text-emerald-200 hover:underline" href="/welcome">
                   Voltar para o aceite
                 </Link>
-              </div>
+              </div> 
             </Card>
           </div>
         </Container>

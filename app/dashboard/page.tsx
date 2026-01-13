@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
-import { SignalHackAvatar } from "@/components/SignalHackAvatar";
+import { ZairixAvatar } from "@/components/ZairixAvatar";
 
 type MoneyHunt =
   | "REVOPS_AUTOMATION"
@@ -316,8 +316,8 @@ export default function DashboardOperatorPage() {
                   <h1 className="text-2xl font-semibold tracking-tight">Modo Operador</h1>
                   <p className="mt-1 text-sm text-zinc-300">Escolha o alvo → escolha 1 sinal → gere e salve um playbook de 7 dias.</p>
                 </div>
-                <Button href="/radar" variant="ghost">
-                  Abrir Radar
+                <Button href="/visao-estrategica" variant="ghost">
+                  Abrir Visão Estratégica
                 </Button>
               </div>
             </div>
@@ -325,7 +325,7 @@ export default function DashboardOperatorPage() {
             <Card className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">missão ativa</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">objetivo ativo</div>
                   <div className="mt-1 text-sm font-medium text-zinc-100">
                     {activePlaybook ? activePlaybook.signalTitle : "Nenhuma"}
                   </div>
@@ -456,7 +456,7 @@ export default function DashboardOperatorPage() {
 
               {hunt && loadingSignals ? (
                 <div className="mt-6 flex items-center gap-3 text-sm text-zinc-300">
-                  <SignalHackAvatar className="h-5 w-5 animate-pulse text-white/60" />
+                  <ZairixAvatar className="h-5 w-5 animate-pulse text-white/60" />
                   <span>Carregando sinais…</span>
                 </div>
               ) : null}
@@ -472,8 +472,8 @@ export default function DashboardOperatorPage() {
                     <Button href="/plans" variant="ghost">
                       Ver planos
                     </Button>
-                    <Button href="/radar" variant="ghost">
-                      Abrir Radar
+                    <Button href="/visao-estrategica" variant="ghost">
+                      Abrir Visão Estratégica
                     </Button>
                   </div>
                 </div>
@@ -522,8 +522,8 @@ export default function DashboardOperatorPage() {
                       <Button variant="ghost" onClick={() => void generate(selectedSignal.id)} disabled={loadingInsight}>
                         {loadingInsight ? "Gerando…" : "Gerar tese + plano"}
                       </Button>
-                      <Button href="/radar" variant="ghost">
-                        Ver no Radar
+                      <Button href="/visao-estrategica" variant="ghost">
+                        Ver na Visão Estratégica
                       </Button>
                     </div>
                   </div>
@@ -549,7 +549,7 @@ export default function DashboardOperatorPage() {
                     <div className="mt-4 rounded-2xl border border-emerald-500/15 bg-black/40 p-4">
                       <div className="flex items-center justify-between gap-4">
                         <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">tese + plano</div>
-                        <SignalHackAvatar className="h-5 w-5 text-white/60" />
+                        <ZairixAvatar className="h-5 w-5 text-white/60" />
                       </div>
                       <div className="mt-2 text-xs text-zinc-400">Confiança: {insightRes.insight.confidence}</div>
 
@@ -580,7 +580,7 @@ export default function DashboardOperatorPage() {
                           <div className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">{sanitizeCopy(insightRes.insight.actionable)}</div>
 
                           <div className="mt-4 rounded-xl border border-emerald-500/15 bg-black/40 p-3">
-                            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">playbook (7 dias)</div>
+                            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">plano de execução (7 dias)</div>
                             <div className="mt-3 space-y-3">
                               <div>
                                 <div className="text-xs text-zinc-400">Hipótese</div>

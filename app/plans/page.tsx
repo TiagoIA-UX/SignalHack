@@ -20,7 +20,7 @@ export default function PlansPage() {
                 </div>
                 <div className="mt-4 text-3xl font-semibold">R$ 0</div>
                 <p className="mt-2 text-sm text-zinc-300">
-                  Para conhecer o radar e o fluxo básico. Bom para explorar — não para operar consistência.
+                  Para conhecer a Visão Estratégica e o fluxo coordenado. Bom para explorar — não para operar consistência.
                 </p>
                 <ul className="mt-4 space-y-2 text-sm text-zinc-200">
                   <li>• 3 sinais/dia</li>

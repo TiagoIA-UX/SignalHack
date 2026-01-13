@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, Button, Card, Container } from "@/components/ui";
 import { ModuleBadge } from "@/components/ModuleBadge";
-import { SignalHackAvatar } from "@/components/SignalHackAvatar";
+import { ZairixAvatar } from "@/components/ZairixAvatar";
 import { UpgradeModal, type UpgradeModalVariant } from "@/components/UpgradeModal";
 import { getStrategyDailyLimit, incrementStrategyUsed, readStrategyUsed } from "@/lib/strategyLimit";
 

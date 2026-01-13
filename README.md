@@ -56,19 +56,21 @@ O projeto roda `prisma generate` no `postinstall` e faz `next build` normalmente
 
 - `npm run dev`
 
-## Sustentabilidade do Projeto
+## Sustentabilidade e Monetização (transparente)
 
-Se este projeto for útil para você e quiser apoiar sua continuidade, existem algumas formas de ajudar:
+ZAIRIX é mantido de forma independente. Se desejar apoiar o projeto, consulte `SUSTAINABILITY.md` e `MONETIZATION.md` para detalhes sobre doações, afiliados e princípios de transparência.
 
-- Apoio direto por doação (Pix, PayPal, Stripe — conforme disponibilidade)
-- Apoio indireto usando o link de afiliado a seguir (sem custo adicional para você)
+Configurações públicas e opcionais (variáveis de ambiente):
 
-**Este projeto recomenda a Hostinger como opção de hospedagem. Caso você contrate pelo link abaixo, o projeto recebe uma pequena comissão sem custo adicional para você. Isso ajuda a manter o desenvolvimento ativo.**
+- `NEXT_PUBLIC_AFFILIATE_HOSTING_URL` — URL pública de afiliado para provedores de hospedagem
+- `NEXT_PUBLIC_SUPPORT_EMAIL` — e-mail público para contato de apoio (ex.: PayPal)
+- `NEXT_PUBLIC_DONATION_PROVIDER_ENABLED` — habilita exibição de canais de doação (`true`/`false`)
+- `NEXT_PUBLIC_DONATION_COPY_VARIANT` — variante de copy para a página de apoio (`soft`/`neutral`/`minimal`)
+- `NEXT_PUBLIC_PIX_KEY` — chave PIX pública para doações (opcional)
 
-https://hostinger.com.br?REFERRALCODE=1TIAGO1244
+> Nota: nenhuma forma de monetização altera privilégios ou funcionalidades do software; tudo é opcional e transparente.
 
-Doações diretas (opcional): Pix: **31629689840** — contato: <mailto:zairyx.ai@gmail.com>
-
+Leia `SUSTAINABILITY.md` e `MONETIZATION.md` para a política completa.
 
 ## Operação (Guardian)
 

@@ -32,6 +32,15 @@
 
 - Produção: veja o modelo em `.env.production.example` (não coloque segredos reais no repo).
 
+- Monetização: se quiser habilitar exibição de opções de doação ou links de afiliado para sua instância, adicione as chaves públicas ao `.env`:
+  ```
+  NEXT_PUBLIC_AFFILIATE_HOSTING_URL=""
+  NEXT_PUBLIC_SUPPORT_EMAIL="seu-email@exemplo.com"
+  NEXT_PUBLIC_DONATION_PROVIDER_ENABLED="true"
+  NEXT_PUBLIC_DONATION_COPY_VARIANT="soft"
+  NEXT_PUBLIC_PIX_KEY="31629689840"
+  ```
+
 - (Opcional) IA via Groq:
   ```
   GROQ_API_KEY=

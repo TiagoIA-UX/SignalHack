@@ -34,7 +34,7 @@ export default function PlansPage() {
                   <li>• Estratégia bloqueada (priorização + plano)</li>
                 </ul>
                 <div className="mt-6">
-                  <Button href="/register" variant="ghost" className="cta">
+                  <Button href="/register" variant="ghost">
                     Começar no Free
                   </Button>
                 </div>
@@ -72,7 +72,7 @@ export default function PlansPage() {
                 </div>
                 <div className="mt-4 h2 font-bold text-emerald-300">R$ 79/mês</div>
                 <p className="p mt-2 text-zinc-200">
-                  <span className="font-bold">Para operação séria:</span> mais velocidade, mais consistência e menos "achismo" quando a demanda aparece.
+                  <span className="font-bold">Para operação séria:</span> mais velocidade, mais consistência e menos &quot;achismo&quot; quando a demanda aparece.
                 </p>
                 <ul className="mt-4 space-y-2 text-base text-zinc-200">
                   <li>• Fluxo completo liberado</li>

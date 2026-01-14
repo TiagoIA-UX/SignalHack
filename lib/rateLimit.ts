@@ -17,9 +17,9 @@ const upstashLimiters = new Map<string, import("@upstash/ratelimit").Ratelimit>(
 const isProd = process.env.NODE_ENV === "production";
 let loggedProdNoUpstash = false;
 
-function msToWindowString(windowMs: number): import("@upstash/ratelimit").Duration {
+function msToWindowString(windowMs: number): `${number} s` {
   const seconds = Math.max(1, Math.ceil(windowMs / 1000));
-  return `${seconds} s` as import("@upstash/ratelimit").Duration;
+  return `${seconds} s`;
 }
 
 async function getUpstashLimiter(opts: { windowMs: number; max: number }) {

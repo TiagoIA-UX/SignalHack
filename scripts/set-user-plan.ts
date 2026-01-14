@@ -23,22 +23,26 @@ async function main() {
 
   const { prisma } = await import("../lib/prisma");
 
-  const user = await prisma.user.update({
-    where: { email },
-    data: { plan: plan as "FREE" | "PRO" | "ELITE" },
-    select: { id: true, email: true, plan: true, role: true },
-  });
+  const user = await prisma.users.findUnique({ where: { email } });
+  if (!user) throw new Error("Usuário não encontrado");
+  const updated = await prisma.users.update(
+    { id: user.id },
+    { plan: plan as "FREE" | "PRO" | "ELITE" }
+  );
+  // Se quiser garantir retorno com os campos desejados:
+  // const { id, email: userEmail, plan: userPlan, role } = { ...user, ...updated };
 
   if (resetDaily) {
     // Apaga todos os contadores do dia atual (UTC) para o usuário.
     const day = new Date();
     day.setUTCHours(0, 0, 0, 0);
 
-    await prisma.usageDay.deleteMany({
+    await prisma.usageDays.updateMany({
       where: {
         userId: user.id,
-        day,
+        day: { gte: day },
       },
+      data: { points: { increment: 0 } },
     });
   }
 

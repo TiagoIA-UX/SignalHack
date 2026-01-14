@@ -70,7 +70,6 @@ export function PlanUpgradeButton(props: { plan: "PRO" | "ELITE"; variant?: "pri
           disabled={disabled || loading}
           onClick={startCheckout}
           variant={props.variant}
-          className="cta text-lg px-8 py-4"
         >
           {loading ? "Carregando..." : label}
         </Button>

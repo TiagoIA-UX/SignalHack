@@ -23,15 +23,19 @@ async function main() {
   const password = passwordFromArgs || passwordFromEnv;
 
   if (!email) {
-    const last = await prisma.user.findFirst({
-      orderBy: { createdAt: "desc" },
-      select: { email: true },
-    });
-    if (!last?.email) {
+    const all = await prisma.users.findMany();
+    if (!all.length) {
       throw new Error(
         "Nenhum usuário encontrado para promover. Crie uma conta em /register e rode novamente."
       );
     }
+    // Ordena por createdAt (se existir), senão pega o último
+    const last = all.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      return 0;
+    })[0];
     email = last.email.toLowerCase();
   }
 
@@ -40,7 +44,7 @@ async function main() {
     update.passwordHash = await hashPassword(password);
   }
 
-  await prisma.user.upsert({
+  await prisma.users.upsert({
     where: { email },
     update,
     create: { email, ...update },

@@ -33,7 +33,7 @@ export const db = {
       }
       return db.query(query, params).then((res: QueryResult) => res.rows[0]);
     },
-    findMany: () => db.query('SELECT id, email FROM "User"').then((res: QueryResult) => res.rows),
+    findMany: () => db.query('SELECT id, email, role, plan, "createdAt" FROM "User" ORDER BY "createdAt" DESC LIMIT 20').then((res: QueryResult) => res.rows),
     create: (data: { email: string; passwordHash: string; name?: string; plan?: string; role?: string }) =>
       db.query('INSERT INTO "User" (email, "passwordHash", name, plan, role) VALUES ($1, $2, $3, $4, $5) RETURNING *', [data.email, data.passwordHash, data.name || null, data.plan || 'FREE', data.role || 'USER']).then((res: QueryResult) => res.rows[0]),
     update: (where: { id: string }, data: Partial<{ email: string; passwordHash: string; name: string; plan: string; role: string; emailVerified: boolean }>) => {
@@ -48,7 +48,7 @@ export const db = {
       return db.query(`UPDATE "User" SET ${sets.join(', ')} WHERE id = $${params.length} RETURNING *`, params).then((res: QueryResult) => res.rows[0]);
     },
     upsert: async (args: { where: { email: string }, update: any, create: any, select?: { id?: boolean; email?: boolean; plan?: boolean; role?: boolean } }) => {
-      const existing = await db.users.findUnique(args.where, args.select);
+      const existing = await db.users.findUnique({ where: args.where, select: args.select });
       if (existing) {
         return db.users.update({ id: existing.id }, args.update);
       } else {
@@ -64,10 +64,10 @@ export const db = {
     updateMany: (args: { where: { type?: string; identifier?: string; consumedAt?: null; expiresAt?: { gt: Date } }, data: { consumedAt: Date } }) => {
       const { where, data } = args;
       let query = 'UPDATE "AuthToken" SET "consumedAt" = $1 WHERE ';
-      const params = [data.consumedAt];
+      const params: any[] = [data.consumedAt];
       const conditions = [];
-      if (where.type) { conditions.push('type = $' + (params.length + 1)); params.push(where.type); }
-      if (where.identifier) { conditions.push('identifier = $' + (params.length + 1)); params.push(where.identifier); }
+      if (typeof where.type === 'string') { conditions.push('type = $' + (params.length + 1)); params.push(where.type); }
+      if (typeof where.identifier === 'string') { conditions.push('identifier = $' + (params.length + 1)); params.push(where.identifier); }
       if (where.consumedAt === null) { conditions.push('"consumedAt" IS NULL'); }
       if (where.expiresAt?.gt) { conditions.push('"expiresAt" > $' + (params.length + 1)); params.push(where.expiresAt.gt); }
       query += conditions.join(' AND ');
@@ -142,7 +142,7 @@ export const db = {
       const params = [where.userId];
       if (where.createdAt?.gte) {
         query += ' AND "createdAt" >= $' + (params.length + 1);
-        params.push(where.createdAt.gte);
+        params.push(where.createdAt.gte.toISOString());
       }
       if (orderBy) {
         const orders = [];
@@ -154,7 +154,7 @@ export const db = {
       }
       if (take) {
         query += ' LIMIT $' + (params.length + 1);
-        params.push(take);
+        params.push(take.toString());
       }
       return db.query(query, params).then((res: QueryResult) => res.rows);
     },
@@ -220,7 +220,7 @@ export const db = {
       return existing.then((row) => {
         if (row) {
           // Update
-          const sets = [];
+          const sets: string[] = [];
           const params = [];
           Object.keys(args.update).forEach((key) => {
             sets.push(`"${key}" = $${params.length + 1}`);
@@ -240,13 +240,15 @@ export const db = {
         const { where, data } = args;
         let query = 'UPDATE "UsageDay" SET ';
         const params = [];
-        if (data.signalsSeen?.increment) {
+        let setCount = 0;
+        if ('signalsSeen' in data && data.signalsSeen?.increment) {
           query += '"signalsSeen" = "signalsSeen" + $1';
           params.push(data.signalsSeen.increment);
+          setCount++;
         }
-        if (data.points?.increment) {
-          if (params.length > 0) query += ', ';
-          query += '"points" = "points" + $1';
+        if ('points' in data && data.points?.increment) {
+          if (setCount > 0) query += ', ';
+          query += '"points" = "points" + $' + (params.length + 1);
           params.push(data.points.increment);
         }
         query += ' WHERE id = $' + (params.length + 1);
@@ -258,7 +260,7 @@ export const db = {
         const { data } = args;
         let query = 'UPDATE "UsageDay" SET ';
         const params = [];
-        if (data.insightsUsed?.increment) {
+        if ('insightsUsed' in data && data.insightsUsed?.increment) {
           query += '"insightsUsed" = "insightsUsed" + $1';
           params.push(data.insightsUsed.increment);
         }
@@ -290,7 +292,7 @@ export const db = {
       return existing.then((row) => {
         if (row) {
           // Update
-          const sets = [];
+          const sets: string[] = [];
           const params = [];
           Object.keys(args.update).forEach((key) => {
             sets.push(`"${key}" = $${params.length + 1}`);
@@ -330,7 +332,7 @@ export const db = {
           return db.query('UPDATE "ExecutionPlan" SET hypothesis = $1, experiment = $2, metric = $3, "updatedAt" = NOW() WHERE id = $4 RETURNING *', [args.update.hypothesis, args.update.experiment, args.update.metric, row.id]).then((res: QueryResult) => {
             const result = res.rows[0];
             if (args.select) {
-              const selected = {};
+              const selected: any = {};
               if (args.select.id) selected.id = result.id;
               if (args.select.hypothesis) selected.hypothesis = result.hypothesis;
               if (args.select.experiment) selected.experiment = result.experiment;
@@ -345,7 +347,7 @@ export const db = {
           return db.query('INSERT INTO "ExecutionPlan" ("userId", "signalId", hypothesis, experiment, metric) VALUES ($1, $2, $3, $4, $5) RETURNING *', [args.create.userId, args.create.signalId, args.create.hypothesis, args.create.experiment, args.create.metric]).then((res: QueryResult) => {
             const result = res.rows[0];
             if (args.select) {
-              const selected = {};
+              const selected: any = {};
               if (args.select.id) selected.id = result.id;
               if (args.select.hypothesis) selected.hypothesis = result.hypothesis;
               if (args.select.experiment) selected.experiment = result.experiment;
@@ -403,5 +405,7 @@ export const db = {
   },
 };
 
+
 export const prisma = db; // Alias for compatibility
+export default db;
 

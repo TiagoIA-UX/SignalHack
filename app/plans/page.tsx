@@ -11,7 +11,7 @@ export default function PlansPage() {
           <div className="mx-auto max-w-5xl">
             <h1 className="h1">Planos</h1>
             <p className="p mt-3 text-zinc-200">
-              <span className="font-bold">Escolha sua cadência:</span> demanda <span className="font-bold">→ potencial → experimento → receita</span>.<br />
+              <span className="font-bold">Escolha sua cadência:</span> evidência real de demanda <span className="font-bold">→ potencial de retorno → teste rápido de mercado → receita</span>.<br />
               <span className="block mt-2 text-zinc-400">Decida em até 7 dias.</span>
             </p>
 
@@ -47,7 +47,7 @@ export default function PlansPage() {
                 </div>
                 <div className="mt-4 h2 font-bold text-emerald-300">R$ 29/mês</div>
                 <p className="p mt-2 text-zinc-200">
-                  <span className="font-bold">Para operar semanalmente:</span> detectar sinais de compra cedo, filtrar ruído e transformar sinal em potencial e experimento.
+                  <span className="font-bold">Para operar semanalmente:</span> detectar evidências reais de demanda cedo, filtrar ruído e transformar em potencial de retorno e teste rápido de mercado.
                 </p>
                 <ul className="mt-4 space-y-2 text-base text-zinc-200">
                   <li>• Sinais ilimitados</li>
@@ -84,7 +84,7 @@ export default function PlansPage() {
                   <li>• Relatórios premium</li>
                 </ul>
                 <div className="mt-4 text-xs text-zinc-400">
-                  <span className="font-bold">Quando o mercado acelera, quem não tem rotina de sinal→tese→experimento fica reagindo. Elite é para operar no controle.</span>
+                  <span className="font-bold">Quando o mercado acelera, quem não tem rotina de evidência real de demanda → potencial de retorno → teste rápido de mercado fica apenas reagindo. Elite é para operar no controle.</span>
                 </div>
                 <div className="mt-6">
                   <PlanUpgradeButton plan="ELITE" variant="ghost" />

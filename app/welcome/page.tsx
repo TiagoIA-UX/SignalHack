@@ -55,7 +55,7 @@ export default async function WelcomePage({
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">operação</div>
-                  <div className="mt-2 text-sm text-zinc-200">Entrou → escolhe alvo → escolhe sinal → executa playbook.</div>
+                  <div className="mt-2 text-sm text-zinc-200">Entrou → escolhe alvo → identifica evidência real de demanda → executa playbook orientado a potencial de retorno.</div>
                 </div>
               </div>
             </Card>

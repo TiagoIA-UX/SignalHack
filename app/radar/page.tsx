@@ -121,7 +121,7 @@ function sanitizeCopy(text: string) {
     .replaceAll("Análise", "Oportunidade de ganhar dinheiro")
     .replaceAll("análise", "oportunidade de ganhar dinheiro")
     .replaceAll("Oportunidade principal", "Oportunidade de ganhar dinheiro")
-    .replaceAll("Tese principal", "Oportunidade de ganhar dinheiro");
+    .replaceAll("Tese principal", "Potencial de retorno");
 }
 
 function translateSignalToMoney(signal: Pick<Signal, "title" | "summary">) {
@@ -269,7 +269,7 @@ export default function RadarPage() {
             ? "Motor de aquisição (SEO/ativos + funil + tracking)"
             : "Oferta enxuta + funil mensurável (7 dias)";
 
-    const proximoPasso = "Defina tese e rode um experimento de 7 dias com critério de decisão.";
+    const proximoPasso = "Defina o potencial de retorno e rode um teste rápido de mercado de 7 dias com indicador claro de decisão.";
 
     return { dor, comprador, porQueAgora, vender, proximoPasso };
   }
@@ -647,17 +647,17 @@ export default function RadarPage() {
                   <div className="mt-4 flex gap-3">
                     <Button onClick={() => loadInsight(s.id)} variant="ghost" disabled={loadingInsightId === s.id}>
                       {loadingInsightId === s.id
-                        ? "Gerando tese + plano…"
+                        ? "Gerando potencial de retorno + plano…"
                         : plan === "FREE"
-                          ? "Gerar tese de dinheiro + plano"
+                          ? "Gerar potencial de retorno + plano"
                           : plan === "PRO" && strategyLimit !== null
-                            ? `Gerar tese de dinheiro + plano (${strategyUsed}/${strategyLimit})`
-                            : "Gerar tese de dinheiro + plano"}
+                            ? `Gerar potencial de retorno + plano (${strategyUsed}/${strategyLimit})`
+                            : "Gerar potencial de retorno + plano"}
                     </Button>
                   </div>
 
                   {plan === "FREE" ? (
-                    <div className="mt-3 text-xs text-zinc-400">Tese + plano (7 dias) disponíveis no Pro.</div>
+                    <div className="mt-3 text-xs text-zinc-400">Potencial de retorno + plano (7 dias) disponíveis no Pro.</div>
                   ) : null}
 
                   {plan === "PRO" && strategyLimit !== null ? (
@@ -667,7 +667,7 @@ export default function RadarPage() {
                   {insightRes && hasInsight(insightRes) ? (
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black p-4">
                       <div className="flex items-center justify-between gap-4">
-                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">tese de dinheiro + plano</div>
+                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">potencial de retorno + plano</div>
                         <ZairixAvatar className="h-5 w-5 text-white/60" />
                       </div>
                       <div className="mt-2 text-xs text-zinc-400">
@@ -778,7 +778,7 @@ export default function RadarPage() {
                       ) : insightRes.error === "ai_failed" ? (
                         insightRes.message ?? "IA indisponível agora."
                       ) : insightRes.error === "upgrade_required" ? (
-                        "Upgrade necessário para gerar tese de dinheiro + plano."
+                        "Upgrade necessário para gerar potencial de retorno + plano."
                       ) : (
                         insightRes.message ?? "Oportunidade indisponível."
                       )}

@@ -36,7 +36,7 @@ export default async function Home() {
       "Funil: Landing com promessa + prova (antes/depois) → outbound para heads de receita/founders (50 contatos) → 2 calls de diagnóstico → 1 piloto pago.",
     experiment:
       "1) Landing com promessa + prova (antes/depois) • 2) Outbound para RevOps/Founders (50 contatos) • 3) Oferta de implementação em 7 dias com preço fechado • 4) 2 calls de diagnóstico e 1 piloto pago.",
-    metric: "Métrica (7 dias): 10 respostas qualificadas e 2 calls. Decisão: dobrar, ajustar ou matar.",
+    metric: "Indicador claro de decisão (7 dias): 10 respostas qualificadas e 2 calls. Decisão: dobrar, ajustar ou parar.",
     updatedAt: new Date("2026-01-11T00:00:00.000Z"),
   };
 
@@ -127,7 +127,7 @@ export default async function Home() {
           <Container>
             <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">demanda • tese • execução • monetização</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">demanda • potencial de retorno • execução • monetização</p>
                 <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
                   Descubra, crie e monetize negócios digitais usando sinais reais de mercado.
                 </h1>
@@ -137,7 +137,7 @@ export default async function Home() {
                   com critério de decisão.
                 </p>
                 <p className="mt-4 text-zinc-300">
-                  Em vez de “inspiração” e promessas vazias, você executa um ciclo curto: demanda → oferta → teste enxuto → funil → métrica em 7 dias →
+                  Em vez de “inspiração” e promessas vazias, você executa um ciclo curto: evidência real de demanda → potencial de retorno → teste rápido de mercado → funil → indicador claro de decisão em 7 dias →
                   iteração. A decisão final é humana; a vantagem vem de velocidade e evidência.
                 </p>
 

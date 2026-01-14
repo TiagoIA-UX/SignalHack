@@ -29,13 +29,13 @@ export const MODULES: ModuleDefinition[] = [
   {
     id: "artisan",
     name: "Estratégia",
-    oneLiner: "Converte sinal em potencial e execução.",
+    oneLiner: "Transforma evidência real de demanda em potencial de retorno e execução.",
     microcopy: "Plano sugerido",
   },
   {
     id: "optima",
     name: "Otimização",
-    oneLiner: "Ajusta execução com métrica e iteração.",
+    oneLiner: "Ajusta execução com indicador claro de decisão e iteração.",
     microcopy: "Otimização sugerida",
   },
 ];

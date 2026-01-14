@@ -38,7 +38,7 @@ export default function TermsPage() {
                 <div className="space-y-2">
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">finalidade do serviço</div>
                   <p>
-                    O Serviço organiza sinais públicos e ajuda a criar hipóteses e planos operacionais. O Serviço não substitui
+                    O Serviço organiza evidências reais de demanda públicas e ajuda a criar apostas orientadas por dados e planos operacionais. O Serviço não substitui
                     decisão humana e não fornece consultoria jurídica, contábil, financeira ou de investimentos.
                   </p>
                 </div>
@@ -82,7 +82,7 @@ export default function TermsPage() {
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">limitação de responsabilidade</div>
                   <p>
                     O Serviço é fornecido &quot;como está&quot;. Na extensão máxima permitida por lei, não nos responsabilizamos por
-                    decisões de negócio tomadas com base em sinais, hipóteses ou planos gerados, nem por perdas indiretas,
+                    decisões de negócio tomadas com base em evidências reais de demanda, apostas orientadas por dados ou planos gerados, nem por perdas indiretas,
                     incidentais ou consequenciais.
                   </p>
                 </div>

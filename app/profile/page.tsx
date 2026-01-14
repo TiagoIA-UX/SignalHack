@@ -26,12 +26,12 @@ type StatsResponse = {
 
 function badgeLabel(key: string) {
   if (key === "first_login") return "Primeiro acesso";
-  if (key === "first_insight") return "Primeiro sinal de compra";
+  if (key === "first_insight") return "Primeira evidência real de demanda";
   return key;
 }
 
 function badgeAttribution(key: string) {
-  if (key === "first_login") return "Primeiro sinal registrado (fontes públicas)";
+  if (key === "first_login") return "Primeira evidência registrada (fontes públicas)";
   if (key === "first_insight") return "Primeira priorização com plano de execução";
   return "Fluxo operacional";
 }
@@ -119,7 +119,7 @@ export default function ProfilePage() {
                   <div className="mt-3 text-xs text-zinc-400">Estratégia (priorização + plano) disponível no Pro.</div>
                 ) : null}
                 {strategyLimited && strategyLimit !== null ? (
-                  <div className="mt-3 text-xs text-zinc-400">Você usou {strategyUsed}/{strategyLimit} teses estratégicas hoje.</div>
+                  <div className="mt-3 text-xs text-zinc-400">Você usou {strategyUsed}/{strategyLimit} potenciais de retorno estratégicos hoje.</div>
                 ) : null}
                 {plan === "ELITE" ? (
                   <div className="mt-3 text-xs text-zinc-400">Acesso total ao fluxo operacional do SignalForge.</div>

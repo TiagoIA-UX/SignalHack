@@ -64,7 +64,7 @@ export async function GET(req: Request) {
 
   try {
     const now = new Date();
-    const tokenRow = await prisma.authToken.findFirst({
+    const tokenRow = await prisma.authTokens.findFirst({
       where: {
         type: "MAGIC_LINK",
         identifier: email,
@@ -81,25 +81,20 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL(`/login?error=expired_or_invalid`, req.url));
     }
 
-    const user = await prisma.user.findUnique({ where: { id: tokenRow.userId } });
+    const user = await prisma.users.findUnique({ where: { id: tokenRow.userId } });
     if (!user) {
       logEvent("warn", "auth.magic.verify.invalid_token", { requestId, path: "/api/auth/verify", method: "GET", status: 400, ip, ua, extra: { email } });
       await logAccess({ path: "/api/auth/verify", method: "GET", status: 400, ip, ua });
       return NextResponse.redirect(new URL(`/login?error=expired_or_invalid`, req.url));
     }
 
-    const session = await prisma.$transaction(async (tx) => {
-      await tx.authToken.update({ where: { id: tokenRow.id }, data: { consumedAt: now } });
-      await tx.user.update({ where: { id: user.id }, data: { emailVerified: true } });
-      return await tx.session.create({
-        data: {
-          userId: user.id,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
-          ip,
-          ...attachUaField({}, ua),
-        },
-        select: { id: true },
-      });
+    await prisma.authTokens.update({ where: { id: tokenRow.id }, data: { consumedAt: now } });
+    await prisma.users.update({ id: user.id }, { emailVerified: true });
+    const session = await prisma.sessions.create({
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
+      ip,
+      ...attachUaField({}, ua),
     });
 
     const jwt = await signSessionJwt(

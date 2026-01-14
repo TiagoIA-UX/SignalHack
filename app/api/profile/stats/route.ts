@@ -22,40 +22,33 @@ export async function GET() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: session.sub },
     select: { id: true, email: true, plan: true, role: true },
   });
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const today = startOfDayUTC(new Date());
-  const usageToday = await prisma.usageDay.findUnique({
-    where: { userId_day: { userId: user.id, day: today } },
-    select: { points: true, signalsSeen: true },
+  const usageToday = await prisma.usageDays.upsert({
+    where: { userId: user.id, day: today },
+    update: {},
+    create: { userId: user.id, day: today },
+    select: { id: true, insightsUsed: true },
   });
 
-  const totalPointsAgg = await prisma.usageDay.aggregate({
-    where: { userId: user.id },
-    _sum: { points: true },
-  });
-  const totalPoints = totalPointsAgg._sum.points ?? 0;
+  // Substitui aggregate por consulta SQL direta
+  const totalPointsAgg = await prisma.query('SELECT SUM(points) as total FROM "UsageDay" WHERE "userId" = $1', [user.id]);
+  const totalPoints = totalPointsAgg.rows[0]?.total || 0;
 
   const lvl = levelFromPoints(totalPoints);
 
-  const badges = await prisma.badgeUnlock.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    select: { key: true, createdAt: true },
-    take: 20,
-  });
+  // Substitui findMany por consulta SQL direta
+  const badgesRes = await prisma.query('SELECT key, "createdAt" FROM "BadgeUnlock" WHERE "userId" = $1 ORDER BY "createdAt" DESC', [user.id]);
+  const badges = badgesRes.rows;
 
   // Ranking simbólico: não competitivo tóxico (top 10 apenas como referência)
-  const top = await prisma.usageDay.groupBy({
-    by: ["userId"],
-    _sum: { points: true },
-    orderBy: { _sum: { points: "desc" } },
-    take: 10,
-  });
+  const topRes = await prisma.query('SELECT "userId", SUM(points) as total FROM "UsageDay" GROUP BY "userId" ORDER BY total DESC LIMIT 10');
+  const top = topRes.rows;
 
   const position = top.findIndex((t) => t.userId === user.id);
 

@@ -69,7 +69,7 @@ export async function PUT(req: Request) {
 
   // Garantir que o sinal pertence ao usuário
   try {
-    const signal = await prisma.signal.findFirst({
+    const signal = await prisma.signals.findFirst({
       where: { id: parsed.data.signalId, userId: session.sub },
       select: { id: true },
     });

@@ -7,9 +7,7 @@ export function Container(props: { children: React.ReactNode }) {
 export function Card(props: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`sh-surface rounded-2xl border border-emerald-500/15 bg-black/40 transition-colors hover:border-emerald-500/25 ${
-        props.className ?? ""
-      }`.trim()}
+      className={`card border border-emerald-500/15 transition-colors hover:border-emerald-500/25 ${props.className ?? ""}`.trim()}
       style={{ "--sh-accent": "rgba(16, 185, 129, 0.18)" } as React.CSSProperties}
     >
       {props.children}
@@ -26,11 +24,11 @@ export function Button(props: {
   onClick?: () => void;
 }) {
   const base =
-    "inline-flex h-10 items-center justify-center rounded-full px-4 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/30 disabled:opacity-50 disabled:pointer-events-none motion-reduce:transition-none";
+    "cta inline-flex items-center justify-center font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/30 disabled:opacity-50 disabled:pointer-events-none motion-reduce:transition-none";
   const styles =
     props.variant === "ghost"
-      ? "border border-emerald-500/20 bg-transparent text-zinc-200 hover:bg-emerald-500/10 hover:border-emerald-500/35"
-      : "bg-emerald-400 text-black hover:bg-emerald-300 shadow-[0_0_0_0_rgba(16,185,129,0)] hover:shadow-[0_0_0_6px_rgba(16,185,129,0.06)]";
+      ? "border border-emerald-500/20 bg-transparent text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-500/35"
+      : "bg-emerald-400 text-black hover:bg-emerald-300 shadow-lg";
 
   if (props.href) {
     return (

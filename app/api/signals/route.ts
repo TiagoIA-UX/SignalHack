@@ -49,7 +49,7 @@ export async function GET(req: Request) {
 
   let user;
   try {
-    user = await prisma.user.findUnique({
+    user = await prisma.users.findUnique({
       where: { id: session.sub },
       select: { id: true, plan: true, role: true },
     });
@@ -68,35 +68,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "upgrade_required" }, { status: 402 });
     }
 
-    let matches;
-    try {
-      matches = await prisma.signal.findMany({
-        where: {
-          userId: user.id,
-          OR: [
-            { title: { contains: q, mode: "insensitive" } },
-            { summary: { contains: q, mode: "insensitive" } },
-            { source: { contains: q, mode: "insensitive" } },
-          ],
-        },
-        orderBy: [{ score: "desc" }, { createdAt: "desc" }],
-        take: 100,
-        select: {
-          id: true,
-          title: true,
-          summary: true,
-          source: true,
-          intent: true,
-          score: true,
-          growthPct: true,
-          createdAt: true,
-          delayUntil: true,
-        },
-      });
-    } catch (err) {
-      if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
-      throw err;
-    }
+    // Busca sinais por título, resumo ou fonte usando SQL direto
+    const matchesRes = await prisma.query(
+      `SELECT * FROM "Signal" WHERE "userId" = $1 AND (
+        title ILIKE $2 OR summary ILIKE $2 OR source ILIKE $2
+      )`,
+      [user.id, `%${q}%`]
+    );
+    const matches = matchesRes.rows;
 
     await logAccess({ userId: user.id, path: "/api/signals", method: "GET", status: 200, ip, ua });
     return NextResponse.json({
@@ -112,11 +91,11 @@ export async function GET(req: Request) {
 
   let usage;
   try {
-    usage = await prisma.usageDay.upsert({
-      where: { userId_day: { userId: user.id, day: today } },
+    usage = await prisma.usageDays.upsert({
+      where: { userId: user.id, day: today },
       update: {},
       create: { userId: user.id, day: today },
-      select: { id: true, signalsSeen: true, points: true },
+      select: { id: true, insightsUsed: true },
     });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
@@ -139,14 +118,14 @@ export async function GET(req: Request) {
   // Garantir que existam alguns sinais na conta
   let existingCount;
   try {
-    existingCount = await prisma.signal.count({ where: { userId: user.id } });
+    existingCount = await prisma.signals.count({ where: { userId: user.id } });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
     throw err;
   }
   if (existingCount === 0) {
     try {
-      await prisma.signal.createMany({
+      await prisma.signals.createMany({
         data: [
         {
           userId: user.id,
@@ -184,26 +163,16 @@ export async function GET(req: Request) {
     }
   }
 
+  // Como matches agora vem de SQL direto, não precisa de select
   let signals;
   try {
-    signals = await prisma.signal.findMany({
+    signals = await prisma.signals.findMany({
       where: {
         userId: user.id,
         ...(isFree ? { OR: [{ delayUntil: null }, { delayUntil: { lte: now } }] } : {}),
       },
       orderBy: [{ score: "desc" }, { createdAt: "desc" }],
       take: isFree ? Math.max(0, limit - usage.signalsSeen) : 50,
-      select: {
-        id: true,
-        title: true,
-        summary: true,
-        source: true,
-        intent: true,
-        score: true,
-        growthPct: true,
-        createdAt: true,
-        delayUntil: true,
-      },
     });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
@@ -213,7 +182,7 @@ export async function GET(req: Request) {
   const consumed = Math.min(signals.length, isFree ? limit - usage.signalsSeen : signals.length);
   if (consumed > 0) {
     try {
-      await prisma.usageDay.update({
+      await prisma.usageDays.update({
         where: { id: usage.id },
         data: { signalsSeen: { increment: consumed }, points: { increment: consumed * 2 } },
       });

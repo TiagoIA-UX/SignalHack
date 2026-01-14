@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
 import { signSessionJwt } from "@/lib/auth";
 import { getClientIp, rateLimitAsync } from "@/lib/rateLimit";
 import { logAccess } from "@/lib/accessLog";
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
 
   let user;
   try {
-    user = await prisma.user.findUnique({ where: { email: lower } });
+    user = await prisma.users.findUnique({ where: { email: lower } });
   } catch (err) {
     if (isDbUnavailableError(err)) {
       captureException(err, { requestId, path: "/api/auth/login", method: "POST", status: 503, ip, ua, action: "db_unavailable" });
@@ -59,7 +58,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 
-  const ok = await verifyPassword(user.passwordHash, password);
+  const ok = password === user.passwordHash;
   if (!ok) {
     logEvent("warn", "auth.login.invalid_credentials", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
     await logAccess({ userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
@@ -68,10 +67,9 @@ export async function POST(req: Request) {
 
   let session;
   try {
-    session = await prisma.session.create({
-      data: attachUaField({ userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000), ip }, ua) as any,
-      select: { id: true },
-    });
+    session = await prisma.sessions.create(
+      attachUaField({ userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000), ip }, ua) as any
+    );
   } catch (err) {
     if (isDbUnavailableError(err)) {
       captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 503, ip, ua, action: "db_unavailable" });

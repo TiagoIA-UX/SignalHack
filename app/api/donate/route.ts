@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import mercadopago from "mercadopago";
+import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -18,14 +18,14 @@ export async function POST(req: Request) {
   const { amount } = parsed.data;
 
   // Configure Mercado Pago
-  mercadopago.configure({
-    access_token: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-  });
+  const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! });
+  const preference = new Preference(client);
 
   try {
-    const preference = {
+    const preferenceData = {
       items: [
         {
+          id: "donation",
           title: "Doação - Apoio ao Projeto ZAIRIX",
           quantity: 1,
           currency_id: "BRL",
@@ -41,11 +41,11 @@ export async function POST(req: Request) {
       external_reference: `donation-${Date.now()}`,
     };
 
-    const response = await mercadopago.preferences.create(preference);
+    const response = await preference.create({ body: preferenceData });
 
     return NextResponse.json({
-      checkout_url: response.body.init_point,
-      preference_id: response.body.id,
+      checkout_url: response.init_point,
+      preference_id: response.id,
     });
   } catch (error) {
     console.error("Mercado Pago error:", error);

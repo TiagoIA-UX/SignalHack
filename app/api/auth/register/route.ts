@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   let existing;
   try {
     // Check existing user
-    existing = await prisma.user.findUnique({ where: { email: lower }, select: { id: true, passwordHash: true } });
+    existing = await prisma.users.findUnique({ where: { email: lower }, select: { id: true, passwordHash: true } });
   } catch (err) {
     if (isDbUnavailableError(err)) {
       await logAccess({ path: "/api/auth/register", method: "POST", status: 503, ip, ua });
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
   let user;
   try {
-    user = await prisma.user.upsert({
+    user = await prisma.users.upsert({
       where: { email: lower },
       update: { passwordHash, name: name ?? undefined, emailVerified: true },
       create: { email: lower, passwordHash, name: name ?? undefined },
@@ -73,14 +73,13 @@ export async function POST(req: Request) {
 
   let session;
   try {
-    session = await prisma.session.create({
-      data: attachUaField({
+    session = await prisma.sessions.create(
+      attachUaField({
         userId: user.id,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
         ip,
-      }, ua) as any,
-      select: { id: true },
-    });
+      }, ua) as any
+    );
   } catch (err) {
     if (isDbUnavailableError(err)) {
       await logAccess({ userId: user.id, path: "/api/auth/register", method: "POST", status: 503, ip, ua });

@@ -41,10 +41,7 @@ export async function POST(req: Request) {
   const parsed = postSchema.safeParse(json);
   if (!parsed.success) return NextResponse.json({ error: "invalid_request" }, { status: 400 });
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.sub },
-    select: { id: true, email: true, plan: true },
-  });
+  const user = await prisma.users.findUnique({ where: { id: session.sub }, select: { id: true, email: true, plan: true } });
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const requested = parsed.data.plan;

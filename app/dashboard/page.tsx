@@ -313,8 +313,10 @@ export default function DashboardOperatorPage() {
             <div className="lg:col-span-2">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight">Modo Operador</h1>
-                  <p className="mt-1 text-sm text-zinc-300">Escolha o alvo → escolha 1 sinal → gere e salve um playbook de 7 dias.</p>
+                  <h1 className="h1">Modo Operador</h1>
+                  <p className="p mt-2 text-zinc-200">
+                    <span className="font-bold">Escolha o alvo</span> <span className="font-bold">→ escolha 1 sinal → gere e salve um playbook de 7 dias.</span>
+                  </p>
                 </div>
                 <Button href="/visao-estrategica" variant="ghost">
                   Abrir Visão Estratégica
@@ -322,11 +324,11 @@ export default function DashboardOperatorPage() {
               </div>
             </div>
 
-            <Card className="p-5">
+            <Card className="p-8">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">objetivo ativo</div>
-                  <div className="mt-1 text-sm font-medium text-zinc-100">
+                  <div className="text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">objetivo ativo</div>
+                  <div className="mt-2 text-lg font-bold text-zinc-100">
                     {activePlaybook ? activePlaybook.signalTitle : "Nenhuma"}
                   </div>
                 </div>
@@ -398,9 +400,9 @@ export default function DashboardOperatorPage() {
           </div>
 
           {!hunt ? (
-            <Card className="mt-6 p-6">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 1</div>
-              <div className="mt-2 text-lg font-semibold text-zinc-100">Qual dinheiro você quer caçar esta semana?</div>
+            <Card className="mt-6 p-8">
+                    <div className="text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">passo 1</div>
+                    <div className="mt-2 h2 font-bold text-zinc-100">Qual dinheiro você quer caçar esta semana?</div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {([
                   "REVOPS_AUTOMATION",
@@ -424,7 +426,7 @@ export default function DashboardOperatorPage() {
             </Card>
           ) : (
             <>
-              <Card className="mt-6 p-6">
+              <Card className="mt-6 p-8">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 1</div>
@@ -481,8 +483,8 @@ export default function DashboardOperatorPage() {
 
               {signalsRes && !("error" in signalsRes) ? (
                 <Card className="mt-6 p-6">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 2</div>
-                  <div className="mt-2 text-lg font-semibold text-zinc-100">Escolha 1 sinal (top 3)</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">passo 2</div>
+                  <div className="mt-2 h2 font-bold text-zinc-100">Escolha 1 sinal (top 3)</div>
                   <div className="mt-5 grid gap-3 lg:grid-cols-3">
                     {top3.map((s) => (
                       <button
@@ -511,11 +513,11 @@ export default function DashboardOperatorPage() {
               ) : null}
 
               {selectedSignal ? (
-                <Card className="mt-6 p-6">
+                <Card className="mt-6 p-8">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">passo 3</div>
-                      <div className="mt-2 text-lg font-semibold text-zinc-100">Transformar em dinheiro</div>
+                      <div className="text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">passo 3</div>
+                      <div className="mt-2 h2 font-bold text-zinc-100">Transformar em dinheiro</div>
                       <div className="mt-2 text-sm text-zinc-300">Escolhido: {selectedSignal.title}</div>
                     </div>
                     <div className="flex gap-2">

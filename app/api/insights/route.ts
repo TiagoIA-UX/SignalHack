@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   let user;
   try {
-    user = await prisma.user.findUnique({ where: { id: session.sub }, select: { id: true, plan: true, role: true } });
+    user = await prisma.users.findUnique({ where: { id: session.sub }, select: { id: true, plan: true, role: true } });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
     throw err;
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 
   let signal;
   try {
-    signal = await prisma.signal.findFirst({
+    signal = await prisma.signals.findFirst({
       where: { id: parsed.data.signalId, userId: user.id },
       select: { id: true, title: true, summary: true },
     });
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
 
   let existing;
   try {
-    existing = await prisma.insight.findFirst({
+    existing = await prisma.insights.findFirst({
       where: { signalId: signal.id },
       orderBy: { createdAt: "desc" },
       select: { id: true, strategic: true, actionable: true, confidence: true },
@@ -90,8 +90,8 @@ export async function POST(req: Request) {
     const today = startOfDayUTC(new Date());
     let usage;
     try {
-      usage = await prisma.usageDay.upsert({
-        where: { userId_day: { userId: user.id, day: today } },
+      usage = await prisma.usageDays.upsert({
+        where: { userId: user.id, day: today },
         update: {},
         create: { userId: user.id, day: today },
         select: { id: true, insightsUsed: true },
@@ -136,15 +136,12 @@ export async function POST(req: Request) {
 
   let insight;
   try {
-    insight = await prisma.insight.create({
-      data: {
-        signalId: signal.id,
-        strategic: analysis.strategic,
-        actionable: analysis.actionable,
-        confidence: Math.min(95, Math.max(50, Math.round(analysis.score))),
-        model: "groq",
-      },
-      select: { id: true, strategic: true, actionable: true, confidence: true },
+    insight = await prisma.insights.create({
+      signalId: signal.id,
+      strategic: analysis.strategic,
+      actionable: analysis.actionable,
+      confidence: Math.min(95, Math.max(50, Math.round(analysis.score))),
+      model: "groq",
     });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
@@ -152,8 +149,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    await prisma.badgeUnlock.upsert({
-      where: { userId_key: { userId: user.id, key: "first_insight" } },
+    await prisma.badgeUnlocks.upsert({
+      where: { userId: user.id, key: "first_insight" },
       update: {},
       create: { userId: user.id, key: "first_insight" },
     });
@@ -163,7 +160,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    await prisma.usageDay.updateMany({
+    await prisma.usageDays.updateMany({
       where: { userId: user.id, day: { gte: new Date(Date.now() - 36 * 60 * 60_000) } },
       data: { points: { increment: 5 } },
     });
@@ -175,7 +172,7 @@ export async function POST(req: Request) {
   if (!adminBypass && user.plan === "PRO") {
     const today = startOfDayUTC(new Date());
     try {
-      await prisma.usageDay.update({
+      await prisma.usageDays.update({
         where: { userId_day: { userId: user.id, day: today } },
         data: { insightsUsed: { increment: 1 } },
       });

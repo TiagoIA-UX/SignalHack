@@ -51,7 +51,7 @@ export async function POST(req: Request) {
 
   try {
     const now = new Date();
-    const tokenRow = await prisma.authToken.findFirst({
+    const tokenRow = await prisma.authTokens.findFirst({
       where: {
         type: "PASSWORD_RESET",
         identifier: email,
@@ -70,26 +70,20 @@ export async function POST(req: Request) {
 
     const passwordHash = await hashPassword(parsed.data.password);
 
-    const user = await prisma.user.findUnique({ where: { id: tokenRow.userId } });
+    const user = await prisma.users.findUnique({ where: { id: tokenRow.userId } });
     if (!user) {
       logEvent("warn", "auth.reset.invalid_token", { requestId, path: "/api/auth/reset", method: "POST", status: 400, ip, ua, extra: { email } });
       await logAccess({ path: "/api/auth/reset", method: "POST", status: 400, ip, ua });
       return NextResponse.json({ error: "invalid_token" }, { status: 400 });
     }
 
-    const session = await prisma.$transaction(async (tx) => {
-      await tx.authToken.update({ where: { id: tokenRow.id }, data: { consumedAt: now } });
-      await tx.user.update({ where: { id: user.id }, data: { passwordHash, emailVerified: true } });
-      const created = await tx.session.create({
-        data: {
-          userId: user.id,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
-          ip,
-          ...attachUaField({}, ua),
-        },
-        select: { id: true },
-      });
-      return created;
+    await prisma.authTokens.update({ where: { id: tokenRow.id }, data: { consumedAt: now } });
+    await prisma.users.update({ id: user.id }, { passwordHash, emailVerified: true });
+    const session = await prisma.sessions.create({
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
+      ip,
+      ...attachUaField({}, ua),
     });
 
     const jwt = await signSessionJwt({ sub: user.id, email: user.email, plan: user.plan, role: user.role, sid: session.id }, 30 * 24 * 60 * 60);

@@ -47,7 +47,7 @@ export async function GET(req: Request) {
 
   let user;
   try {
-    user = await prisma.user.upsert({
+    user = await prisma.users.upsert({
       where: { email: adminEmail },
       update: { role: "ADMIN" },
       create: { email: adminEmail, role: "ADMIN" },
@@ -63,14 +63,13 @@ export async function GET(req: Request) {
 
   let session;
   try {
-    session = await prisma.session.create({
-      data: attachUaField({
+    session = await prisma.sessions.create(
+      attachUaField({
         userId: user.id,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
         ip,
-      }, ua) as any,
-      select: { id: true },
-    });
+      }, ua) as any
+    );
   } catch (err) {
     if (isDbUnavailableError(err)) {
       await logAccess({ userId: user.id, path: "/api/auth/bootstrap", method: "GET", status: 503, ip, ua });

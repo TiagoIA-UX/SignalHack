@@ -5,7 +5,6 @@ import { SESSION_COOKIE, verifySessionJwt } from "@/lib/auth";
 import { getClientIp, rateLimitAsync } from "@/lib/rateLimit";
 import { isDbUnavailableError } from "@/lib/dbError";
 import { logAccess } from "@/lib/accessLog";
-import { Prisma } from "@prisma/client";
 import { generateWeeklyBriefWithGroq, type WeeklyBrief } from "@/services/groq";
 import { getUa } from "@/lib/ua";
 
@@ -63,10 +62,7 @@ export async function GET(req: Request) {
 
   let user;
   try {
-    user = await prisma.user.findUnique({
-      where: { id: session.sub },
-      select: { id: true, plan: true, role: true },
-    });
+    user = await prisma.users.findUnique({ where: { id: session.sub }, select: { id: true, plan: true, role: true } });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
     throw err;
@@ -84,10 +80,7 @@ export async function GET(req: Request) {
 
   let existing;
   try {
-    existing = await prisma.weeklyBrief.findUnique({
-      where: { userId_weekStart: { userId: user.id, weekStart } },
-      select: { id: true, content: true, updatedAt: true },
-    });
+    existing = await prisma.weeklyBriefs.findUnique({ userId: user.id, weekStart }, { id: true, content: true, updatedAt: true });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
     throw err;
@@ -102,7 +95,7 @@ export async function GET(req: Request) {
 
   let signals;
   try {
-    signals = await prisma.signal.findMany({
+    signals = await prisma.signals.findMany({
       where: { userId: user.id, createdAt: { gte: since } },
       orderBy: [{ score: "desc" }, { createdAt: "desc" }],
       take: 12,
@@ -170,12 +163,10 @@ export async function GET(req: Request) {
   }
 
   try {
-    await prisma.weeklyBrief.create({
-      data: {
-        userId: user.id,
-        weekStart,
-        content: brief as Prisma.InputJsonValue,
-      },
+    await prisma.weeklyBriefs.create({
+      userId: user.id,
+      weekStart,
+      content: brief as any,
     });
   } catch (err) {
     if (isDbUnavailableError(err)) return NextResponse.json({ error: "db_unavailable" }, { status: 503 });

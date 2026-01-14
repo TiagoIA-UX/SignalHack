@@ -32,11 +32,11 @@ export function PlanUpgradeButton(props: { plan: "PRO" | "ELITE"; variant?: "pri
     return planRank(currentPlan) >= planRank(props.plan);
   }, [currentPlan, props.plan]);
 
-  const label = useMemo(() => {
-    if (!currentPlan) return "Acesso restrito";
-    if (disabled) return "Ativo";
-    return props.plan === "ELITE" ? "Ativar Elite" : "Ativar Pro";
-  }, [currentPlan, disabled, props.plan]);
+    const label = useMemo(() => {
+      if (!currentPlan) return "Liberar acesso";
+      if (disabled) return "Ativo";
+      return props.plan === "ELITE" ? "Quero Elite" : "Quero Pro";
+    }, [currentPlan, disabled, props.plan]);
 
   async function startCheckout() {
     setError(null);
@@ -65,9 +65,15 @@ export function PlanUpgradeButton(props: { plan: "PRO" | "ELITE"; variant?: "pri
 
   return (
     <div className="flex flex-col items-end gap-2">
-      <Button variant={props.variant} onClick={startCheckout} disabled={disabled || loading}>
-        {loading ? "Abrindo checkout…" : label}
-      </Button>
+        <Button
+          type="button"
+          disabled={disabled || loading}
+          onClick={startCheckout}
+          variant={props.variant}
+          className="cta text-lg px-8 py-4"
+        >
+          {loading ? "Carregando..." : label}
+        </Button>
       {error ? <div className="text-xs text-zinc-500">{error}</div> : null}
     </div>
   );

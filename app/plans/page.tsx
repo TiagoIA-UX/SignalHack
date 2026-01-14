@@ -9,20 +9,24 @@ export default function PlansPage() {
       <main className="py-16">
         <Container>
           <div className="mx-auto max-w-5xl">
-            <h1 className="text-3xl font-semibold tracking-tight">Planos</h1>
-            <p className="mt-2 text-sm text-zinc-300">Escolha sua cadência: demanda → tese → experimento → receita (ou decisão em 7 dias).</p>
+            <h1 className="h1">Planos</h1>
+            <p className="p mt-3 text-zinc-200">
+              <span className="font-bold">Escolha sua cadência:</span> demanda <span className="font-bold">→ potencial → experimento → receita</span>.<br />
+              <span className="block mt-2 text-zinc-400">Decida em até 7 dias.</span>
+            </p>
 
-            <div className="mt-10 grid gap-4 lg:grid-cols-3">
-              <Card className="p-6">
+            <div className="mt-10 grid gap-6 lg:grid-cols-3">
+              <Card className="p-8">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">Free</div>
+                  <div className="h2 font-semibold">Free</div>
                   <Badge>base</Badge>
                 </div>
-                <div className="mt-4 text-3xl font-semibold">R$ 0</div>
-                <p className="mt-2 text-sm text-zinc-300">
-                  Para conhecer a Visão Estratégica e o fluxo coordenado. Bom para explorar — não para operar consistência.
+                <div className="mt-4 h2 font-bold text-emerald-300">R$ 0</div>
+                <p className="p mt-2 text-zinc-200">
+                  <span className="font-bold">Conheça a Visão Estratégica</span> e o fluxo coordenado.<br />
+                  Bom para explorar — não para operar consistência.
                 </p>
-                <ul className="mt-4 space-y-2 text-sm text-zinc-200">
+                <ul className="mt-4 space-y-2 text-base text-zinc-200">
                   <li>• 3 sinais/dia</li>
                   <li>• Delay de 24h</li>
                   <li>• Fontes públicas + Validação (detecção e classificação)</li>
@@ -30,22 +34,22 @@ export default function PlansPage() {
                   <li>• Estratégia bloqueada (priorização + plano)</li>
                 </ul>
                 <div className="mt-6">
-                  <Button href="/register" variant="ghost">
+                  <Button href="/register" variant="ghost" className="cta">
                     Começar no Free
                   </Button>
                 </div>
               </Card>
 
-              <Card className="p-6">
+              <Card className="p-8">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">Pro</div>
+                  <div className="h2 font-semibold">Pro</div>
                   <Badge>recomendado</Badge>
                 </div>
-                <div className="mt-4 text-3xl font-semibold">R$ 29/mês</div>
-                <p className="mt-2 text-sm text-zinc-300">
-                  Para operar semanalmente: detectar sinais de compra cedo, filtrar ruído e transformar sinal em tese e experimento.
+                <div className="mt-4 h2 font-bold text-emerald-300">R$ 29/mês</div>
+                <p className="p mt-2 text-zinc-200">
+                  <span className="font-bold">Para operar semanalmente:</span> detectar sinais de compra cedo, filtrar ruído e transformar sinal em potencial e experimento.
                 </p>
-                <ul className="mt-4 space-y-2 text-sm text-zinc-200">
+                <ul className="mt-4 space-y-2 text-base text-zinc-200">
                   <li>• Sinais ilimitados</li>
                   <li>• Fontes públicas + Validação + Filtro de ruído</li>
                   <li>• Estratégia (até 5 priorizações/dia)</li>
@@ -54,23 +58,23 @@ export default function PlansPage() {
                   <li>• Playbook por sinal (plano de execução)</li>
                 </ul>
                 <div className="mt-4 text-xs text-zinc-400">
-                  Se você vive de atenção, conversão ou B2B outbound, operar sem playbook vira apostar no escuro.
+                  <span className="font-bold">Se você vive de atenção, conversão ou B2B outbound, operar sem playbook vira apostar no escuro.</span>
                 </div>
                 <div className="mt-6">
                   <PlanUpgradeButton plan="PRO" />
                 </div>
               </Card>
 
-              <Card className="p-6">
+              <Card className="p-8">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">Elite</div>
+                  <div className="h2 font-semibold">Elite</div>
                   <Badge>preparado</Badge>
                 </div>
-                <div className="mt-4 text-3xl font-semibold">R$ 79/mês</div>
-                <p className="mt-2 text-sm text-zinc-300">
-                  Para operação séria: mais velocidade, mais consistência e menos &quot;achismo&quot; quando a demanda aparece.
+                <div className="mt-4 h2 font-bold text-emerald-300">R$ 79/mês</div>
+                <p className="p mt-2 text-zinc-200">
+                  <span className="font-bold">Para operação séria:</span> mais velocidade, mais consistência e menos "achismo" quando a demanda aparece.
                 </p>
-                <ul className="mt-4 space-y-2 text-sm text-zinc-200">
+                <ul className="mt-4 space-y-2 text-base text-zinc-200">
                   <li>• Fluxo completo liberado</li>
                   <li>• Estratégia ilimitada</li>
                   <li>• Alertas antecipados</li>
@@ -80,7 +84,7 @@ export default function PlansPage() {
                   <li>• Relatórios premium</li>
                 </ul>
                 <div className="mt-4 text-xs text-zinc-400">
-                  Quando o mercado acelera, quem não tem rotina de sinal→tese→experimento fica reagindo. Elite é para operar no controle.
+                  <span className="font-bold">Quando o mercado acelera, quem não tem rotina de sinal→tese→experimento fica reagindo. Elite é para operar no controle.</span>
                 </div>
                 <div className="mt-6">
                   <PlanUpgradeButton plan="ELITE" variant="ghost" />

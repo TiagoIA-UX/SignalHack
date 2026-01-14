@@ -32,14 +32,16 @@ export default async function WelcomePage({
       <AppHeader />
       <main className="py-10">
         <Container>
-          <div className="mx-auto max-w-3xl">
-            <div className="mb-6">
-              <div className="text-xs uppercase tracking-[0.2em] text-emerald-200/70">signalforge • acesso corporativo</div>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight">Bem-vindo ao sistema</h1>
-              <p className="mt-2 text-sm text-zinc-300">
-                Antes de operar, você aceita um contrato simples: privacidade, responsabilidade e cookies com consentimento.
-              </p>
-            </div>
+              <div className="mx-auto max-w-3xl">
+                <div className="mb-8">
+                  <div className="text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">signalforge • acesso corporativo</div>
+                  <h1 className="h1 mt-3">Bem-vindo ao sistema</h1>
+                  <p className="p mt-3 text-zinc-200">
+                    <span className="font-bold">Antes de operar, você aceita um contrato simples:</span><br />
+                    <span className="font-bold text-emerald-300">Privacidade</span>, <span className="font-bold text-emerald-300">responsabilidade</span> e <span className="font-bold text-emerald-300">cookies com consentimento</span>.<br />
+                    <span className="block mt-2 text-zinc-400">Tudo transparente, sem pegadinhas.</span>
+                  </p>
+                </div>
 
             <Card className="p-6">
               <div className="grid gap-4 md:grid-cols-3">
@@ -55,6 +57,8 @@ export default async function WelcomePage({
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">operação</div>
                   <div className="mt-2 text-sm text-zinc-200">Entrou → escolhe alvo → escolhe sinal → executa playbook.</div>
                 </div>
+              </div>
+                </Card>
               </div>
 
               {hasError ? (

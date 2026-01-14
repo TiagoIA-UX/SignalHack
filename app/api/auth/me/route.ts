@@ -12,7 +12,7 @@ export async function GET() {
 
   let user;
   try {
-    user = await prisma.user.findUnique({
+    user = await prisma.users.findUnique({
       where: { id: session.sub },
       select: { id: true, email: true, plan: true, role: true },
     });

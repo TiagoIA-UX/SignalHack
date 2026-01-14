@@ -43,11 +43,29 @@ export default async function Home() {
   let realExample: RealDashboardExample | null = null;
   if (publicExampleEmail || session) {
     try {
-      const plan = await prisma.executionPlan.findFirst({
-        where: publicExampleEmail ? { user: { email: publicExampleEmail } } : { userId: session!.sub },
-        orderBy: { updatedAt: "desc" },
-        include: { signal: true },
-      });
+      let plan: any = null;
+      if (publicExampleEmail) {
+        const planRes = await prisma.query(
+          `SELECT ep.*, s.source, s.title, s.summary, s.score, s.intent
+           FROM "ExecutionPlan" ep
+           JOIN "User" u ON ep."userId" = u.id
+           JOIN "Signal" s ON ep."signalId" = s.id
+           WHERE u.email = $1
+           ORDER BY ep."updatedAt" DESC LIMIT 1`,
+          [publicExampleEmail]
+        );
+        plan = planRes.rows[0];
+      } else if (session) {
+        const planRes = await prisma.query(
+          `SELECT ep.*, s.source, s.title, s.summary, s.score, s.intent
+           FROM "ExecutionPlan" ep
+           JOIN "Signal" s ON ep."signalId" = s.id
+           WHERE ep."userId" = $1
+           ORDER BY ep."updatedAt" DESC LIMIT 1`,
+          [session.sub]
+        );
+        plan = planRes.rows[0];
+      }
 
       if (plan) {
         realExample = {

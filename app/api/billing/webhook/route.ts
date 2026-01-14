@@ -130,13 +130,13 @@ export async function POST(req: Request) {
     const isActive = status === "authorized" || status === "active";
     if (!isActive) return NextResponse.json({ ok: true });
 
-    const user = await prisma.user.findUnique({ where: { id: ext.userId }, select: { id: true, plan: true } });
+    const user = await prisma.users.findUnique({ where: { id: ext.userId }, select: { id: true, plan: true } });
     if (!user) return NextResponse.json({ ok: true });
 
     const nextPlan = ext.plan;
     if (planRank(user.plan) >= planRank(nextPlan)) return NextResponse.json({ ok: true });
 
-    await prisma.user.update({ where: { id: user.id }, data: { plan: nextPlan } }).catch(() => null);
+    await prisma.users.update({ id: user.id }, { plan: nextPlan }).catch(() => null);
     logEvent("info", "billing.webhook.plan_upgraded", {
       requestId,
       userId: user.id,

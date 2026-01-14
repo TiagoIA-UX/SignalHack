@@ -62,7 +62,7 @@ export async function POST(req: Request) {
   // Do not disclose whether the account exists.
   let user: { id: string; email: string } | null = null;
   try {
-    user = await prisma.user.findUnique({ where: { email }, select: { id: true, email: true } });
+    user = await prisma.users.findUnique({ where: { email }, select: { id: true, email: true } });
   } catch (err) {
     if (isDbUnavailableError(err)) {
       captureException(err, { requestId, path: "/api/auth/forgot", method: "POST", status: 503, ip, ua, action: "db_unavailable" });
@@ -80,28 +80,26 @@ export async function POST(req: Request) {
     const expiresAt = new Date(Date.now() + 30 * 60_000);
 
     try {
-      await prisma.$transaction([
-        prisma.authToken.updateMany({
-          where: {
-            type: "PASSWORD_RESET",
-            identifier: email,
-            consumedAt: null,
-            expiresAt: { gt: new Date() },
-          },
-          data: { consumedAt: new Date() },
-        }),
-        prisma.authToken.create({
-          data: {
-            type: "PASSWORD_RESET",
-            identifier: email,
-            tokenHash,
-            expiresAt,
-            ip,
-            ...attachUaField({}, ua),
-            userId: user.id,
-          },
-        }),
-      ]);
+      // Invalidate previous tokens
+      await prisma.authTokens.updateMany({
+        where: {
+          type: "PASSWORD_RESET",
+          identifier: email,
+          consumedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+        data: { consumedAt: new Date() },
+      });
+      // Create new token
+      await prisma.authTokens.create({
+        type: "PASSWORD_RESET",
+        identifier: email,
+        tokenHash,
+        expiresAt,
+        ip,
+        ...attachUaField({}, ua),
+        userId: user.id,
+      });
     } catch (err) {
       if (isDbUnavailableError(err)) {
         captureException(err, { requestId, userId: user.id, path: "/api/auth/forgot", method: "POST", status: 503, ip, ua, action: "db_unavailable" });

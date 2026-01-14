@@ -29,7 +29,7 @@ export const MODULES: ModuleDefinition[] = [
   {
     id: "artisan",
     name: "Estratégia",
-    oneLiner: "Converte sinal em tese e execução.",
+    oneLiner: "Converte sinal em potencial e execução.",
     microcopy: "Plano sugerido",
   },
   {

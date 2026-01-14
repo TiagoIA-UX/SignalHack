@@ -168,30 +168,37 @@ export default async function Home() {
                   </div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                      <div className="text-xs font-medium text-zinc-200">1) Sinal real</div>
-                      <div className="mt-2 text-sm text-zinc-200">{example.title}</div>
-                      <div className="mt-2 text-xs text-zinc-400">{example.summary}</div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
+                      <Image src="/images/evidencia-demanda.jpg" alt="Evidência real de demanda" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
+                      <div>
+                        <div className="text-xs font-medium text-zinc-200">1) Evidência real de demanda</div>
+                        <div className="mt-2 text-sm text-zinc-200">{example.title}</div>
+                        <div className="mt-2 text-xs text-zinc-400">{example.summary}</div>
+                      </div>
                     </div>
 
-                    <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                      <div className="text-xs font-medium text-zinc-200">2) Tese de dinheiro</div>
-                      <div className="mt-2 text-sm text-zinc-200">{example.hypothesis}</div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
+                      <Image src="/images/potencial-retorno.jpg" alt="Potencial de retorno" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
+                      <div>
+                        <div className="text-xs font-medium text-zinc-200">2) Potencial de retorno</div>
+                        <div className="mt-2 text-sm text-zinc-200">{example.hypothesis}</div>
+                      </div>
                     </div>
 
-                    <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                      <div className="text-xs font-medium text-zinc-200">3) Oferta</div>
-                      <div className="mt-2 text-sm text-zinc-200">{offer}</div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
+                      <Image src="/images/teste-mercado.jpg" alt="Teste rápido de mercado" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
+                      <div>
+                        <div className="text-xs font-medium text-zinc-200">3) Teste rápido de mercado</div>
+                        <div className="mt-2 text-sm text-zinc-200">{offer}</div>
+                      </div>
                     </div>
 
-                    <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                      <div className="text-xs font-medium text-zinc-200">4) Funil</div>
-                      <div className="mt-2 text-sm text-zinc-200">{funnel}</div>
-                    </div>
-
-                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 md:col-span-2">
-                      <div className="text-xs font-medium text-zinc-200">5) Métrica de 7 dias</div>
-                      <div className="mt-2 text-sm text-zinc-200">{example.metric}</div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
+                      <Image src="/images/indicador-decisao.jpg" alt="Indicador claro de decisão" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
+                      <div>
+                        <div className="text-xs font-medium text-zinc-200">4) Indicador claro de decisão</div>
+                        <div className="mt-2 text-sm text-zinc-200">{example.metric}</div>
+                      </div>
                     </div>
                   </div>
 

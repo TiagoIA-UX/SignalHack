@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+// import * as Sentry from "@sentry/nextjs";
 
 export type LogLevel = "info" | "warn" | "error";
 
@@ -53,31 +53,33 @@ export function logEvent(level: LogLevel, message: string, ctx: LogContext = {})
 }
 
 export function captureException(err: unknown, ctx: LogContext = {}) {
-  Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
-    tags: {
-      requestId: ctx.requestId,
-      path: ctx.path,
-      method: ctx.method,
-    },
-    user: ctx.userId ? { id: ctx.userId } : undefined,
-    extra: {
-      ...ctx.extra,
-      status: ctx.status,
-      ip: ctx.ip,
-      ua: ctx.ua,
-      error: safeError(err),
-    },
-  });
+  // Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+  //   tags: {
+  //     requestId: ctx.requestId,
+  //     path: ctx.path,
+  //     method: ctx.method,
+  //   },
+  //   user: ctx.userId ? { id: ctx.userId } : undefined,
+  //   extra: {
+  //     ...ctx.extra,
+  //     status: ctx.status,
+  //     ip: ctx.ip,
+  //     ua: ctx.ua,
+  //     error: safeError(err),
+  //   },
+  // });
+  console.error("Exception captured:", safeError(err), ctx);
 }
 
 export function captureMessage(message: string, ctx: LogContext = {}) {
-  Sentry.captureMessage(message, {
-    tags: {
-      requestId: ctx.requestId,
-      path: ctx.path,
-      method: ctx.method,
-    },
-    user: ctx.userId ? { id: ctx.userId } : undefined,
-    extra: ctx.extra,
-  });
+  // Sentry.captureMessage(message, {
+  //   tags: {
+  //     requestId: ctx.requestId,
+  //     path: ctx.path,
+  //     method: ctx.method,
+  //   },
+  //   user: ctx.userId ? { id: ctx.userId } : undefined,
+  //   extra: ctx.extra,
+  // });
+  console.log("Message captured:", message, ctx);
 }

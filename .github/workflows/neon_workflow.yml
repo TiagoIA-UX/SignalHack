@@ -1,0 +1,28 @@
+name: Neon Branching
+
+on:
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  create-branch:
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Neon Branch
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"branch": {"name": "pr-${{ github.event.number }}"}}' \
+            https://console.neon.tech/api/v2/projects/${{ secrets.NEON_PROJECT_ID }}/branches
+
+  delete-branch:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Neon Branch
+        run: |
+          curl -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+            https://console.neon.tech/api/v2/projects/${{ secrets.NEON_PROJECT_ID }}/branches/pr-${{ github.event.number }}

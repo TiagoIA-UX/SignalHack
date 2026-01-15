@@ -11,8 +11,9 @@ const pool =
 
 if (!globalForPrisma._pgPool) globalForPrisma._pgPool = pool;
 
-pool.on('error', (err) => {
-  console.error('Postgres pool error', err?.message ?? err);
+pool.on('error', (err: unknown) => {
+  const msg = err instanceof Error ? err.message : String(err);
+  console.error('Postgres pool error', msg);
 });
 
 export const db = {

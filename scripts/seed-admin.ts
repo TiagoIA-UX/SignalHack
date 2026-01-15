@@ -43,7 +43,7 @@ async function main() {
       );
     }
     // Ordena por createdAt (se existir), senão pega o último
-    const last = all.sort((a, b) => {
+    const last = all.sort((a: { createdAt?: string | Date | null; email: string }, b: { createdAt?: string | Date | null; email: string }) => {
       if (a.createdAt && b.createdAt) {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }

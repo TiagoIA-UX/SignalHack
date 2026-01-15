@@ -7,6 +7,12 @@ import { levelFromPoints, rankLabelFromPoints } from "@/lib/gamification";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Tipagem para linha SQL do ranking (retornada por $queryRaw / prisma.query)
+type TopUserRow = {
+  userId: string;
+  total: number | bigint | null;
+};
+
 function startOfDayUTC(d: Date) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
@@ -50,7 +56,7 @@ export async function GET() {
   const topRes = await prisma.query('SELECT "userId", SUM(points) as total FROM "UsageDay" GROUP BY "userId" ORDER BY total DESC LIMIT 10');
   const top = topRes.rows;
 
-  const position = top.findIndex((t: { userId: string }) => t.userId === user.id);
+  const position = top.findIndex((t: TopUserRow) => t.userId === user.id);
 
   return NextResponse.json({
     user,
@@ -60,7 +66,8 @@ export async function GET() {
       level: lvl.level,
       nextAt: lvl.nextAt,
       rankLabel: rankLabelFromPoints(totalPoints),
-      top10: top.map((t, idx) => ({ position: idx + 1, userId: t.userId, points: Number(t.total ?? 0) })),
+      top10: top.map((t: TopUserRow, idx: number) => ({ position: idx + 1, userId: t.userId, points: Number(t.total ?? 0) })),
+
       top10Position: position >= 0 ? position + 1 : null,
     },
     usage: {

@@ -337,7 +337,7 @@ export const db = {
     },
     upsert: (args: { where: { userId_signalId: { userId: string; signalId: string } }, update: { hypothesis: string; experiment: string; metric: string }, create: { userId: string; signalId: string; hypothesis: string; experiment: string; metric: string }, select?: { id?: boolean; hypothesis?: boolean; experiment?: boolean; metric?: boolean; updatedAt?: boolean } }) => {
       const existing = db.query('SELECT id FROM "ExecutionPlan" WHERE "userId" = $1 AND "signalId" = $2', [args.where.userId_signalId.userId, args.where.userId_signalId.signalId]).then((res: QueryResult) => res.rows[0]);
-      return existing.then((row) => {
+      return existing.then((row: { id: string } | undefined) => {
         if (row) {
           // Update
           return db.query('UPDATE "ExecutionPlan" SET hypothesis = $1, experiment = $2, metric = $3, "updatedAt" = NOW() WHERE id = $4 RETURNING *', [args.update.hypothesis, args.update.experiment, args.update.metric, row.id]).then((res: QueryResult) => {

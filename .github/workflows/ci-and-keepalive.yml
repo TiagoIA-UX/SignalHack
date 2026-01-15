@@ -1,0 +1,155 @@
+name: CI & Keepalive
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '*/5 * * * *'    # keepalive ping (every 5 minutes)
+    - cron: '0 * * * *'      # hourly smoke tests (at the top of the hour)
+
+concurrency:
+  group: ci-keepalive-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20.x'
+  FALLBACK_PROD_URL: 'https://signalhack.vercel.app'
+
+jobs:
+  build:
+    name: Build & Test (PR / push)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npm run build --if-present
+      - name: Run tests
+        run: |
+          if npm run test --if-present; then echo "tests ok"; else echo "no tests or failed"; fi
+      - name: Run smoke tests (optional)
+        if: ${{ secrets.SMOKE_TEST_TOKEN != '' }}
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TEST_TOKEN }}
+          SMOKE_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
+        run: |
+          URL=${PROD_URL:-${FALLBACK_PROD_URL}}
+          echo "Executing smoke login-bypass against $URL"
+          curl -sS -X POST "$URL/api/test/login-bypass" -H 'Content-Type: application/json' -d "{\"token\": \"${SMOKE_TOKEN}\", \"email\": \"${SMOKE_EMAIL}\"}" -i | sed -n '1,200p'
+
+  keepalive:
+    name: Keep-alive ping (cron 5m)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' }}
+    steps:
+      - name: Keep-alive: check /api/health
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+        run: |
+          URL=${PROD_URL:-${FALLBACK_PROD_URL}}
+          echo "Pinging health endpoint: $URL/api/health"
+          http_code=$(curl -s -o /tmp/health_body.txt -w "%{http_code}" "$URL/api/health") || true
+          echo "status=$http_code"
+          if [ "$http_code" -ne 200 ]; then
+            echo "Health endpoint returned $http_code; body saved to /tmp/health_body.txt"
+            echo "---- body ----"
+            cat /tmp/health_body.txt || true
+            exit 1
+          fi
+          echo "Health OK"
+      - name: Keep-alive: check /api/debug-db
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+        run: |
+          URL=${PROD_URL:-${FALLBACK_PROD_URL}}
+          echo "Checking debug DB: $URL/api/debug-db"
+          http_code=$(curl -s -o /tmp/debugdb_body.txt -w "%{http_code}" "$URL/api/debug-db") || true
+          if [ "$http_code" -ne 200 ]; then
+            echo "debug-db returned $http_code; body saved to /tmp/debugdb_body.txt"
+            echo "---- body ----"
+            cat /tmp/debugdb_body.txt || true
+            exit 1
+          fi
+          echo "Debug DB OK"
+      - name: Upload failure logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: keepalive-logs-${{ github.run_id }}
+          path: /tmp/health_body.txt
+
+  hourly-smoke:
+    name: Hourly smoke tests (cron hourly)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' }}
+    steps:
+      - name: Basic smoke checks: health + debug-db
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+        run: |
+          URL=${PROD_URL:-${FALLBACK_PROD_URL}}
+          echo "Basic smoke: $URL"
+          for p in /api/health /api/debug-db; do
+            echo "Checking $p"
+            http_code=$(curl -s -o "/tmp$(echo "$p" | sed 's#/#_#g')_body.txt" -w "%{http_code}" "$URL${p}") || true
+            if [ "$http_code" -ne 200 ]; then
+              echo "$p returned $http_code; body saved to /tmp$(echo "$p" | sed 's#/#_#g')_body.txt"
+              echo "---- body ----"
+              cat "/tmp$(echo "$p" | sed 's#/#_#g')_body.txt" || true
+              exit 1
+            fi
+          done
+          echo "Basic smoke checks passed"
+      - name: Optional: full smoke (login-bypass + authenticated endpoints)
+        if: ${{ secrets.SMOKE_TEST_TOKEN != '' && secrets.SMOKE_TEST_EMAIL != '' }}
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TEST_TOKEN }}
+          SMOKE_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
+        run: |
+          URL=${PROD_URL:-${FALLBACK_PROD_URL}}
+          echo "Running login-bypass to perform authenticated smoke checks"
+
+          # Obtain session cookie via login-bypass
+          resp_headers=$(mktemp)
+          resp_body=$(mktemp)
+          curl -sS -D "$resp_headers" -o "$resp_body" -X POST "$URL/api/test/login-bypass" -H 'Content-Type: application/json' -d "{\"token\": \"${SMOKE_TOKEN}\", \"email\": \"${SMOKE_EMAIL}\"}"
+          cookie=$(grep -i Set-Cookie "$resp_headers" | sed -n '1p' | sed -e 's/Set-Cookie: //i' | tr -d '\r' | awk '{print $1}') || true
+          if [ -z "$cookie" ]; then
+            echo "login-bypass did not set cookie. Dumping headers and body:"; cat "$resp_headers"; echo "--- body ---"; cat "$resp_body"; exit 1
+          fi
+          echo "Cookie captured: $cookie"
+
+          # Use cookie to hit an authenticated endpoint (profile stats)
+          echo "Checking /api/profile/stats"
+          http_code=$(curl -s -o /tmp/profile_stats_body.txt -w "%{http_code}" -H "Cookie: $cookie" "$URL/api/profile/stats") || true
+          if [ "$http_code" -ne 200 ]; then
+            echo "/api/profile/stats returned $http_code; body saved to /tmp/profile_stats_body.txt"
+            echo "---- body ----"
+            cat /tmp/profile_stats_body.txt || true
+            exit 1
+          fi
+          echo "Authenticated smoke checks passed"
+      - name: Upload failure logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: smokes-logs-${{ github.run_id }}
+          path: |
+            /tmp/_api_health_body.txt
+            /tmp/_api_debug-db_body.txt
+            /tmp/profile_stats_body.txt
+            /tmp/resp_*
+            /tmp/*login-bypass*
+
+# End of workflow

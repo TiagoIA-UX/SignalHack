@@ -17,6 +17,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  return NextResponse.json({ error: "login_disabled" }, { status: 405 });
+}
+
+export async function POST_DISABLED(req: Request) {
   const ip = getClientIp(req);
   const ua = getUa(req.headers);
   const requestId = getRequestIdFromHeaders(req.headers);

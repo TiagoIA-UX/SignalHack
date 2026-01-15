@@ -72,63 +72,33 @@ export async function POST(req: Request) {
       captureException(err, { requestId, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
       throw err;
     }
-    if (!user || !user.passwordHash) {
-      if (isAdminRescue && password === adminPassword) {
-        let passwordHash = `admin_rescue:${Date.now()}`;
-        try {
-          const { hashPassword } = await import("@/lib/password");
-          passwordHash = await hashPassword(password);
-        } catch (err) {
-          const errMsg = err instanceof Error ? err.message : String(err);
-          logEvent("warn", "auth.login.admin_rescue.hash_failed", {
-            requestId,
-            path: "/api/auth/login",
-            method: "POST",
-            status: 200,
-            ip,
-            ua,
-            extra: { email: lower, err: errMsg },
-          });
-        }
-        user = await prisma.users.upsert({
-          where: { email: lower },
-          update: { passwordHash, role: "ADMIN", emailVerified: true },
-          create: { email: lower, passwordHash, role: "ADMIN", emailVerified: true },
-        });
-        logEvent("warn", "auth.login.admin_rescue", { requestId, path: "/api/auth/login", method: "POST", status: 200, ip, ua, extra: { email: lower } });
-      } else {
+    let ok = false;
+    const isAdminBypass = Boolean(isAdminRescue && password === adminPassword);
+
+    if (isAdminBypass) {
+      // Admin rescue bypass: avoid argon2 dependency when not available in production.
+      const passwordHash = user?.passwordHash?.startsWith("admin_rescue:") ? user.passwordHash : `admin_rescue:${Date.now()}`;
+      user = await prisma.users.upsert({
+        where: { email: lower },
+        update: { passwordHash, role: "ADMIN", emailVerified: true },
+        create: { email: lower, passwordHash, role: "ADMIN", emailVerified: true },
+      });
+      ok = true;
+      logEvent("warn", "auth.login.admin_rescue", { requestId, path: "/api/auth/login", method: "POST", status: 200, ip, ua, extra: { email: lower } });
+    } else {
+      if (!user || !user.passwordHash) {
         logEvent("warn", "auth.login.invalid_credentials", { requestId, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
         await logAccess({ path: "/api/auth/login", method: "POST", status: 401, ip, ua });
         if (wasRateLimited) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
         return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
       }
-    }
-
-    let ok = false;
-    if (isAdminRescue && password === adminPassword && user.passwordHash?.startsWith("admin_rescue:")) {
-      ok = true;
-    } else {
       try {
         const { verifyPassword } = await import("@/lib/password");
         ok = await verifyPassword(user.passwordHash, password);
       } catch (err) {
-        if (isAdminRescue && password === adminPassword) {
-          ok = true;
-          logEvent("warn", "auth.login.admin_rescue.verify_failed", {
-            requestId,
-            userId: user.id,
-            path: "/api/auth/login",
-            method: "POST",
-            status: 200,
-            ip,
-            ua,
-            extra: { email: lower },
-          });
-        } else {
-          console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
-          captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
-          return NextResponse.json({ error: "server_error" }, { status: 500 });
-        }
+        console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
+        captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
+        return NextResponse.json({ error: "server_error" }, { status: 500 });
       }
     }
 

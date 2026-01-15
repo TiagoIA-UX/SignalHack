@@ -133,7 +133,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 
-  const jwt = await signSessionJwt({ sub: user.id, email: user.email, plan: user.plan, role: user.role, sid: session.id }, 30 * 24 * 60 * 60);
+  let jwt: string;
+  try {
+    jwt = await signSessionJwt(
+      { sub: user.id, email: user.email, plan: user.plan, role: user.role, sid: session.id },
+      30 * 24 * 60 * 60
+    );
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    logEvent("error", "auth.login.jwt_sign_failed", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 503, ip, ua, extra: { err: errMsg } });
+    await logAccess({ userId: user.id, path: "/api/auth/login", method: "POST", status: 503, ip, ua });
+    return NextResponse.json({ error: "auth_not_configured" }, { status: 503 });
+  }
 
   await logAccess({ userId: user.id, path: "/api/auth/login", method: "POST", status: 200, ip, ua });
   logEvent("info", "auth.login.ok", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 200, ip, ua });

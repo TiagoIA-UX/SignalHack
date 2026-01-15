@@ -36,6 +36,8 @@ export default function LoginPage() {
       setStatus("error");
       if (res.status === 401) {
         setErrorMsg("Credenciais inválidas. Confira email e senha.");
+      } else if (res.status === 503) {
+        setErrorMsg("Autenticação não configurada. Verifique AUTH_SECRET no ambiente.");
       } else {
         setErrorMsg("Não foi possível entrar agora. Tente novamente em instantes.");
       }

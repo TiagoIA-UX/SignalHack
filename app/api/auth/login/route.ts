@@ -41,13 +41,15 @@ export async function POST(req: Request) {
   const isWhitelisted = whitelist.includes(lower);
 
   // Apply general IP rate limit unless request is whitelisted
+  let wasRateLimited = false;
   if (!isWhitelisted) {
     const rl = await rateLimitAsync(`auth:login:${ip}`, { windowMs: 60_000, max: 30 });
     if (!rl.ok) {
-      logEvent("warn", "auth.login.rate_limited", { requestId, path: "/api/auth/login", method: "POST", status: 429, ip, ua, extra: { email: lower } });
+      // Mark that the request exceeded rate limit but DO NOT block immediately.
+      // We'll allow credential verification to proceed and only block failed attempts.
+      wasRateLimited = true;
+      logEvent("warn", "auth.login.rate_limited_precheck", { requestId, path: "/api/auth/login", method: "POST", status: 429, ip, ua, extra: { email: lower } });
       await logAccess({ path: "/api/auth/login", method: "POST", status: 429, ip, ua });
-      // Expose Retry-After header behavior via standard response (client can retry)
-      return NextResponse.json({ error: "rate_limited", retry_after_seconds: 60 }, { status: 429 });
     }
   } else {
     logEvent("info", "auth.login.whitelist_bypass", { requestId, path: "/api/auth/login", method: "POST", ip, ua, extra: { email: lower } });
@@ -71,6 +73,7 @@ export async function POST(req: Request) {
   if (!user || !user.passwordHash) {
     logEvent("warn", "auth.login.invalid_credentials", { requestId, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
     await logAccess({ path: "/api/auth/login", method: "POST", status: 401, ip, ua });
+    if (wasRateLimited) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 
@@ -87,6 +90,7 @@ export async function POST(req: Request) {
   if (!ok) {
     logEvent("warn", "auth.login.invalid_credentials", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
     await logAccess({ userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
+    if (wasRateLimited) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 

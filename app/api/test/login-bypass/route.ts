@@ -38,6 +38,7 @@ export async function POST(req: Request) {
       select: { id: true, email: true, plan: true, role: true },
     });
   } catch (err) {
+    console.error('login-bypass: upsert error', err?.message ?? err);
     return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
   }
 
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
       attachUaField({ userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000), ip }, ua) as any
     );
   } catch (err) {
+    console.error('login-bypass: create session error', err?.message ?? err);
     return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
   }
 

@@ -33,8 +33,8 @@ export async function POST(req: Request) {
 
     const { email, password } = parsed.data;
     const lower = email.toLowerCase();
-    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD?.replace(/\r/g, "").replace(/\n/g, "").trim();
     const isAdminRescue = Boolean(adminEmail && adminPassword && lower === adminEmail);
 
     // Whitelist support: ADMIN_LOGIN_WHITELIST env (comma-separated) falls back to the known admin
@@ -98,7 +98,8 @@ export async function POST(req: Request) {
       } catch (err) {
         console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
         captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
-        return NextResponse.json({ error: "server_error" }, { status: 500 });
+        // Avoid 500 loop; treat as invalid credentials if password check is unavailable.
+        return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
       }
     }
 

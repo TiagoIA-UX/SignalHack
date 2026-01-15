@@ -62,12 +62,14 @@ export async function POST(req: Request) {
   const jwt = await signSessionJwt({ sub: user.id, email: user.email, plan: user.plan, role: user.role, sid: session.id }, 30 * 24 * 60 * 60);
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set({ name: "em_session", value: jwt, httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 30 * 24 * 60 * 60 });
+  const isProdEnv = (process.env.NODE_ENV as string) === "production";
+  res.cookies.set({ name: "em_session", value: jwt, httpOnly: true, secure: isProdEnv, sameSite: "lax", path: "/", maxAge: 30 * 24 * 60 * 60 });
   return res;
 }
 
 export async function GET(req: Request) {
   // Non-sensitive check: return whether bypass is enabled (value may be encrypted on Vercel)
-  const enabled = process.env.TEST_LOGIN_BYPASS_ENABLED === "true" && process.env.NODE_ENV !== "production";
+  const isProdEnv = (process.env.NODE_ENV as string) === "production";
+  const enabled = process.env.TEST_LOGIN_BYPASS_ENABLED === "true" && !isProdEnv;
   return NextResponse.json({ enabled });
 }

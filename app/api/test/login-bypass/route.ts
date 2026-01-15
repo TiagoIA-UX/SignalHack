@@ -40,7 +40,8 @@ export async function POST(req: Request) {
     });
     console.timeEnd('db_upsert');
   } catch (err) {
-    console.error('login-bypass: upsert error', err?.message ?? err);
+    const errMsg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('login-bypass: upsert error', errMsg);
     return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
   }
 
@@ -53,7 +54,8 @@ export async function POST(req: Request) {
     );
     console.timeEnd('db_session_create');
   } catch (err) {
-    console.error('login-bypass: create session error', err?.message ?? err);
+    const errMsg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('login-bypass: create session error', errMsg);
     return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
   }
 

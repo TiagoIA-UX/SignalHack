@@ -19,9 +19,21 @@ module.exports = {
       "3xl": ["36px", { lineHeight: "1.5" }],
     },
     extend: {
+      // Design tokens (spacing base = 8px)
       spacing: {
+        '1': '0.25rem', // 4px
+        '2': '0.5rem',  // 8px
+        '3': '0.75rem', // 12px
+        '4': '1rem',    // 16px
+        '6': '1.5rem',  // 24px
+        '8': '2rem',    // 32px
+        '12': '3rem',   // 48px
         'card': '2rem',
         'cta': '1.5rem',
+      },
+      // Max sizes and density controls
+      maxHeight: {
+        'card': '420px',
       },
       colors: {
         'premium-bg': '#0a0a0a',
@@ -30,6 +42,9 @@ module.exports = {
       borderRadius: {
         'card': '1.25rem',
       },
+      zIndex: {
+        'drawer': '1100',
+      }
     },
   },
   plugins: [],

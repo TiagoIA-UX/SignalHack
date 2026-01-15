@@ -324,79 +324,66 @@ export default function DashboardOperatorPage() {
               </div>
             </div>
 
-            <Card className="p-8">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">objetivo ativo</div>
-                  <div className="mt-2 text-lg font-bold text-zinc-100">
-                    {activePlaybook ? activePlaybook.signalTitle : "Nenhuma"}
-                  </div>
-                </div>
-                {activePlaybook ? (
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setHunt(activePlaybook.hunt);
-                      setSelectedSignalId(activePlaybook.signalId);
-                    }}
-                  >
-                    Retomar
-                  </Button>
-                ) : null}
-              </div>
-
-              {activePlaybook ? (
-                <div className="mt-3 space-y-3">
-                  {(() => {
-                    const updatedAtMs = Date.parse(activePlaybook.updatedAt);
-                    const days = Number.isFinite(updatedAtMs) ? (Date.now() - updatedAtMs) / 86_400_000 : null;
-                    const status =
-                      days === null ? "em andamento" : days <= 7 ? `rodando (D+${Math.floor(days)})` : "fora da janela (7 dias)";
-
-                    return (
-                      <div className="text-xs text-zinc-400">
-                        Alvo: <span className="text-zinc-200">{labelForHunt(activePlaybook.hunt)}</span> • Status:{" "}
-                        <span className="text-zinc-200">{status}</span>
-                      </div>
-                    );
-                  })()}
-
-                  <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
-                    <div className="text-xs text-zinc-400">Hipótese</div>
-                    <div className="mt-1 text-sm text-zinc-100">{activePlaybook.hypothesis}</div>
-                  </div>
-                  <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
-                    <div className="text-xs text-zinc-400">Experimento</div>
-                    <div className="mt-1 text-sm text-zinc-100">{activePlaybook.experiment}</div>
-                  </div>
-                  <div className="rounded-xl border border-emerald-500/15 bg-black/40 p-3">
-                    <div className="text-xs text-zinc-400">Métrica (7 dias)</div>
-                    <div className="mt-1 text-sm text-zinc-100">{activePlaybook.metric}</div>
+            <div className="lg:col-span-1">
+              <PrimaryCard title="Objetivo ativo" className="p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="mt-1 text-lg font-bold text-zinc-100">{activePlaybook ? activePlaybook.signalTitle : "Nenhuma"}</div>
+                    {activePlaybook ? (
+                      <div className="mt-2 text-xs text-zinc-400">Alvo: <span className="text-zinc-200">{labelForHunt(activePlaybook.hunt)}</span></div>
+                    ) : null}
                   </div>
 
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-xs text-zinc-500">Atualizado: {new Date(activePlaybook.updatedAt).toLocaleString("pt-BR")}</div>
+                  {activePlaybook ? (
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        setActivePlaybook(null);
-                        try {
-                          localStorage.removeItem(ACTIVE_PLAYBOOK_STORAGE_KEY);
-                        } catch {
-                          // noop
-                        }
+                        setHunt(activePlaybook.hunt);
+                        setSelectedSignalId(activePlaybook.signalId);
                       }}
                     >
-                      Limpar
+                      Retomar
                     </Button>
+                  ) : null}
+                </div>
+
+                {activePlaybook ? (
+                  <div className="mt-4 space-y-2">
+                    <SecondaryCard>
+                      <div className="text-xs text-zinc-400">Hipótese</div>
+                      <div className="mt-1 text-sm text-zinc-100">{activePlaybook.hypothesis}</div>
+                    </SecondaryCard>
+                    <SecondaryCard>
+                      <div className="text-xs text-zinc-400">Experimento</div>
+                      <div className="mt-1 text-sm text-zinc-100">{activePlaybook.experiment}</div>
+                    </SecondaryCard>
+                    <SecondaryCard>
+                      <div className="text-xs text-zinc-400">Métrica (7 dias)</div>
+                      <div className="mt-1 text-sm text-zinc-100">{activePlaybook.metric}</div>
+                    </SecondaryCard>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-xs text-zinc-500">Atualizado: {new Date(activePlaybook.updatedAt).toLocaleString("pt-BR")}</div>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setActivePlaybook(null);
+                          try {
+                            localStorage.removeItem(ACTIVE_PLAYBOOK_STORAGE_KEY);
+                          } catch {
+                            // noop
+                          }
+                        }}
+                      >
+                        Limpar
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="mt-3 text-sm text-zinc-300">
-                  Salve um playbook e ele aparece aqui como seu painel de execução.
-                </div>
-              )}
-            </Card>
+                ) : (
+                  <div className="mt-3 text-sm text-zinc-300">Salve um playbook e ele aparece aqui como seu painel de execução.</div>
+                )}
+              </PrimaryCard>
+            </div>
           </div>
 
           {!hunt ? (

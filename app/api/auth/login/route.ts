@@ -58,7 +58,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 
-  const ok = password === user.passwordHash;
+  const { verifyPassword } = await import("@/lib/password");
+  const ok = await verifyPassword(user.passwordHash, password);
   if (!ok) {
     logEvent("warn", "auth.login.invalid_credentials", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
     await logAccess({ userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });

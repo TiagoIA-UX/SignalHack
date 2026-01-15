@@ -7,9 +7,14 @@ function getArgValue(flag: string): string | undefined {
 }
 
 async function main() {
-  // Importante: Prisma lê DATABASE_URL no import do client, então carregue env antes.
-  loadEnv({ path: ".env.local", override: true });
-  loadEnv({ path: ".env", override: false });
+  // Segurança: NÃO carregamos .env automaticamente quando NODE_ENV=production,
+  // para evitar executar contra um DB local ou acidentalmente usar variáveis do repositório.
+  const forceLoadEnv = getArgValue("--load-env") === "1" || process.env.LOAD_ENV === "1";
+  if (process.env.NODE_ENV !== "production" || forceLoadEnv) {
+    // Importante: Prisma lê DATABASE_URL no import do client, então carregue env antes.
+    loadEnv({ path: ".env.local", override: true });
+    loadEnv({ path: ".env", override: false });
+  }
 
   const emailFromArgs = getArgValue("--email");
   const passwordFromArgs = getArgValue("--password");
@@ -21,6 +26,14 @@ async function main() {
 
   let email = (emailFromArgs || emailFromEnv || "").trim().toLowerCase();
   const password = passwordFromArgs || passwordFromEnv;
+
+  // Safety: Prevent accidental use of SQLite dev DB in production
+  const dbUrl = process.env.DATABASE_URL || "";
+  if (dbUrl.startsWith("file:") && getArgValue("--force") !== "1") {
+    throw new Error(
+      "Refusing to run against SQLite (file:). If you really want to run against a file DB, pass --force or set LOAD_ENV=1."
+    );
+  }
 
   if (!email) {
     const all = await prisma.users.findMany();

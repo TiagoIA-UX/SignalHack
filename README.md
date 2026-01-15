@@ -65,7 +65,13 @@ O projeto roda `prisma generate` no `postinstall` e faz `next build` normalmente
   APP_URL="http://localhost:3000"
   ```
 
-  2) Optionally seed an admin account by setting `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your environment, then run:
+  2) Optionally seed an admin account by setting `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your environment and run the provided, idempotent script:
+
+   npx tsx scripts/ensure-admin.ts --email admin@exemplo.com --password "SuaSenhaForte"
+
+   Notes:
+   - The script is safe and idempotent (it uses upsert) and will refuse to run against a SQLite file DB unless you pass `--force`.
+   - Do NOT run seeds automatically on build. Run the script manually in production when needed.
 
   ```bash
   npm run setup:local

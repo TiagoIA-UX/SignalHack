@@ -31,9 +31,11 @@
 
 - Inicializar local (recomendado uma vez por máquina):
   ```bash
-  # opcional: export ADMIN_EMAIL and ADMIN_PASSWORD to seed the admin account
-  export ADMIN_EMAIL="seu@email.com"
-  export ADMIN_PASSWORD="SuaSenhaForteAqui"
+# opcional: export ADMIN_EMAIL and ADMIN_PASSWORD to seed the admin account (USE MANUAL SCRIPT)
+# Use o script idempotente e seguro para criar/validar admin em produção:
+# npx tsx scripts/ensure-admin.ts --email admin@exemplo.com --password "SuaSenhaForte" --load-env 1
+# O script recusará rodar contra SQLite (file:) a menos que você passe --force.
+# IMPORTANTE: Não deixe seeds rodarem automaticamente no build; execute manualmente quando precisar.
   npm run setup:local
   ```
 

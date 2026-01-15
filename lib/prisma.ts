@@ -1,8 +1,18 @@
 import { Pool, QueryResult } from 'pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 5, // Limit connections for Vercel Free
+const globalForPrisma = globalThis as any;
+
+const pool =
+  globalForPrisma._pgPool ??
+  new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 5, // Limit connections for Vercel Free
+  });
+
+if (!globalForPrisma._pgPool) globalForPrisma._pgPool = pool;
+
+pool.on('error', (err) => {
+  console.error('Postgres pool error', err?.message ?? err);
 });
 
 export const db = {

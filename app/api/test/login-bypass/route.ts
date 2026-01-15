@@ -31,12 +31,14 @@ export async function POST(req: Request) {
   // Upsert user (safe for idempotent test calls)
   let user;
   try {
+    console.time('db_upsert');
     user = await prisma.users.upsert({
       where: { email },
       update: { emailVerified: true },
       create: { email, emailVerified: true },
       select: { id: true, email: true, plan: true, role: true },
     });
+    console.timeEnd('db_upsert');
   } catch (err) {
     console.error('login-bypass: upsert error', err?.message ?? err);
     return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
@@ -45,9 +47,11 @@ export async function POST(req: Request) {
   // Create session row
   let session;
   try {
+    console.time('db_session_create');
     session = await prisma.sessions.create(
       attachUaField({ userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000), ip }, ua) as any
     );
+    console.timeEnd('db_session_create');
   } catch (err) {
     console.error('login-bypass: create session error', err?.message ?? err);
     return NextResponse.json({ error: "db_unavailable" }, { status: 503 });

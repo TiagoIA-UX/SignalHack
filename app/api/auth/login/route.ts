@@ -39,7 +39,6 @@ export async function POST(req: Request) {
   // Whitelist support: ADMIN_LOGIN_WHITELIST env (comma-separated) falls back to the known admin
   const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || '';
   const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
   if (adminEmail && !whitelist.includes(adminEmail)) whitelist.push(adminEmail);
   const isWhitelisted = whitelist.includes(lower);
 

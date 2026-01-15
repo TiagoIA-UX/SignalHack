@@ -228,7 +228,7 @@ export const db = {
   usageDays: {
     upsert: (args: { where: { userId: string; day: Date }, update: any, create: { userId: string; day: Date }, select?: { id?: boolean; insightsUsed?: boolean } }) => {
       const existing = db.query('SELECT id FROM "UsageDay" WHERE "userId" = $1 AND day = $2', [args.where.userId, args.where.day]).then((res: QueryResult) => res.rows[0]);
-      return existing.then((row) => {
+      return existing.then((row: { id: string } | undefined) => {
         if (row) {
           // Update
           const sets: string[] = [];

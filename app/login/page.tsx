@@ -1,10 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const errorCode = searchParams.get("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
@@ -53,6 +56,16 @@ export default function LoginPage() {
     }
   }
 
+  const oauthError = (() => {
+    if (!errorCode) return null;
+    if (errorCode === "oauth_not_configured") return "Login Google não configurado. Defina GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET.";
+    if (errorCode === "oauth_invalid") return "Link de login inválido. Tente novamente.";
+    if (errorCode === "oauth_failed") return "Não foi possível autenticar com o Google.";
+    if (errorCode === "auth_not_configured") return "Autenticação não configurada. Verifique AUTH_SECRET.";
+    if (errorCode === "db_unavailable") return "Banco indisponível agora.";
+    return "Não foi possível autenticar.";
+  })();
+
   return (
     <div className="min-h-screen">
       <AppHeader />
@@ -62,6 +75,11 @@ export default function LoginPage() {
             <Card className="p-6">
               <h1 className="text-xl font-semibold tracking-tight">Entrar</h1>
               <p className="mt-2 text-sm text-zinc-300">Entre com email e senha.</p>
+              <div className="mt-4">
+                <Button href="/api/auth/google" variant="ghost">
+                  Continuar com Google
+                </Button>
+              </div>
 
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 <div>
@@ -102,6 +120,7 @@ export default function LoginPage() {
                 {status === "ok" ? (
                   <div className="text-sm text-zinc-300">Logado com sucesso. Redirecionando...</div>
                 ) : null}
+                {oauthError ? <div className="text-sm text-zinc-300">{oauthError}</div> : null}
                 {status === "error" ? <div className="text-sm text-zinc-300">{errorMsg ?? "Não foi possível entrar."}</div> : null}
               </form>
             </Card>

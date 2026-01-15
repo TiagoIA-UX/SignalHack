@@ -27,6 +27,42 @@ function startOfDayUTC(d: Date) {
 }
 
 export async function GET(req: Request) {
+  // Emergência: acesso liberado sem sessão/banco.
+  return NextResponse.json({
+    signals: [
+      {
+        id: "demo-1",
+        title: "Aumento súbito de vagas: RevOps + automação interna",
+        summary: "Empresas contratando perfis de automação para pipeline e atendimento — sinal de intenção de compra de IA aplicada.",
+        source: "Jobs + LinkedIn",
+        intent: "HIGH",
+        score: 91,
+        growthPct: 38,
+      },
+      {
+        id: "demo-2",
+        title: "Picos de busca por 'privacy-first analytics'",
+        summary: "Movimento consistente em termos e benchmarks sugere janela de reposicionamento B2B.",
+        source: "Search",
+        intent: "MEDIUM",
+        score: 76,
+        growthPct: 22,
+      },
+      {
+        id: "demo-3",
+        title: "Discussões crescentes sobre 'workflows automatizados'",
+        summary: "Muita atenção, pouca intenção direta — útil para narrativa e timing de produto.",
+        source: "Comunidades",
+        intent: "LOW",
+        score: 63,
+        growthPct: 14,
+      },
+    ],
+    plan: "FREE",
+    role: "USER",
+    usage: { signalsSeen: 0, limit: null },
+  });
+
   const url = new URL(req.url);
   const qRaw = url.searchParams.get("q");
   const q = qRaw ? qRaw.trim() : "";

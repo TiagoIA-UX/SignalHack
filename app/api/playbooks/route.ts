@@ -17,6 +17,9 @@ const upsertSchema = z.object({
 });
 
 export async function GET(req: Request) {
+  // Emergência: retorna nenhum plano salvo.
+  return NextResponse.json({ plan: null });
+
   const ip = getClientIp(req);
   const rl = await rateLimitAsync(`playbooks:get:${ip}`, { windowMs: 60_000, max: 60 });
   if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -49,6 +52,21 @@ export async function GET(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  // Emergência: salva em memória (sem DB) e retorna o payload.
+  const json = await req.json().catch(() => null);
+  const parsed = upsertSchema.safeParse(json);
+  if (!parsed.success) return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  return NextResponse.json({
+    ok: true,
+    plan: {
+      id: "demo-plan",
+      hypothesis: parsed.data.hypothesis,
+      experiment: parsed.data.experiment,
+      metric: parsed.data.metric,
+      updatedAt: new Date().toISOString(),
+    },
+  });
+
   const ip = getClientIp(req);
   const rl = await rateLimitAsync(`playbooks:put:${ip}`, { windowMs: 60_000, max: 40 });
   if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });

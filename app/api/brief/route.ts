@@ -132,7 +132,7 @@ export async function GET(req: Request) {
   let brief: WeeklyBrief;
   try {
     brief = await generateWeeklyBriefWithGroq({
-      signals: signals.map((s) => ({
+      signals: signals.map((s: { title: string; summary: string }) => ({
         ...s,
         title: sanitizeBriefText(s.title),
         summary: sanitizeBriefText(s.summary),

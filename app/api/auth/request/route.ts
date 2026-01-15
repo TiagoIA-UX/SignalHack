@@ -35,7 +35,8 @@ export async function POST(req: Request) {
   const email = parsed.data.email.toLowerCase();
   const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || '';
   const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-  if (!whitelist.includes('globemarket7@gmail.com')) whitelist.push('globemarket7@gmail.com');
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+  if (adminEmail && !whitelist.includes(adminEmail)) whitelist.push(adminEmail);
   const isWhitelisted = whitelist.includes(email);
 
   if (!isWhitelisted) {

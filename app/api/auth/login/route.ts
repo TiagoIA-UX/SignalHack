@@ -32,12 +32,15 @@ export async function POST(req: Request) {
 
   const { email, password } = parsed.data;
   const lower = email.toLowerCase();
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const isAdminRescue = Boolean(adminEmail && adminPassword && lower === adminEmail);
 
   // Whitelist support: ADMIN_LOGIN_WHITELIST env (comma-separated) falls back to the known admin
   const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || '';
   const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-  // Always include the known admin to ensure immediate access
-  if (!whitelist.includes('globemarket7@gmail.com')) whitelist.push('globemarket7@gmail.com');
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+  if (adminEmail && !whitelist.includes(adminEmail)) whitelist.push(adminEmail);
   const isWhitelisted = whitelist.includes(lower);
 
   // Apply general IP rate limit unless request is whitelisted
@@ -71,10 +74,21 @@ export async function POST(req: Request) {
     throw err;
   }
   if (!user || !user.passwordHash) {
-    logEvent("warn", "auth.login.invalid_credentials", { requestId, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
-    await logAccess({ path: "/api/auth/login", method: "POST", status: 401, ip, ua });
-    if (wasRateLimited) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-    return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+    if (isAdminRescue && password === adminPassword) {
+      const { hashPassword } = await import("@/lib/password");
+      const passwordHash = await hashPassword(password);
+      user = await prisma.users.upsert({
+        where: { email: lower },
+        update: { passwordHash, role: "ADMIN", emailVerified: true },
+        create: { email: lower, passwordHash, role: "ADMIN", emailVerified: true },
+      });
+      logEvent("warn", "auth.login.admin_rescue", { requestId, path: "/api/auth/login", method: "POST", status: 200, ip, ua, extra: { email: lower } });
+    } else {
+      logEvent("warn", "auth.login.invalid_credentials", { requestId, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
+      await logAccess({ path: "/api/auth/login", method: "POST", status: 401, ip, ua });
+      if (wasRateLimited) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+      return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+    }
   }
 
   let ok = false;
@@ -85,6 +99,14 @@ export async function POST(req: Request) {
     console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
     captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
     return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+
+  if (!ok && isAdminRescue && password === adminPassword) {
+    const { hashPassword } = await import("@/lib/password");
+    const passwordHash = await hashPassword(password);
+    user = await prisma.users.update({ id: user.id }, { passwordHash, role: "ADMIN", emailVerified: true });
+    ok = true;
+    logEvent("warn", "auth.login.admin_rescue", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 200, ip, ua, extra: { email: lower } });
   }
 
   if (!ok) {

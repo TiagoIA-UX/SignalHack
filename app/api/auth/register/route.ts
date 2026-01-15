@@ -21,12 +21,6 @@ export async function POST(req: Request) {
   const ip = getClientIp(req);
   const ua = getUa(req.headers);
 
-  const rl = await rateLimitAsync(`auth:register:${ip}`, { windowMs: 60_000, max: 15 });
-  if (!rl.ok) {
-    await logAccess({ path: "/api/auth/register", method: "POST", status: 429, ip, ua });
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-  }
-
   const json = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
@@ -40,7 +34,8 @@ export async function POST(req: Request) {
   // Whitelist support for registration (avoid blocking admin creation)
   const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || '';
   const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-  if (!whitelist.includes('globemarket7@gmail.com')) whitelist.push('globemarket7@gmail.com');
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+  if (adminEmail && !whitelist.includes(adminEmail)) whitelist.push(adminEmail);
   const isWhitelisted = whitelist.includes(lower);
 
   // Apply IP rate-limit unless whitelisted

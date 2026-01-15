@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   // Feature gate: only active when explicitly enabled
   const enabled = process.env.TEST_LOGIN_BYPASS_ENABLED === "true";
   const secret = process.env.TEST_LOGIN_BYPASS_TOKEN;
-  if (!enabled || !secret) {
+  if (process.env.NODE_ENV === "production" || !enabled || !secret) {
     return NextResponse.json({ error: "not_enabled" }, { status: 403 });
   }
 
@@ -68,5 +68,6 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   // Non-sensitive check: return whether bypass is enabled (value may be encrypted on Vercel)
-  return NextResponse.json({ enabled: process.env.TEST_LOGIN_BYPASS_ENABLED ?? null });
+  const enabled = process.env.TEST_LOGIN_BYPASS_ENABLED === "true" && process.env.NODE_ENV !== "production";
+  return NextResponse.json({ enabled });
 }

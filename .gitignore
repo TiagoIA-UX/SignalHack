@@ -71,3 +71,6 @@ next-env.d.ts
 .vercel
 .env*.local
 .tmp_env
+
+.vercel
+.env*.local

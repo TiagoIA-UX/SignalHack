@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const errorCode = searchParams.get("error");
   const [email, setEmail] = useState("");
@@ -128,5 +128,13 @@ export default function LoginPage() {
         </Container>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <LoginContent />
+    </Suspense>
   );
 }

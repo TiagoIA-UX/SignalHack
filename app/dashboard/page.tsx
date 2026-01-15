@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
-import { Button, Card, Container } from "@/components/ui";
+import { Button, Card, Container, PrimaryCard, SecondaryCard } from "@/components/ui";
 import { ZairixAvatar } from "@/components/ZairixAvatar";
 
 type MoneyHunt =

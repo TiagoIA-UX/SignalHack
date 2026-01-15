@@ -110,7 +110,8 @@ export async function rateLimitAsync(key: string, opts: { windowMs: number; max:
         },
       });
     }
-    return { ok: false, remaining: 0, resetAtMs: Date.now() + opts.windowMs };
+    // Fallback permissivo para não bloquear login em produção sem Upstash.
+    return { ok: true, remaining: opts.max, resetAtMs: Date.now() + opts.windowMs };
   }
 
   return rateLimit(key, opts);

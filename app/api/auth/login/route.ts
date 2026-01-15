@@ -74,8 +74,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 
-  const { verifyPassword } = await import("@/lib/password");
-  const ok = await verifyPassword(user.passwordHash, password);
+  let ok = false;
+  try {
+    const { verifyPassword } = await import("@/lib/password");
+    ok = await verifyPassword(user.passwordHash, password);
+  } catch (err) {
+    console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
+    captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+
   if (!ok) {
     logEvent("warn", "auth.login.invalid_credentials", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
     await logAccess({ userId: user.id, path: "/api/auth/login", method: "POST", status: 401, ip, ua });
@@ -88,6 +96,8 @@ export async function POST(req: Request) {
       attachUaField({ userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000), ip }, ua) as any
     );
   } catch (err) {
+    const errMsg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('auth.login: session create error', errMsg);
     if (isDbUnavailableError(err)) {
       captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 503, ip, ua, action: "db_unavailable" });
       logEvent("error", "auth.login.db_unavailable", { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 503, ip, ua });
@@ -95,7 +105,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "db_unavailable" }, { status: 503 });
     }
     captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
-    throw err;
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 
   const jwt = await signSessionJwt({ sub: user.id, email: user.email, plan: user.plan, role: user.role, sid: session.id }, 30 * 24 * 60 * 60);

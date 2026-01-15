@@ -2,7 +2,9 @@ param(
   [string]$BaseUrl = 'http://localhost:3000',
   [switch]$RequireAi,
   [string]$Email,
-  [string]$Password
+  [string]$Password,
+  [switch]$UseTestBypass,
+  [string]$TestBypassToken
 )
 
 $ErrorActionPreference = 'Stop'
@@ -220,11 +222,19 @@ $password = if ($Password) { $Password } elseif ($env:SMOKE_TEST_PASSWORD) { $en
 if (-not $email) {
   throw "Defina -Email (ou SMOKE_TEST_EMAIL) para rodar validate-orchestration.ps1"
 }
-if (-not $password) {
-  $password = Read-PlaintextPassword
+
+if ($UseTestBypass) {
+  # Use test bypass endpoint to avoid auth rate limits in production
+  $token = if ($TestBypassToken) { $TestBypassToken } elseif ($env:TEST_LOGIN_BYPASS_TOKEN) { $env:TEST_LOGIN_BYPASS_TOKEN } else { $null }
+  if (-not $token) { throw "UseTestBypass solicitado, mas TEST_LOGIN_BYPASS_TOKEN não está definido (ou passe -TestBypassToken)" }
+  $login = Invoke-JsonPost -Url "$base/api/test/login-bypass" -Body @{ token = $token; email = $email } -CookieFile $cookie
+} else {
+  if (-not $password) {
+    $password = Read-PlaintextPassword
+  }
+  $login = Invoke-JsonPost -Url "$base/api/auth/login" -Body @{ email = $email; password = $password } -CookieFile $cookie
 }
 
-$login = Invoke-JsonPost -Url "$base/api/auth/login" -Body @{ email = $email; password = $password } -CookieFile $cookie
 (Redact-SessionCookie -CurlOutputLines $login) | Select-Object -First 30 | Out-Host
 
 $loginStatus = Get-HttpStatusFromCurl -CurlOutputLines $login

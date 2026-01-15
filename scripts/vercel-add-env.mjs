@@ -17,6 +17,15 @@ const envs = [
   { key: 'DATABASE_URL', value: process.env.DATABASE_URL },
   { key: 'AUTH_SECRET', value: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET },
   { key: 'AUTH_TOKEN_PEPPER', value: process.env.AUTH_TOKEN_PEPPER },
+  // SMTP / Resend
+  { key: 'SMTP_HOST', value: process.env.SMTP_HOST },
+  { key: 'SMTP_PORT', value: process.env.SMTP_PORT },
+  { key: 'SMTP_USER', value: process.env.SMTP_USER },
+  { key: 'SMTP_PASS', value: process.env.SMTP_PASS },
+  { key: 'SMTP_FROM', value: process.env.SMTP_FROM },
+  // Test login bypass (used by smoke tests to avoid hitting auth rate limits)
+  { key: 'TEST_LOGIN_BYPASS_TOKEN', value: process.env.TEST_LOGIN_BYPASS_TOKEN },
+  { key: 'TEST_LOGIN_BYPASS_ENABLED', value: process.env.TEST_LOGIN_BYPASS_ENABLED },
 ];
 
 for (const e of envs) {

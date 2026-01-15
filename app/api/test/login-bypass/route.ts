@@ -15,13 +15,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "not_enabled" }, { status: 403 });
   }
 
-}
-
-export async function GET(req: Request) {
-  // Non-sensitive check: return whether bypass is enabled (value may be encrypted on Vercel)
-  return NextResponse.json({ enabled: process.env.TEST_LOGIN_BYPASS_ENABLED ?? null });
-}
-
   const body = await req.json().catch(() => null);
   const token = body?.token;
   const email = (body?.email || process.env.SMOKE_TEST_EMAIL || process.env.ADMIN_EMAIL)?.toLowerCase();
@@ -63,4 +56,9 @@ export async function GET(req: Request) {
   const res = NextResponse.json({ ok: true });
   res.cookies.set({ name: "em_session", value: jwt, httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 30 * 24 * 60 * 60 });
   return res;
+}
+
+export async function GET(req: Request) {
+  // Non-sensitive check: return whether bypass is enabled (value may be encrypted on Vercel)
+  return NextResponse.json({ enabled: process.env.TEST_LOGIN_BYPASS_ENABLED ?? null });
 }

@@ -30,7 +30,7 @@ export async function hasSecret(key: SecretKey): Promise<boolean> {
 
 export async function getSecretsStatus() {
   const rows = await prisma.appSecret.findMany({ select: { key: true } }).catch(() => [] as Array<{ key: string }>);
-  const set = new Set(rows.map((r) => r.key));
+  const set = new Set(rows.map((r: { key: string }) => r.key));
   return {
     groq: set.has("groq_api_key"),
     mercadopago: set.has("mercadopago_access_token"),

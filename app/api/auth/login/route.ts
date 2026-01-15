@@ -43,21 +43,8 @@ export async function POST(req: Request) {
     if (adminEmail && !whitelist.includes(adminEmail)) whitelist.push(adminEmail);
     const isWhitelisted = whitelist.includes(lower);
 
-    // Apply general IP rate limit unless request is whitelisted
-    let wasRateLimited = false;
-    if (!isWhitelisted) {
-      const rl = await rateLimitAsync(`auth:login:${ip}`, { windowMs: 60_000, max: 30 });
-      if (!rl.ok) {
-        // Mark that the request exceeded rate limit but DO NOT block immediately.
-        // We'll allow credential verification to proceed and only block failed attempts.
-        wasRateLimited = true;
-        logEvent("warn", "auth.login.rate_limited_precheck", { requestId, path: "/api/auth/login", method: "POST", status: 429, ip, ua, extra: { email: lower } });
-        await logAccess({ path: "/api/auth/login", method: "POST", status: 429, ip, ua });
-      }
-    } else {
-      logEvent("info", "auth.login.whitelist_bypass", { requestId, path: "/api/auth/login", method: "POST", ip, ua, extra: { email: lower } });
-      console.info(`[auth.login] whitelist bypass for ${lower} from IP ${ip}`);
-    }
+    // Rate limit desabilitado para evitar bloqueio em produção.
+    const wasRateLimited = false;
 
     let user;
     try {

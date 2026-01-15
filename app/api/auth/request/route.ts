@@ -24,13 +24,6 @@ export async function POST(req: Request) {
   const ua = getUa(req.headers);
   const requestId = getRequestIdFromHeaders(req.headers);
 
-  const rlIp = await rateLimitAsync(`auth:magic:request:${ip}`, { windowMs: 10 * 60_000, max: 10 });
-  if (!rlIp.ok) {
-    logEvent("warn", "auth.magic.request.rate_limited", { requestId, path: "/api/auth/request", method: "POST", status: 429, ip, ua });
-    await logAccess({ path: "/api/auth/request", method: "POST", status: 429, ip, ua });
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-  }
-
   const json = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
@@ -40,6 +33,20 @@ export async function POST(req: Request) {
   }
 
   const email = parsed.data.email.toLowerCase();
+  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || 'globemarket7@gmail.com';
+  const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const isWhitelisted = whitelist.includes(email);
+
+  if (!isWhitelisted) {
+    const rlIp = await rateLimitAsync(`auth:magic:request:${ip}`, { windowMs: 10 * 60_000, max: 10 });
+    if (!rlIp.ok) {
+      logEvent("warn", "auth.magic.request.rate_limited", { requestId, path: "/api/auth/request", method: "POST", status: 429, ip, ua });
+      await logAccess({ path: "/api/auth/request", method: "POST", status: 429, ip, ua });
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+  } else {
+    logEvent('info', 'auth.magic.request.whitelist_bypass', { requestId, path: '/api/auth/request', method: 'POST', ip, ua, extra: { email } });
+  }
   const nextPath = parsed.data.next;
 
   const rlEmail = await rateLimitAsync(`auth:magic:request:email:${email}`, { windowMs: 60 * 60_000, max: 5 });

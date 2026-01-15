@@ -37,6 +37,22 @@ export async function POST(req: Request) {
   const { email, password, name } = parsed.data;
   const lower = email.toLowerCase();
 
+  // Whitelist support for registration (avoid blocking admin creation)
+  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || 'globemarket7@gmail.com';
+  const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const isWhitelisted = whitelist.includes(lower);
+
+  // Apply IP rate-limit unless whitelisted
+  if (!isWhitelisted) {
+    const rl = await rateLimitAsync(`auth:register:${ip}`, { windowMs: 60_000, max: 15 });
+    if (!rl.ok) {
+      await logAccess({ path: "/api/auth/register", method: "POST", status: 429, ip, ua });
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+  } else {
+    console.info('[register] whitelist bypass for', lower);
+  }
+
   let existing;
   try {
     // Check existing user

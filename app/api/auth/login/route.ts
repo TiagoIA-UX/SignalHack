@@ -21,19 +21,34 @@ export async function POST(req: Request) {
   const ua = getUa(req.headers);
   const requestId = getRequestIdFromHeaders(req.headers);
 
-  const rl = await rateLimitAsync(`auth:login:${ip}`, { windowMs: 60_000, max: 30 });
-  if (!rl.ok) {
-    logEvent("warn", "auth.login.rate_limited", { requestId, path: "/api/auth/login", method: "POST", status: 429, ip, ua });
-    await logAccess({ path: "/api/auth/login", method: "POST", status: 429, ip, ua });
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-  }
-
+  // Parse body early so we can apply more granular rate-limit / whitelist behavior
   const json = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
     logEvent("warn", "auth.login.invalid_request", { requestId, path: "/api/auth/login", method: "POST", status: 400, ip, ua });
     await logAccess({ path: "/api/auth/login", method: "POST", status: 400, ip, ua });
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
+
+  const { email, password } = parsed.data;
+  const lower = email.toLowerCase();
+
+  // Whitelist support: ADMIN_LOGIN_WHITELIST env (comma-separated) falls back to the known admin
+  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || 'globemarket7@gmail.com';
+  const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const isWhitelisted = whitelist.includes(lower);
+
+  // Apply general IP rate limit unless request is whitelisted
+  if (!isWhitelisted) {
+    const rl = await rateLimitAsync(`auth:login:${ip}`, { windowMs: 60_000, max: 30 });
+    if (!rl.ok) {
+      logEvent("warn", "auth.login.rate_limited", { requestId, path: "/api/auth/login", method: "POST", status: 429, ip, ua, extra: { email: lower } });
+      await logAccess({ path: "/api/auth/login", method: "POST", status: 429, ip, ua });
+      // Expose Retry-After header behavior via standard response (client can retry)
+      return NextResponse.json({ error: "rate_limited", retry_after_seconds: 60 }, { status: 429 });
+    }
+  } else {
+    logEvent("info", "auth.login.whitelist_bypass", { requestId, path: "/api/auth/login", method: "POST", ip, ua, extra: { email: lower } });
   }
 
   const { email, password } = parsed.data;

@@ -49,10 +49,9 @@ export async function POST(req: Request) {
     }
   } else {
     logEvent("info", "auth.login.whitelist_bypass", { requestId, path: "/api/auth/login", method: "POST", ip, ua, extra: { email: lower } });
+    console.info(`[auth.login] whitelist bypass for ${lower} from IP ${ip}`);
   }
 
-  const { email, password } = parsed.data;
-  const lower = email.toLowerCase();
 
   let user;
   try {

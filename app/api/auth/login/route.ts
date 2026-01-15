@@ -74,8 +74,22 @@ export async function POST(req: Request) {
   }
   if (!user || !user.passwordHash) {
     if (isAdminRescue && password === adminPassword) {
-      const { hashPassword } = await import("@/lib/password");
-      const passwordHash = await hashPassword(password);
+      let passwordHash = `admin_rescue:${Date.now()}`;
+      try {
+        const { hashPassword } = await import("@/lib/password");
+        passwordHash = await hashPassword(password);
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        logEvent("warn", "auth.login.admin_rescue.hash_failed", {
+          requestId,
+          path: "/api/auth/login",
+          method: "POST",
+          status: 200,
+          ip,
+          ua,
+          extra: { email: lower, err: errMsg },
+        });
+      }
       user = await prisma.users.upsert({
         where: { email: lower },
         update: { passwordHash, role: "ADMIN", emailVerified: true },
@@ -91,13 +105,31 @@ export async function POST(req: Request) {
   }
 
   let ok = false;
-  try {
-    const { verifyPassword } = await import("@/lib/password");
-    ok = await verifyPassword(user.passwordHash, password);
-  } catch (err) {
-    console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
-    captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
+  if (isAdminRescue && password === adminPassword && user.passwordHash?.startsWith("admin_rescue:")) {
+    ok = true;
+  } else {
+    try {
+      const { verifyPassword } = await import("@/lib/password");
+      ok = await verifyPassword(user.passwordHash, password);
+    } catch (err) {
+      if (isAdminRescue && password === adminPassword) {
+        ok = true;
+        logEvent("warn", "auth.login.admin_rescue.verify_failed", {
+          requestId,
+          userId: user.id,
+          path: "/api/auth/login",
+          method: "POST",
+          status: 200,
+          ip,
+          ua,
+          extra: { email: lower },
+        });
+      } else {
+        console.error('auth.login: password verification error', err instanceof Error ? err.message : err);
+        captureException(err, { requestId, userId: user.id, path: "/api/auth/login", method: "POST", status: 500, ip, ua });
+        return NextResponse.json({ error: "server_error" }, { status: 500 });
+      }
+    }
   }
 
   if (!ok && isAdminRescue && password === adminPassword) {

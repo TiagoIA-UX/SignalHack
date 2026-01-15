@@ -38,8 +38,9 @@ export async function POST(req: Request) {
   const lower = email.toLowerCase();
 
   // Whitelist support for registration (avoid blocking admin creation)
-  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || 'globemarket7@gmail.com';
+  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || '';
   const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  if (!whitelist.includes('globemarket7@gmail.com')) whitelist.push('globemarket7@gmail.com');
   const isWhitelisted = whitelist.includes(lower);
 
   // Apply IP rate-limit unless whitelisted

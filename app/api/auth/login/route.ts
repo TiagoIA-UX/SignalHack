@@ -34,8 +34,10 @@ export async function POST(req: Request) {
   const lower = email.toLowerCase();
 
   // Whitelist support: ADMIN_LOGIN_WHITELIST env (comma-separated) falls back to the known admin
-  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || 'globemarket7@gmail.com';
+  const whitelistRaw = process.env.ADMIN_LOGIN_WHITELIST || '';
   const whitelist = whitelistRaw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  // Always include the known admin to ensure immediate access
+  if (!whitelist.includes('globemarket7@gmail.com')) whitelist.push('globemarket7@gmail.com');
   const isWhitelisted = whitelist.includes(lower);
 
   // Apply general IP rate limit unless request is whitelisted

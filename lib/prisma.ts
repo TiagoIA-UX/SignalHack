@@ -300,7 +300,7 @@ export const db = {
   badgeUnlocks: {
     upsert: (args: { where: { userId: string; key: string }, update: any, create: { userId: string; key: string } }) => {
       const existing = db.query('SELECT id FROM "BadgeUnlock" WHERE "userId" = $1 AND key = $2', [args.where.userId, args.where.key]).then((res: QueryResult) => res.rows[0]);
-      return existing.then((row) => {
+      return existing.then((row: { id: string } | undefined) => {
         if (row) {
           // Update
           const sets: string[] = [];

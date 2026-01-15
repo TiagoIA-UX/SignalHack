@@ -39,14 +39,14 @@ if (!databaseUrl) {
 }
 
 const pool = new Pool({ connectionString: databaseUrl });
-const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+const { db: prisma } = await import("../lib/prisma");
 
 try {
   const argon2 = await import("argon2");
   const passwordHash = await argon2.default.hash(String(password), { type: argon2.default.argon2id });
 
   for (const email of emails) {
-    await prisma.user.upsert({
+    await prisma.users.upsert({
       where: { email },
       update: { role: "ADMIN", plan: "ELITE", passwordHash, emailVerified: true },
       create: { email, role: "ADMIN", plan: "ELITE", passwordHash, emailVerified: true },
@@ -56,6 +56,5 @@ try {
 
   process.stdout.write("Concluído.\n");
 } finally {
-  await prisma.$disconnect().catch(() => undefined);
   await pool.end().catch(() => undefined);
 }

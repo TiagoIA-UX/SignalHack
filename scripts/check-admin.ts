@@ -2,7 +2,7 @@ import { config as loadEnv } from 'dotenv';
 loadEnv({ path: '.env.local', override: true });
 loadEnv({ path: '.env', override: false });
 
-import { prisma } from '../lib/prisma';
+import { db as prisma } from '../lib/prisma';
 
 (async () => {
   try {

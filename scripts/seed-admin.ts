@@ -21,7 +21,7 @@ async function main() {
   const emailFromEnv = process.env.ADMIN_EMAIL;
   const passwordFromEnv = process.env.ADMIN_PASSWORD;
 
-  const { prisma } = await import("../lib/prisma");
+  const { db: prisma } = await import("../lib/prisma");
   const { hashPassword } = await import("../lib/password");
 
   let email = (emailFromArgs || emailFromEnv || "").trim().toLowerCase();

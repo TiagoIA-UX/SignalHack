@@ -1,7 +1,7 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const m = require('../lib/prisma');
-const prisma = m.prisma || m.db;
+const prisma = m.db;
 (async ()=>{
   try{
     const u = await prisma.users.findUnique({ where: { email: 'globemarket7@gmail.com' }, select: { id:true, email:true, role:true } });

@@ -21,7 +21,7 @@ async function main() {
     throw new Error("Plano inválido. Use FREE, PRO ou ELITE.");
   }
 
-  const { prisma } = await import("../lib/prisma");
+  const { db: prisma } = await import("../lib/prisma");
 
   const user = await prisma.users.findUnique({ where: { email } });
   if (!user) throw new Error("Usuário não encontrado");

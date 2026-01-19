@@ -1,11 +1,9 @@
-import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Card, Container } from "@/components/ui";
-import { LEGAL_VERSION } from "@/lib/consent";
 
 export default function TermsPage() {
-  const controllerName = process.env.LEGAL_CONTROLLER_NAME ?? "SignalForge";
-  const contactEmail = process.env.LEGAL_CONTACT_EMAIL ?? process.env.SMTP_FROM ?? null;
+  const controllerName = process.env.LEGAL_CONTROLLER_NAME ?? "ZAIRIX";
+  const contactEmail = process.env.LEGAL_CONTACT_EMAIL ?? process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? null;
 
   return (
     <div className="min-h-screen">
@@ -13,14 +11,14 @@ export default function TermsPage() {
       <main className="py-10">
         <Container>
           <div className="mx-auto max-w-3xl">
-            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">termos de uso • v{LEGAL_VERSION}</div>
+            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">termos de uso</div>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight">Termos de Uso</h1>
 
             <Card className="mt-6 p-6">
               <div className="space-y-4 text-sm text-zinc-200">
                 <p>
-                  Estes Termos regulam o uso do SignalForge (&quot;Serviço&quot;). Ao acessar ou usar o Serviço, você confirma que leu e
-                  aceita estes Termos e a Política de Privacidade.
+                  Estes Termos regulam o uso do ZAIRIX (o “Serviço”). Ao usar o Serviço, você confirma que leu e aceita estes Termos e a Política de
+                  Privacidade.
                 </p>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -36,78 +34,36 @@ export default function TermsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">finalidade do serviço</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">uso imediato (sem bloqueio)</div>
                   <p>
-                    O Serviço organiza evidências reais de demanda públicas e ajuda a criar apostas orientadas por dados e planos operacionais. O Serviço não substitui
-                    decisão humana e não fornece consultoria jurídica, contábil, financeira ou de investimentos.
+                    O Serviço é liberado e não exige login. A monetização, quando existir, ocorre fora do software (suporte/licença/serviços externos) e não
+                    bloqueia funcionalidades.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">limitação</div>
+                  <p>
+                    O Serviço ajuda a organizar sinais e planos de execução. Ele não substitui decisão humana e não fornece consultoria jurídica, contábil,
+                    financeira ou de investimentos.
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">uso aceitável</div>
                   <p>
-                    Você concorda em não usar o Serviço para: (a) violar leis (incluindo LGPD/GDPR), (b) coletar/usar dados de
-                    terceiros sem base legal, (c) tentar explorar vulnerabilidades, (d) realizar scraping proibido ou abuso de
-                    infraestrutura, (e) infringir direitos autorais, marcas ou segredos comerciais.
+                    Você concorda em não usar o Serviço para violar leis, explorar vulnerabilidades, realizar abuso de infraestrutura ou infringir direitos de
+                    terceiros.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">contas e autenticação</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">responsabilidade</div>
                   <p>
-                    Você é responsável pela confidencialidade de credenciais e por toda atividade realizada em sua conta.
-                    Suspenderemos ou bloquearemos acessos em caso de suspeita de abuso, fraude, ataques ou violação destes Termos.
+                    O Serviço é fornecido “como está”. Na extensão máxima permitida por lei, não nos responsabilizamos por decisões de negócio tomadas com base
+                    no uso do Serviço.
                   </p>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">propriedade intelectual</div>
-                  <p>
-                    O Serviço (software, interface, marca, modelos, prompts, fluxos e documentação) é protegido por leis de
-                    propriedade intelectual. Você recebe uma licença limitada, não exclusiva e revogável para usar o Serviço
-                    conforme estes Termos.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">disponibilidade e alterações</div>
-                  <p>
-                    Podemos atualizar o Serviço (incluindo UI, módulos e integrações) para melhorar segurança, desempenho e
-                    conformidade. A disponibilidade pode variar por manutenção, incidentes, limitações de provedores e eventos
-                    fora do nosso controle.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">limitação de responsabilidade</div>
-                  <p>
-                    O Serviço é fornecido &quot;como está&quot;. Na extensão máxima permitida por lei, não nos responsabilizamos por
-                    decisões de negócio tomadas com base em evidências reais de demanda, apostas orientadas por dados ou planos gerados, nem por perdas indiretas,
-                    incidentais ou consequenciais.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">subprocessadores (visão contratual)</div>
-                  <p>
-                    Para operar o Serviço, podemos usar subprocessadores e infraestrutura de terceiros (detalhados na Política de
-                    Privacidade e Política de Cookies), incluindo provedores de IA, email, cobrança, hospedagem e banco de dados.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">versão e reaceite</div>
-                  <p>
-                    Estes Termos são versionados. Mudanças relevantes podem exigir novo aceite antes de continuar usando áreas
-                    protegidas do Serviço.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 text-sm text-zinc-300">
-                <Link className="text-emerald-200 hover:underline" href="/welcome">
-                  Voltar para o aceite
-                </Link>
               </div>
             </Card>
           </div>
@@ -116,3 +72,4 @@ export default function TermsPage() {
     </div>
   );
 }
+

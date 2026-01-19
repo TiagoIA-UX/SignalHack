@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CookieBanner } from "@/components/CookieBanner";
 import { Footer } from "@/components/Footer";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,12 +18,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "SignalForge",
   description: "Descubra demanda, crie ofertas e monetize com sinais de mercado.",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico" },
     ],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -43,8 +49,8 @@ export default function RootLayout({
         <div className="pointer-events-none fixed inset-x-0 top-0 h-24 bg-gradient-to-b from-emerald-500/10 to-transparent" />
         <div className="pointer-events-none fixed inset-x-0 top-16 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
         {children}
+        <ServiceWorkerRegister />
         <Footer />
-        <CookieBanner />
       </body>
     </html>
   );

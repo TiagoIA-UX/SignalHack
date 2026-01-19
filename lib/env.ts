@@ -1,15 +1,11 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DATABASE_URL: z.string().min(1),
-  AUTH_SECRET: z.string().min(32),
-  // Opcional: só é necessário se você habilitar fluxos baseados em tokens (ex: recuperação de senha por email).
-  AUTH_TOKEN_PEPPER: z.string().min(16).optional(),
+  // Tudo opcional por design: o app precisa rodar sem env (local e produção).
+  DATABASE_URL: z.string().min(1).optional(),
   APP_URL: z.string().url().optional(),
-  ADMIN_EMAIL: z.string().email().optional(),
-  ADMIN_BOOTSTRAP_TOKEN: z.string().min(16).optional(),
-  BILLING_WEBHOOK_TOKEN: z.string().min(8).optional(),
-  // SMTP removido para login minimalista
+
+  // Chaves opcionais para integrações (não críticas). Se não existir, o app segue em modo local.
   GROQ_API_KEY: z.string().min(1).optional(),
   GROQ_MODEL: z.string().min(1).optional(),
 
@@ -18,12 +14,15 @@ const envSchema = z.object({
   NEXT_PUBLIC_AFFILIATE_HOSTING_URL: z.string().url().optional(),
   // Email público de contato para suporte/apoio (opcional)
   NEXT_PUBLIC_SUPPORT_EMAIL: z.string().email().optional(),
-  // Habilita exibição de opções de doação quando "true" (string). Quando ausente/"false", UI de doação fica oculta.
-  NEXT_PUBLIC_DONATION_PROVIDER_ENABLED: z.enum(["true", "false"]).optional(),
-  // Variante de copy para doações (soft | neutral | minimal)
-  NEXT_PUBLIC_DONATION_COPY_VARIANT: z.enum(["soft", "neutral", "minimal"]).optional(),
   // PIX key pública para exibir na página de apoio (opcional)
   NEXT_PUBLIC_PIX_KEY: z.string().min(1).optional(),
+
+  // Links externos de aquisição (opcional). Se não existir, a página /acquire mostra fallback.
+  NEXT_PUBLIC_ACQUIRE_HOTMART_URL: z.string().url().optional(),
+  NEXT_PUBLIC_ACQUIRE_MERCADOLIVRE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_ACQUIRE_GUMROAD_URL: z.string().url().optional(),
+  NEXT_PUBLIC_ACQUIRE_STRIPE_LINK_URL: z.string().url().optional(),
+  NEXT_PUBLIC_ACQUIRE_CHECKOUT_URL: z.string().url().optional(),
 });
 
 export function getPixKey(): string | undefined {
@@ -44,13 +43,8 @@ export function getEnv(): Env {
   }
 
   const parsed = envSchema.safeParse(raw);
-  if (!parsed.success) {
-    const details = parsed.error.issues
-      .map((i) => `${i.path.join(".")}: ${i.message}`)
-      .join("; ");
-    throw new Error(`Invalid environment: ${details}`);
-  }
-  return parsed.data;
+  // Nunca derrube o app por env inválido/ausente: modo FULL precisa abrir sempre.
+  return parsed.success ? parsed.data : ({} as Env);
 }
 
 export function getAppUrl(): string {
@@ -60,19 +54,10 @@ export function getAppUrl(): string {
 }
 
 /** Helpers for monetization / support UI */
-export function isDonationEnabled(): boolean {
-  const v = process.env.NEXT_PUBLIC_DONATION_PROVIDER_ENABLED;
-  return v === "true" || v === "1";
-}
-
 export function getAffiliateHostingUrl(): string | undefined {
   return process.env.NEXT_PUBLIC_AFFILIATE_HOSTING_URL;
 }
 
 export function getSupportEmail(): string | undefined {
   return process.env.NEXT_PUBLIC_SUPPORT_EMAIL;
-}
-
-export function getDonationCopyVariant(): "soft" | "neutral" | "minimal" {
-  return (process.env.NEXT_PUBLIC_DONATION_COPY_VARIANT as any) ?? "soft";
 }

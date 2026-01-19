@@ -2,7 +2,7 @@
 
 **ZAIRIX é um software de orquestração de agentes de IA** para transformar sinais públicos de mercado em execução: **Radar → Validador → Estrategista → Operador**.
 
-> Objetivo: reduzir ruído e acelerar decisões com output acionável (tese + plano + métrica de 7 dias).
+> Objetivo: reduzir ruído e acelerar decisões com output acionável (tese + plano de execução + métrica de 7 dias).
 
 ## O que o produto faz (em 1 minuto)
 
@@ -32,13 +32,15 @@ npm run dev
 
 Abrir:
 - `http://localhost:3000/`
-- `http://localhost:3000/dashboard`
+- `http://localhost:3000/app`
 
-## “Modo emergência” (sem login / sem banco)
+## Modo FULL (padrão) — sem login, sem bloqueio
 
-Para colocar no ar rápido, existe um modo que elimina dependências de auth/banco e mantém o app navegável.
-
-> **Atenção**: isso é propositalmente menos seguro. Use para validação de UX/market fit e depois reative o modo “produção real”.
+O produto foi desenhado para abrir sempre:
+- sem login/cadastro/senha
+- sem paywall
+- sem sessão/cookies de autenticação
+- sem banco obrigatório (tudo funciona com estado local + LocalStorage)
 
 ## Demanda (números do projeto)
 

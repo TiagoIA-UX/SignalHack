@@ -27,13 +27,14 @@ export default async function Home(props: { searchParams?: Promise<Record<string
       top: "demanda • potencial de retorno • execução • monetização",
       h1: "Pare de apostar em “ideia”. Encontre demanda real e transforme em receita.",
       sub1:
-        "ZAIRIX rastreia sinais públicos (buscas, vagas, comunidades, mudanças de stack) e te entrega o que importa: dor, comprador, urgência e narrativa.",
+        "ZAIRIX é uma orquestração de agentes de IA: cada agente faz um pedaço do trabalho (radar, validação, estratégia e execução) e você recebe o resultado em forma de ação.",
       sub2:
         "Você escolhe um alvo e roda um ciclo curto: sinal → tese → playbook → métrica de 7 dias. Linguagem de operação: CAC, LTV, pipeline, ticket.",
       ctaPrimary: "Abrir app",
       ctaSecondary: "Ver planos",
       diffTitle: "Diferenciais (sem marketing vazio)",
       diffs: [
+        { t: "Orquestração de agentes", d: "Em vez de um “chat”, você usa agentes especializados: Radar → Validador → Estrategista → Operador." },
         { t: "Sinal de compra, não “insight”", d: "A saída é ação: quem compra, por quê, e como testar." },
         { t: "Playbook de 7 dias", d: "Hipótese + experimento + métrica — com critério de decisão." },
         { t: "Timing e narrativa", d: "Você chega antes, com motivo claro e ângulo de abordagem." },
@@ -66,12 +67,13 @@ export default async function Home(props: { searchParams?: Promise<Record<string
       top: "demand • ROI potential • execution • monetization",
       h1: "Stop betting on “ideas”. Find real demand and turn it into revenue.",
       sub1:
-        "ZAIRIX tracks public signals (search, hiring, communities, stack changes) and gives you what matters: pain, buyer, urgency, narrative.",
+        "ZAIRIX is an AI agent orchestration: each agent handles one job (radar, validation, strategy, execution) so you get actionable output.",
       sub2: "Pick a target and run a short loop: signal → thesis → playbook → 7‑day metric. Operator language: CAC, LTV, pipeline, ticket.",
       ctaPrimary: "Open app",
       ctaSecondary: "See plans",
       diffTitle: "What’s different (no fluff)",
       diffs: [
+        { t: "Agent orchestration", d: "Not a single chat: specialized agents run Radar → Validator → Strategist → Operator." },
         { t: "Buying signal, not “insight”", d: "Output is action: who buys, why, and how to test." },
         { t: "7‑day playbook", d: "Hypothesis + experiment + metric — with a decision rule." },
         { t: "Timing + narrative", d: "Show up early, with a clear reason and outreach angle." },
@@ -104,13 +106,14 @@ export default async function Home(props: { searchParams?: Promise<Record<string
       top: "demanda • ROI • ejecución • monetización",
       h1: "Deja de apostar por “ideas”. Encuentra demanda real y conviértela en ingresos.",
       sub1:
-        "ZAIRIX rastrea señales públicas (búsqueda, contratación, comunidades, cambios de stack) y entrega lo que importa: dolor, comprador, urgencia, narrativa.",
+        "ZAIRIX es una orquestación de agentes de IA: cada agente hace una parte (radar, validación, estrategia, ejecución) para darte salida accionable.",
       sub2:
         "Elige un objetivo y ejecuta un ciclo corto: señal → tesis → playbook → métrica de 7 días. Lenguaje de operación: CAC, LTV, pipeline, ticket.",
       ctaPrimary: "Abrir app",
       ctaSecondary: "Ver planes",
       diffTitle: "Diferenciales (sin humo)",
       diffs: [
+        { t: "Orquestación de agentes", d: "No es un solo chat: agentes especializados corren Radar → Validador → Estratega → Operador." },
         { t: "Señal de compra, no “insight”", d: "Salida accionable: quién compra, por qué y cómo testear." },
         { t: "Playbook de 7 días", d: "Hipótesis + experimento + métrica — con regla de decisión." },
         { t: "Timing y narrativa", d: "Llegas antes, con motivo claro y ángulo de outreach." },

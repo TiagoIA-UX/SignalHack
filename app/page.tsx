@@ -1,123 +1,145 @@
 import { AppHeader } from "@/components/AppHeader";
 import { Button, Card, Container } from "@/components/ui";
-import { getSessionFromCookies } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+import { headers } from "next/headers";
 
-type RealDashboardExample = {
-  source: string;
-  title: string;
-  summary: string;
-  score: number;
-  intent: string;
-  hypothesis: string;
-  offer?: string;
-  funnel?: string;
-  experiment: string;
-  metric: string;
-  updatedAt: Date;
-};
+type Lang = "pt" | "en" | "es";
 
-export default async function Home() {
-  const session = await getSessionFromCookies();
-  const publicExampleEmail = process.env.PUBLIC_EXAMPLE_USER_EMAIL;
+function pickLangFromAcceptLanguage(acceptLanguage: string): Lang {
+  const s = (acceptLanguage || "").toLowerCase();
+  if (s.includes("pt")) return "pt";
+  if (s.includes("es")) return "es";
+  return "en";
+}
 
-  const seedExample: RealDashboardExample = {
-    source: "Radar (seed) — sinais públicos",
-    title: "Aumento súbito de vagas: RevOps + automação interna",
-    summary:
-      "Times de receita estão correndo para automatizar operações (lead routing, follow-up, billing e dunning) com automação interna — orçamento existe e a urgência é agora.",
-    score: 88,
-    intent: "HIGH",
-    hypothesis:
-      "Se entregarmos uma oferta produtizada de automação de operações de receita (RevOps) em 7 dias, heads de receita pagam ticket médio/alto para reduzir SLA e recuperar receita perdida.",
-    offer: "Oferta: Diagnóstico + implementação em 7 dias, preço fechado, com foco em reduzir SLA e recuperar receita.",
-    funnel:
-      "Funil: Landing com promessa + prova (antes/depois) → outbound para heads de receita/founders (50 contatos) → 2 calls de diagnóstico → 1 piloto pago.",
-    experiment:
-      "1) Landing com promessa + prova (antes/depois) • 2) Outbound para RevOps/Founders (50 contatos) • 3) Oferta de implementação em 7 dias com preço fechado • 4) 2 calls de diagnóstico e 1 piloto pago.",
-    metric: "Indicador claro de decisão (7 dias): 10 respostas qualificadas e 2 calls. Decisão: dobrar, ajustar ou parar.",
-    updatedAt: new Date("2026-01-11T00:00:00.000Z"),
-  };
+export default async function Home(props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const searchParams = (await props.searchParams) ?? {};
+  const rawLang = searchParams.lang;
+  const langParam = Array.isArray(rawLang) ? rawLang[0] : rawLang;
 
-  let realExample: RealDashboardExample | null = null;
-  if (publicExampleEmail || session) {
-    try {
-      let plan: any = null;
-      if (publicExampleEmail) {
-        const planRes = await prisma.query(
-          `SELECT ep.*, s.source, s.title, s.summary, s.score, s.intent
-           FROM "ExecutionPlan" ep
-           JOIN "User" u ON ep."userId" = u.id
-           JOIN "Signal" s ON ep."signalId" = s.id
-           WHERE u.email = $1
-           ORDER BY ep."updatedAt" DESC LIMIT 1`,
-          [publicExampleEmail]
-        );
-        plan = planRes.rows[0];
-      } else if (session) {
-        const planRes = await prisma.query(
-          `SELECT ep.*, s.source, s.title, s.summary, s.score, s.intent
-           FROM "ExecutionPlan" ep
-           JOIN "Signal" s ON ep."signalId" = s.id
-           WHERE ep."userId" = $1
-           ORDER BY ep."updatedAt" DESC LIMIT 1`,
-          [session.sub]
-        );
-        plan = planRes.rows[0];
-      }
+  const hdrs = await headers();
+  const acceptLang = hdrs.get("accept-language") ?? "";
+  const lang: Lang =
+    langParam === "pt" || langParam === "en" || langParam === "es" ? langParam : pickLangFromAcceptLanguage(acceptLang);
 
-      if (plan) {
-        realExample = {
-          source: plan.signal.source,
-          title: plan.signal.title,
-          summary: plan.signal.summary,
-          score: plan.signal.score,
-          intent: plan.signal.intent,
-          hypothesis: plan.hypothesis,
-          offer: undefined,
-          funnel: undefined,
-          experiment: plan.experiment,
-          metric: plan.metric,
-          updatedAt: plan.updatedAt,
-        };
-      }
-    } catch {
-      realExample = null;
-    }
-  }
-
-  const fmtDate = (d: Date) =>
-    new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(d);
-
-  const fmtIntent = (intent: string) => {
-    if (intent === "HIGH") return "alta";
-    if (intent === "MEDIUM") return "média";
-    if (intent === "LOW") return "baixa";
-    return intent;
-  };
-
-  const example = realExample ?? seedExample;
-  const exampleKind = realExample ? "real" : "seed";
-
-  const deriveOffer = (hypothesis: string, experiment: string) => {
-    const h = `${hypothesis ?? ""}`.trim();
-    const e = `${experiment ?? ""}`.trim();
-    if (h.toLowerCase().includes("oferta")) return h;
-    if (e.toLowerCase().includes("oferta")) return `Oferta: ${e}`;
-    if (h) return `Oferta: ${h}`;
-    return "Oferta: entrega em 7 dias com preço fechado (teste enxuto).";
-  };
-
-  const deriveFunnel = (experiment: string) => {
-    const e = `${experiment ?? ""}`.trim();
-    if (!e) return "Funil: landing → abordagem → calls → piloto pago.";
-    if (e.toLowerCase().includes("funil")) return e;
-    return `Funil: ${e}`;
-  };
-
-  const offer = example.offer ?? deriveOffer(example.hypothesis, example.experiment);
-  const funnel = example.funnel ?? deriveFunnel(example.experiment);
+  const t = {
+    pt: {
+      top: "demanda • potencial de retorno • execução • monetização",
+      h1: "Pare de apostar em “ideia”. Encontre demanda real e transforme em receita.",
+      sub1:
+        "ZAIRIX rastreia sinais públicos (buscas, vagas, comunidades, mudanças de stack) e te entrega o que importa: dor, comprador, urgência e narrativa.",
+      sub2:
+        "Você escolhe um alvo e roda um ciclo curto: sinal → tese → playbook → métrica de 7 dias. Linguagem de operação: CAC, LTV, pipeline, ticket.",
+      ctaPrimary: "Abrir app",
+      ctaSecondary: "Ver planos",
+      diffTitle: "Diferenciais (sem marketing vazio)",
+      diffs: [
+        { t: "Sinal de compra, não “insight”", d: "A saída é ação: quem compra, por quê, e como testar." },
+        { t: "Playbook de 7 dias", d: "Hipótese + experimento + métrica — com critério de decisão." },
+        { t: "Timing e narrativa", d: "Você chega antes, com motivo claro e ângulo de abordagem." },
+        { t: "Feito para execução", d: "Do sinal ao teste em minutos, não em semanas." },
+      ],
+      whoTitle: "Para quem é",
+      who: [
+        { t: "Founder / Solopreneur", d: "Validar rápido e vender sem meses de “achismo”." },
+        { t: "Growth / Performance", d: "Pauta de aquisição baseada em evidência e timing." },
+        { t: "SDR / RevOps", d: "Alvos + motivo + ângulo de outbound pronto." },
+        { t: "Agência / Consultoria", d: "Empacotar oferta e fechar com demanda mais quente." },
+      ],
+      flowTitle: "Como funciona (4 passos)",
+      steps: [
+        { t: "1) Radar", d: "Coleta sinais públicos e destaca intenção." },
+        { t: "2) Seleção", d: "Você escolhe 1 alvo (top 3) para atacar agora." },
+        { t: "3) Estratégia", d: "Gera tese + plano de execução (7 dias)." },
+        { t: "4) Execução", d: "Mede e decide: dobrar, ajustar ou parar." },
+      ],
+      faqTitle: "Perguntas rápidas",
+      faq: [
+        { q: "Isso substitui minha decisão?", a: "Não. O ZAIRIX reduz ruído e acelera a decisão com evidência." },
+        { q: "Serve para B2B?", a: "Sim — especialmente outbound, revops e oferta produtizada." },
+        { q: "Precisa de integração?", a: "Não. Você pode começar só com Radar e playbooks." },
+      ],
+      ctaBoxTitle: "Pronto para operar?",
+      ctaBoxText: "Abra o app, escolha um alvo e gere um playbook de 7 dias. Se não fizer sentido em 7 dias, você mata — e segue.",
+    },
+    en: {
+      top: "demand • ROI potential • execution • monetization",
+      h1: "Stop betting on “ideas”. Find real demand and turn it into revenue.",
+      sub1:
+        "ZAIRIX tracks public signals (search, hiring, communities, stack changes) and gives you what matters: pain, buyer, urgency, narrative.",
+      sub2: "Pick a target and run a short loop: signal → thesis → playbook → 7‑day metric. Operator language: CAC, LTV, pipeline, ticket.",
+      ctaPrimary: "Open app",
+      ctaSecondary: "See plans",
+      diffTitle: "What’s different (no fluff)",
+      diffs: [
+        { t: "Buying signal, not “insight”", d: "Output is action: who buys, why, and how to test." },
+        { t: "7‑day playbook", d: "Hypothesis + experiment + metric — with a decision rule." },
+        { t: "Timing + narrative", d: "Show up early, with a clear reason and outreach angle." },
+        { t: "Built for execution", d: "From signal to test in minutes, not weeks." },
+      ],
+      whoTitle: "Who it’s for",
+      who: [
+        { t: "Founder / Solopreneur", d: "Validate fast and sell without months of guesswork." },
+        { t: "Growth / Performance", d: "Acquisition angles backed by evidence and timing." },
+        { t: "SDR / RevOps", d: "Targets + reason + outreach angle, ready to use." },
+        { t: "Agency / Consulting", d: "Package offers and close with warmer demand." },
+      ],
+      flowTitle: "How it works (4 steps)",
+      steps: [
+        { t: "1) Radar", d: "Collects public signals and highlights intent." },
+        { t: "2) Pick", d: "Choose 1 target (top 3) to attack now." },
+        { t: "3) Strategy", d: "Generates thesis + 7‑day execution plan." },
+        { t: "4) Execute", d: "Measure and decide: double down, adjust, or stop." },
+      ],
+      faqTitle: "Quick FAQ",
+      faq: [
+        { q: "Does it replace my judgment?", a: "No. ZAIRIX cuts noise and speeds decisions with evidence." },
+        { q: "Is it for B2B?", a: "Yes — especially outbound, revops and productized offers." },
+        { q: "Do I need integrations?", a: "No. You can start with Radar + playbooks only." },
+      ],
+      ctaBoxTitle: "Ready to operate?",
+      ctaBoxText: "Open the app, pick a target and generate a 7‑day playbook. If it doesn’t move in 7 days, kill it — and move on.",
+    },
+    es: {
+      top: "demanda • ROI • ejecución • monetización",
+      h1: "Deja de apostar por “ideas”. Encuentra demanda real y conviértela en ingresos.",
+      sub1:
+        "ZAIRIX rastrea señales públicas (búsqueda, contratación, comunidades, cambios de stack) y entrega lo que importa: dolor, comprador, urgencia, narrativa.",
+      sub2:
+        "Elige un objetivo y ejecuta un ciclo corto: señal → tesis → playbook → métrica de 7 días. Lenguaje de operación: CAC, LTV, pipeline, ticket.",
+      ctaPrimary: "Abrir app",
+      ctaSecondary: "Ver planes",
+      diffTitle: "Diferenciales (sin humo)",
+      diffs: [
+        { t: "Señal de compra, no “insight”", d: "Salida accionable: quién compra, por qué y cómo testear." },
+        { t: "Playbook de 7 días", d: "Hipótesis + experimento + métrica — con regla de decisión." },
+        { t: "Timing y narrativa", d: "Llegas antes, con motivo claro y ángulo de outreach." },
+        { t: "Hecho para ejecutar", d: "De señal a test en minutos, no semanas." },
+      ],
+      whoTitle: "Para quién es",
+      who: [
+        { t: "Founder / Solopreneur", d: "Validar rápido y vender sin meses de adivinanza." },
+        { t: "Growth / Performance", d: "Ángulos de adquisición con evidencia y timing." },
+        { t: "SDR / RevOps", d: "Targets + motivo + ángulo de outbound listo." },
+        { t: "Agencia / Consultoría", d: "Empaquetar oferta y cerrar con demanda más caliente." },
+      ],
+      flowTitle: "Cómo funciona (4 pasos)",
+      steps: [
+        { t: "1) Radar", d: "Recolecta señales públicas y destaca intención." },
+        { t: "2) Elegir", d: "Elige 1 objetivo (top 3) para atacar ahora." },
+        { t: "3) Estrategia", d: "Genera tesis + plan de ejecución (7 días)." },
+        { t: "4) Ejecutar", d: "Mide y decide: duplicar, ajustar o parar." },
+      ],
+      faqTitle: "FAQ rápido",
+      faq: [
+        { q: "¿Reemplaza mi decisión?", a: "No. ZAIRIX reduce ruido y acelera decisiones con evidencia." },
+        { q: "¿Sirve para B2B?", a: "Sí — especialmente outbound, revops y oferta productizada." },
+        { q: "¿Necesito integraciones?", a: "No. Puedes empezar solo con Radar y playbooks." },
+      ],
+      ctaBoxTitle: "¿Listo para operar?",
+      ctaBoxText: "Abre la app, elige un objetivo y genera un playbook de 7 días. Si no se mueve en 7 días, lo matas — y sigues.",
+    },
+  }[lang];
 
   return (
     <div className="min-h-screen">
@@ -127,383 +149,152 @@ export default async function Home() {
           <Container>
             <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">demanda • potencial de retorno • execução • monetização</p>
-                <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-                  Descubra, crie e monetize negócios digitais usando sinais reais de mercado.
-                </h1>
-                <p className="mt-4 text-zinc-300">
-                  SignalForge transforma <span className="text-zinc-100">sinais públicos</span> (Google, buscas, fóruns, vagas, comunidades) em
-                  <span className="text-zinc-100"> demanda</span>: dor, comprador, ticket e urgência. Você escolhe o alvo e executa um ciclo curto
-                  com critério de decisão.
-                </p>
-                <p className="mt-4 text-zinc-300">
-                  Em vez de “inspiração” e promessas vazias, você executa um ciclo curto: evidência real de demanda → potencial de retorno → teste rápido de mercado → funil → indicador claro de decisão em 7 dias →
-                  iteração. A decisão final é humana; a vantagem vem de velocidade e evidência.
-                </p>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+                  <span className="uppercase tracking-[0.2em]">{t.top}</span>
+                  <span className="text-zinc-600">•</span>
+                  <div className="flex items-center gap-2">
+                    <a className={`underline-offset-4 hover:underline ${lang === "pt" ? "text-zinc-200" : ""}`} href="/?lang=pt">
+                      PT
+                    </a>
+                    <a className={`underline-offset-4 hover:underline ${lang === "en" ? "text-zinc-200" : ""}`} href="/?lang=en">
+                      EN
+                    </a>
+                    <a className={`underline-offset-4 hover:underline ${lang === "es" ? "text-zinc-200" : ""}`} href="/?lang=es">
+                      ES
+                    </a>
+                  </div>
+                </div>
+
+                <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">{t.h1}</h1>
+                <p className="mt-4 text-zinc-300">{t.sub1}</p>
+                <p className="mt-4 text-zinc-300">{t.sub2}</p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button href="/login">Entrar</Button>
+                  <Button href="/dashboard">{t.ctaPrimary}</Button>
                   <Button href="/plans" variant="ghost">
-                    Ver planos
+                    {t.ctaSecondary}
                   </Button>
                 </div>
 
                 <Card className="mt-8 p-6">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">
-                        {exampleKind === "real"
-                          ? `exemplo real — ${publicExampleEmail ? "do nosso dashboard" : "do seu dashboard"}`
-                          : "exemplo seedado — do sinal à receita"}
-                      </div>
-                      <div className="mt-2 text-sm font-medium text-zinc-100">{example.title}</div>
-                      <div className="mt-2 text-sm text-zinc-300">{example.summary}</div>
-                      <div className="mt-2 text-xs text-zinc-400">
-                        Fonte: {example.source} • Score: {example.score} • Sinal de compra: {fmtIntent(example.intent)}
-                      </div>
-                    </div>
-                    <div className="text-xs text-zinc-400">
-                      {exampleKind === "real" ? `atualizado em ${fmtDate(example.updatedAt)}` : "seed"}
-                    </div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">exemplo — do sinal ao teste</div>
+                  <div className="mt-2 text-sm font-medium text-zinc-100">RevOps + automação interna</div>
+                  <div className="mt-2 text-sm text-zinc-300">
+                    Times de receita estão correndo para automatizar operações (lead routing, follow‑up, billing e dunning) com automação interna.
                   </div>
+                  <div className="mt-2 text-xs text-zinc-400">Fonte: sinais públicos • Intenção: alta • Score: 88</div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
                       <Image src="/images/evidencia-demanda.jpg" alt="Evidência real de demanda" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
                       <div>
-                        <div className="text-xs font-medium text-zinc-200">1) Evidência real de demanda</div>
-                        <div className="mt-2 text-sm text-zinc-200">{example.title}</div>
-                        <div className="mt-2 text-xs text-zinc-400">{example.summary}</div>
+                        <div className="text-xs font-medium text-zinc-200">1) Evidência</div>
+                        <div className="mt-2 text-sm text-zinc-200">Vagas + conversas + stack</div>
+                        <div className="mt-2 text-xs text-zinc-400">Indica urgência e orçamento.</div>
                       </div>
                     </div>
 
                     <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
                       <Image src="/images/potencial-retorno.jpg" alt="Potencial de retorno" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
                       <div>
-                        <div className="text-xs font-medium text-zinc-200">2) Potencial de retorno</div>
-                        <div className="mt-2 text-sm text-zinc-200">{example.hypothesis}</div>
+                        <div className="text-xs font-medium text-zinc-200">2) Oferta</div>
+                        <div className="mt-2 text-sm text-zinc-200">Implementação em 7 dias</div>
+                        <div className="mt-2 text-xs text-zinc-400">Preço fechado, ROI claro.</div>
                       </div>
                     </div>
 
                     <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
                       <Image src="/images/teste-mercado.jpg" alt="Teste rápido de mercado" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
                       <div>
-                        <div className="text-xs font-medium text-zinc-200">3) Teste rápido de mercado</div>
-                        <div className="mt-2 text-sm text-zinc-200">{offer}</div>
+                        <div className="text-xs font-medium text-zinc-200">3) Teste</div>
+                        <div className="mt-2 text-sm text-zinc-200">Landing + outbound</div>
+                        <div className="mt-2 text-xs text-zinc-400">Ângulo e motivo prontos.</div>
                       </div>
                     </div>
 
                     <div className="rounded-xl border border-white/10 bg-black/40 p-4 flex gap-4 items-center">
                       <Image src="/images/indicador-decisao.jpg" alt="Indicador claro de decisão" width={80} height={80} className="rounded-lg object-cover w-20 h-20" />
                       <div>
-                        <div className="text-xs font-medium text-zinc-200">4) Indicador claro de decisão</div>
-                        <div className="mt-2 text-sm text-zinc-200">{example.metric}</div>
+                        <div className="text-xs font-medium text-zinc-200">4) Métrica</div>
+                        <div className="mt-2 text-sm text-zinc-200">7 dias</div>
+                        <div className="mt-2 text-xs text-zinc-400">Dobrar, ajustar ou parar.</div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mt-3 rounded-xl border border-emerald-500/15 bg-black/30 p-4">
-                    <div className="text-xs font-medium text-zinc-200">6) Decisão</div>
-                    <div className="mt-2 text-sm text-zinc-200">
-                      SINAL → TESE → EXPERIMENTO → MÉTRICA (7 DIAS) → <span className="text-emerald-200">DECIDIR</span>
-                    </div>
-                    <div className="mt-2 text-xs text-zinc-400">Sem “ideias”: ou vira receita, ou vira aprendizado rápido.</div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <Button href={session ? "/dashboard" : "/login"}>
-                      {session ? "Abrir Dashboard" : "Entrar para ver o seu"}
-                    </Button>
-                    <Button href="/plans" variant="ghost">
-                      Ver planos
-                    </Button>
                   </div>
                 </Card>
-
-                <div className="mt-8 space-y-2 text-sm text-zinc-200">
-                  {[
-                    "Descubra demanda: intenção + dor + orçamento (não 'ideias').",
-                    "Crie uma tese de dinheiro com comprador ideal, mecanismo, risco e primeira ação.",
-                    "Gere oferta + teste enxuto para testar rápido.",
-                    "Publique funil e assets de aquisição para medir conversão.",
-                    "Otimize com métricas e repita até encontrar receita repetível.",
-                  ].map((t) => (
-                    <div key={t} className="flex items-start gap-3">
-                      <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      <span>{t}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                  <Card className="p-5">
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">quem compra</div>
-                    <div className="mt-3 text-sm font-medium text-zinc-100">Operadores em execução</div>
-                    <div className="mt-2 text-sm text-zinc-300">
-                      Quem precisa transformar sinal em dinheiro com disciplina — não com “inspiração”.
-                    </div>
-                    <div className="mt-3 space-y-2 text-sm text-zinc-200">
-                      {["Founders", "Agências", "Operadores de marketing/growth", "Operadores de automação/RevOps"].map((t) => (
-                        <div key={t} className="flex items-start gap-3">
-                          <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                          <span>{t}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-
-                  <Card className="p-5">
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">quem não é</div>
-                    <div className="mt-3 text-sm font-medium text-zinc-100">Curiosidade sem execução</div>
-                    <div className="mt-2 text-sm text-zinc-300">
-                      Se você quer “uma ideia perfeita” sem teste, sem conversa com cliente e sem métrica, isso vai frustrar.
-                    </div>
-                    <div className="mt-3 space-y-2 text-sm text-zinc-200">
-                      {["colecionar sinais sem execução", "depender de feed/hype", "querer garantia sem experimento", "construir antes de validar"].map((t) => (
-                        <div key={t} className="flex items-start gap-3">
-                          <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-white/30" />
-                          <span>{t}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </div>
               </div>
-              <Card className="p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">orquestração do fluxo</div>
-                <div className="mt-3 text-sm text-zinc-200">
-                  Cinco etapas executam o ciclo completo: mapear demanda → validar tese → construir oferta + teste enxuto → publicar funil → otimizar.
-                </div>
 
-                <div className="mt-5 space-y-3">
-                  {[{
-                    k: "ATLAS",
-                    icon: "/modules/atlas.svg",
-                    name: "caça demanda",
-                    desc: "Busca avançada pública (Google, fóruns, vagas, comunidades) para achar dores recorrentes e compradores reais.",
-                  }, {
-                    k: "NEXUS",
-                    icon: "/modules/nexus.svg",
-                    name: "valida tese",
-                    desc: "conecta sinais, filtra ruído e escolhe o que tem comprador + urgência + orçamento.",
-                  }, {
-                    k: "ARTISAN",
-                    icon: "/modules/artisan.svg",
-                    name: "cria oferta + teste enxuto",
-                    desc: "gera proposta, diferenciação, preço e um teste enxuto para validar em dias.",
-                  }, {
-                    k: "PULSE",
-                    icon: "/modules/pulse.svg",
-                    name: "publica funil",
-                    desc: "landing, emails, criativos e tracking para medir conversão com disciplina.",
-                  }, {
-                    k: "OPTIMA",
-                    icon: "/modules/optima.svg",
-                    name: "otimiza e escala",
-                    desc: "métricas → hipótese → experimento → aprendizado. Repetir até achar receita repetível.",
-                  }].map((a) => (
-                    <div key={a.k} className="rounded-xl border border-emerald-500/15 bg-black/40 p-4">
-                      <div className="flex items-center gap-3">
-                        <Image src={a.icon} alt="" width={32} height={32} className="h-8 w-8 shrink-0" />
-                        <div className="min-w-0">
-                          <div className="text-xs text-zinc-400">
-                            <span className="font-mono text-emerald-200">{a.k}</span> • {a.name}
-                          </div>
-                          <div className="mt-1 text-sm text-zinc-200">{a.desc}</div>
-                        </div>
+              <div className="relative">
+                <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-transparent to-emerald-500/10 blur-2xl" />
+                <Card className="relative overflow-hidden p-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">{t.flowTitle}</div>
+                  <div className="mt-4 grid gap-3">
+                    {t.steps.map((s) => (
+                      <div key={s.t} className="rounded-xl border border-emerald-500/15 bg-black/40 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">{s.t}</div>
+                        <div className="mt-2 text-sm text-zinc-200">{s.d}</div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 text-xs text-zinc-400">Login com email e senha.</div>
-                <div className="mt-2 text-xs text-zinc-400">Comunidade de operadores e founders: quem é pago entra em um ambiente focado em execução e evidência.</div>
-              </Card>
+                    ))}
+                  </div>
+                </Card>
+              </div>
             </div>
           </Container>
         </section>
 
-        <section className="py-10">
+        <section className="py-16 border-t border-emerald-500/10">
           <Container>
-            <div className="grid gap-4 lg:grid-cols-3">
-              <Card className="p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">como funciona</div>
-                <div className="mt-3 text-sm text-zinc-200">Um ciclo curto e repetível.</div>
-                <p className="mt-3 text-sm text-zinc-300">Demanda → tese → oferta/teste enxuto → funil → métrica (7 dias) → iteração.</p>
-              </Card>
-              <Card className="p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">o que você cria</div>
-                <div className="mt-3 text-sm text-zinc-200">Produtos, funis e receita.</div>
-                <p className="mt-3 text-sm text-zinc-300">De micro-SaaS e automações B2B a ofertas produtizadas com entrega assistida.</p>
-              </Card>
-              <Card className="p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">por que é diferente</div>
-                <div className="mt-3 text-sm text-zinc-200">Execução com evidência.</div>
-                <p className="mt-3 text-sm text-zinc-300">Você mede intenção, define hipótese e executa experimentos — sem promessas mágicas.</p>
-              </Card>
-            </div>
-
-            <Card className="mt-8 p-6">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">o que você recebe em 7 dias</div>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                    <div className="text-sm font-medium text-zinc-100">1 tese de dinheiro</div>
-                    <div className="mt-1 text-sm text-zinc-300">Comprador, dor, mecanismo, risco e primeira ação — escrito para executar.</div>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                    <div className="text-sm font-medium text-zinc-100">1 oferta + teste enxuto</div>
-                    <div className="mt-1 text-sm text-zinc-300">Uma proposta clara + entregável mínimo para cobrar e aprender rápido.</div>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <div className="text-sm font-medium text-zinc-100">1 funil mensurável</div>
-                  <div className="mt-1 text-sm text-zinc-300">Landing, mensagem e tracking para medir conversas, leads e calls.</div>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <div className="text-sm font-medium text-zinc-100">1 métrica para decidir</div>
-                  <div className="mt-1 text-sm text-zinc-300">O que muda em 7 dias e o que fazer depois (dobrar, pivotar ou matar).</div>
-                </div>
-              </div>
-              <div className="mt-4 text-xs text-zinc-400">Sem promessa mágica: o valor está em reduzir ruído e acelerar aprendizado com evidência.</div>
-            </Card>
-
-            <Card className="mt-8 p-6">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">exemplo universal — do sinal à receita</div>
-                  <div className="mt-2 text-sm font-medium text-zinc-100">Automação de cobrança (dunning) para SaaS</div>
-                  <div className="mt-2 text-sm text-zinc-300">Um exemplo ilustrativo de playbook (para entender o método).</div>
-                </div>
-                <div className="text-xs text-zinc-400">resultado ilustrativo</div>
-              </div>
-
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <div className="text-xs font-medium text-zinc-200">1) Sinal detectado (Atlas)</div>
-                  <div className="mt-2 text-sm text-zinc-200">
-                    Padrões repetidos em buscas e posts: “failed payments”, “dunning”, “recover revenue”.
+            <div className="mx-auto max-w-5xl">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card className="p-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">{t.diffTitle}</div>
+                  <div className="mt-4 space-y-3">
+                    {t.diffs.map((d) => (
+                      <div key={d.t} className="rounded-xl border border-white/10 bg-black/30 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">{d.t}</div>
+                        <div className="mt-2 text-sm text-zinc-200">{d.d}</div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="mt-2 text-xs text-zinc-400">Leitura: SaaS pequeno perde receita silenciosa e quer recuperação automática.</div>
-                </div>
+                </Card>
 
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <div className="text-xs font-medium text-zinc-200">2) Tese de dinheiro (Nexus)</div>
-                  <div className="mt-2 text-sm text-zinc-200">
-                    Se entregarmos um fluxo que recupera pagamentos falhos via e-mail/WhatsApp, founders pagam $49–$199/mês.
+                <Card className="p-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">{t.whoTitle}</div>
+                  <div className="mt-4 space-y-3">
+                    {t.who.map((w) => (
+                      <div key={w.t} className="rounded-xl border border-white/10 bg-black/30 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">{w.t}</div>
+                        <div className="mt-2 text-sm text-zinc-200">{w.d}</div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="mt-2 text-xs text-zinc-400">Hipótese testável: “recuperar X% do MRR perdido em 7 dias”.</div>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <div className="text-xs font-medium text-zinc-200">3) Oferta + teste enxuto (Artisan)</div>
-                  <div className="mt-2 text-sm text-zinc-200">Landing + promessa clara + integração mínima (webhook) para provar valor rápido.</div>
-                  <div className="mt-2 text-xs text-zinc-400">Entrega: 1 fluxo que roda e gera evidência.</div>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <div className="text-xs font-medium text-zinc-200">4) Aquisição (Pulse)</div>
-                  <div className="mt-2 text-sm text-zinc-200">Outbound para founders + comunidades + tracking de conversas e trials.</div>
-                  <div className="mt-2 text-xs text-zinc-400">Sem tráfego, não existe validação.</div>
-                </div>
+                </Card>
               </div>
 
-              <div className="mt-3 rounded-xl border border-emerald-500/15 bg-black/30 p-4">
-                <div className="text-xs font-medium text-zinc-200">5) Métrica (Optima)</div>
-                <div className="mt-2 text-sm text-zinc-200">Em 7 dias, você decide com números: visitas → trials → clientes → MRR.</div>
-                <div className="mt-2 text-xs text-zinc-400">
-                  Exemplo de alvo: 300 visitas, 25 trials, 5 clientes — sem promessa, só critério de decisão.
-                </div>
-              </div>
-            </Card>
+              <div className="mt-10 grid gap-4 lg:grid-cols-2">
+                <Card className="p-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">{t.faqTitle}</div>
+                  <div className="mt-4 space-y-3">
+                    {t.faq.map((f) => (
+                      <div key={f.q} className="rounded-xl border border-emerald-500/10 bg-black/30 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">{f.q}</div>
+                        <div className="mt-2 text-sm text-zinc-200">{f.a}</div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
 
-            <div className="mt-10">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">onde o signalforge encontra dinheiro</div>
-              <div className="mt-2 text-sm text-zinc-300">
-                Sete mercados com dores recorrentes, compradores reais e orçamento.
-              </div>
-
-              <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  {
-                    title: "Automação B2B (Ops/RevOps/Finance/Suporte)",
-                    pain: "trabalho manual caro, SLA estourando, dados espalhados",
-                    buyer: "PMEs e mid-market (Ops, CS, Finance)",
-                    build: "automação interna, rotinas, copilotos",
-                  },
-                  {
-                    title: "Compliance, risco e privacidade (LGPD/auditoria)",
-                    pain: "risco jurídico, exposição de dados, governança fraca",
-                    buyer: "saúde, fintech, SaaS, e-commerce",
-                    build: "revisores, monitores, checklists automatizados",
-                  },
-                  {
-                    title: "Conteúdo que vende (SEO/funis/criativos/vídeo)",
-                    pain: "CAC subindo, conteúdo sem conversão",
-                    buyer: "SaaS B2B, creators, e-commerce",
-                    build: "motor de tópicos, assets, SEO programático",
-                  },
-                  {
-                    title: "E-commerce e retenção (LTV/recompras/margem)",
-                    pain: "abandono, promoções que derrubam margem",
-                    buyer: "DTC e operadores",
-                    build: "bundles, segmentação, suporte automatizado",
-                  },
-                  {
-                    title: "Educação profissional orientada a resultado",
-                    pain: "aprendizado longo sem aplicação",
-                    buyer: "profissionais em transição e times",
-                    build: "trilhas, laboratórios, playbooks",
-                  },
-                  {
-                    title: "Negócios locais (leads/agenda/reputação)",
-                    pain: "demanda instável, no-show, follow-up fraco",
-                    buyer: "clínicas, serviços, imobiliárias",
-                    build: "WhatsApp, agendamento, reviews",
-                  },
-                  {
-                    title: "Finanças de PMEs (caixa/crédito/precificação)",
-                    pain: "caixa caótico, decisão sem números",
-                    buyer: "MEIs/PMEs e autônomos",
-                    build: "assistente de caixa, alertas, margem",
-                  },
-                ].map((c) => (
-                  <Card key={c.title} className="p-6">
-                    <div className="text-sm font-semibold text-zinc-100">{c.title}</div>
-                    <div className="mt-3 text-xs text-zinc-400">Dor</div>
-                    <div className="mt-1 text-sm text-zinc-200">{c.pain}</div>
-                    <div className="mt-3 text-xs text-zinc-400">Comprador</div>
-                    <div className="mt-1 text-sm text-zinc-200">{c.buyer}</div>
-                    <div className="mt-3 text-xs text-zinc-400">O que criar</div>
-                    <div className="mt-1 text-sm text-zinc-200">{c.build}</div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            <Card className="mt-10 p-6">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">manifesto</div>
-              <div className="mt-3 text-sm text-zinc-200">
-                Você não procura trabalho. Você caça demanda.
-                <br />
-                Você não tem “ideias”. Você testa teses.
-                <br />
-                Você não depende de feeds. Você cria sistemas que geram, monetizam e escalam com disciplina.
-              </div>
-              <div className="mt-5 flex gap-3">
-                <Button href="/register" variant="ghost">
-                  Criar conta
-                </Button>
-                <Button href="/plans">Ver planos</Button>
-              </div>
-            </Card>
-
-            <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-500/15 bg-black/30 p-6">
-              <div>
-                <div className="text-sm font-medium text-zinc-100">Pronto para rodar o ciclo completo?</div>
-                <div className="mt-1 text-sm text-zinc-300">Entre, gere uma tese e publique um primeiro experimento em minutos.</div>
-              </div>
-              <div className="flex gap-3">
-                <Button href="/login">Entrar</Button>
-                <Button href="/plans" variant="ghost">Ver planos</Button>
+                <Card className="p-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">CTA</div>
+                  <div className="mt-3 text-lg font-semibold text-zinc-100">{t.ctaBoxTitle}</div>
+                  <div className="mt-2 text-sm text-zinc-200">{t.ctaBoxText}</div>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Button href="/dashboard">{t.ctaPrimary}</Button>
+                    <Button href="/plans" variant="ghost">
+                      {t.ctaSecondary}
+                    </Button>
+                  </div>
+                </Card>
               </div>
             </div>
           </Container>
@@ -512,3 +303,4 @@ export default async function Home() {
     </div>
   );
 }
+

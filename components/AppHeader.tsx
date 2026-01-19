@@ -45,10 +45,9 @@ export function AppHeader(props: { authed?: boolean }) {
                 <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/support">
                   Apoio
                 </Link>
-                <Button href="/login" variant="ghost">
-                  Entrar
+                <Button href="/dashboard" variant="ghost">
+                  Abrir app
                 </Button>
-                <Button href="/register">Criar conta</Button>
               </>
             )}
           </nav>

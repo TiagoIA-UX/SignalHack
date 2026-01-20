@@ -10,40 +10,40 @@ export default function HomePage() {
           <Container>
             <div className="mx-auto max-w-5xl">
               <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
-                <span className="uppercase tracking-[0.2em]">sem login • sem bloqueio • uso imediato</span>
+                <span className="uppercase tracking-[0.2em]">demanda pagante • compradores reais • uso imediato</span>
                 <span className="text-zinc-600">•</span>
                 <Badge>Orquestração de agentes de IA</Badge>
               </div>
 
               <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-                Encontre demanda real, transforme em ação e execute em ciclos curtos.
+                Descubra o que vende de verdade — antes de gastar tempo e dinheiro.
               </h1>
               <p className="mt-4 text-zinc-300">
-                ZAIRIX é um sistema que organiza o trabalho de vários agentes (Radar → Validador → Estrategista → Operador) para você sair de
-                “achismo” e ir direto para decisão e execução.
+                ZAIRIX é um sistema de agentes (Radar → Validador → Estrategista → Operador) que corta o “achismo” e te coloca direto na
+                decisão: demanda → tese → experimento → receita.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button href="/app">Abrir o app agora</Button>
+                <Button href="/app">Operar agora</Button>
                 <Button href="/acquire" variant="ghost">
-                  Suporte/licença (opcional)
+                  Licença/Parceria (opcional)
                 </Button>
               </div>
 
               <Card className="mt-10 p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Garantia psicológica</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Sem desculpa para travar</div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-200">
-                    <strong>Você pode usar sem pagar.</strong>
-                    <div className="mt-2 text-zinc-300">Nada será bloqueado dentro do software.</div>
+                    <strong>Você usa sem pedir permissão.</strong>
+                    <div className="mt-2 text-zinc-300">Sem login, sem bloqueio, sem desculpa técnica.</div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-200">
-                    <strong>Sem cadastro, sem senha.</strong>
-                    <div className="mt-2 text-zinc-300">Você abre e já começa.</div>
+                    <strong>Você testa receita em 7 dias.</strong>
+                    <div className="mt-2 text-zinc-300">Hipótese, experimento e métrica claros.</div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-200">
-                    <strong>Senso de controle.</strong>
-                    <div className="mt-2 text-zinc-300">Seus dados ficam no seu navegador (armazenamento local).</div>
+                    <strong>Você controla o risco.</strong>
+                    <div className="mt-2 text-zinc-300">Dados locais no navegador, offline quando possível.</div>
                   </div>
                 </div>
               </Card>
@@ -54,24 +54,24 @@ export default function HomePage() {
         <section className="py-12 border-t border-white/5">
           <Container>
             <div className="mx-auto max-w-5xl">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">O que é / Para quem é</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Foco em compradores</div>
               <div className="mt-5 grid gap-6 md:grid-cols-2">
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">O que o software faz</div>
+                  <div className="text-sm font-semibold text-emerald-100">O que o software entrega</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- **Radar**: reúne sinais que indicam intenção (dor, urgência, orçamento, risco).</li>
-                    <li>- **Validador**: transforma o sinal em leitura simples (“o que isso significa?”).</li>
-                    <li>- **Estrategista**: cria um playbook curto (hipótese, experimento, métrica).</li>
-                    <li>- **Operador**: coloca tudo em ação (7 dias) e decide continuar/ajustar/parar.</li>
+                    <li>- **Radar**: sinais com intenção + orçamento (dor real).</li>
+                    <li>- **Validador**: leitura direta do “por que comprariam”.</li>
+                    <li>- **Estrategista**: playbook curto com foco em receita.</li>
+                    <li>- **Operador**: execução e decisão objetiva em 7 dias.</li>
                   </ul>
                 </Card>
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Para quem ele serve</div>
+                  <div className="text-sm font-semibold text-emerald-100">Para quem tem orçamento</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- **Founder / Solopreneur**: validar e vender sem travar em planejamento.</li>
-                    <li>- **Growth / Performance**: priorizar ações com evidência.</li>
-                    <li>- **SDR / RevOps**: escolher alvo e entrar com motivo + ângulo.</li>
-                    <li>- **Agência / Consultoria**: empacotar oferta e fechar mais rápido.</li>
+                    <li>- **Founder / Solopreneur**: parar de apostar e vender.</li>
+                    <li>- **Growth / Performance**: cortar ruído e priorizar ROI.</li>
+                    <li>- **SDR / RevOps**: atacar alvo com motivo real.</li>
+                    <li>- **Agência / Consultoria**: empacotar oferta que fecha.</li>
                   </ul>
                 </Card>
               </div>
@@ -82,13 +82,13 @@ export default function HomePage() {
         <section className="py-12 border-t border-white/5">
           <Container>
             <div className="mx-auto max-w-5xl">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como funciona (passo a passo)</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como vira dinheiro (passo a passo)</div>
               <div className="mt-5 grid gap-4 md:grid-cols-4">
                 {[
-                  { t: "1) Você abre", d: "Sem login. Comece agora." },
-                  { t: "2) Você escolhe um sinal", d: "Um tema com intenção real." },
-                  { t: "3) Você gera o playbook", d: "Hipótese + experimento + métrica." },
-                  { t: "4) Você executa em 7 dias", d: "Decide com dados: continuar, ajustar ou parar." },
+                  { t: "1) Você abre", d: "Sem login. Zero bloqueio." },
+                  { t: "2) Você escolhe o sinal", d: "Intenção + orçamento." },
+                  { t: "3) Você gera o playbook", d: "Plano curto e métrica dura." },
+                  { t: "4) Você executa em 7 dias", d: "Decisão fria: continua ou mata." },
                 ].map((s) => (
                   <Card key={s.t} className="p-5">
                     <div className="text-sm font-semibold text-zinc-100">{s.t}</div>
@@ -98,18 +98,18 @@ export default function HomePage() {
               </div>
 
               <Card className="mt-8 p-6">
-                <div className="text-sm font-semibold text-emerald-100">Explicação por nível (clareza progressiva)</div>
+                <div className="text-sm font-semibold text-emerald-100">Explicação rápida por nível</div>
                 <div className="mt-4 grid gap-4">
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Leigo</div>
                     <div className="mt-2 text-sm text-zinc-200">
-                      Você escolhe um assunto, o sistema te ajuda a entender se aquilo parece dar dinheiro e te dá um plano simples para testar.
+                      Você escolhe um assunto, o sistema mostra se tem comprador e te dá um plano simples para testar.
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Intermediário</div>
                     <div className="mt-2 text-sm text-zinc-200">
-                      Você pega sinais públicos, transforma em tese e roda um experimento curto (7 dias) com métrica clara para decidir.
+                      Você pega sinais públicos, transforma em tese e roda experimento curto (7 dias) com métrica clara.
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-300">
@@ -131,29 +131,29 @@ export default function HomePage() {
         <section className="py-12 border-t border-white/5">
           <Container>
             <div className="mx-auto max-w-5xl">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como adquirir (externo)</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Monetização (fora do app)</div>
               <div className="mt-4 grid gap-6 md:grid-cols-2">
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Você usa tudo sem comprar</div>
+                  <div className="text-sm font-semibold text-emerald-100">Uso livre. Receita vem de fora.</div>
                   <p className="mt-2 text-sm text-zinc-300">
-                    A compra não muda o acesso. O software <strong>não tem bloqueio</strong>. Se você quiser, compra suporte/licença fora do sistema.
+                    A compra não muda o acesso. O software <strong>não tem bloqueio</strong>. Receita entra via suporte, licença ou parceria externa.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
-                    <Button href="/app">Usar agora</Button>
+                    <Button href="/app">Operar agora</Button>
                     <Button href="/acquire" variant="ghost">
-                      Ver opções externas
+                      Ver licença/parceria
                     </Button>
                   </div>
                 </Card>
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">O que você pode comprar fora</div>
+                  <div className="text-sm font-semibold text-emerald-100">O que vira dinheiro</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- **Suporte**: instalação, configuração e troubleshooting.</li>
-                    <li>- **Licença comercial**: uso corporativo, termos e documentação.</li>
-                    <li>- **Serviços**: customizações, integrações e treinamento.</li>
+                    <li>- **Suporte**: implantação e operação para clientes.</li>
+                    <li>- **Licença comercial**: empresas pagam para usar.</li>
+                    <li>- **Parceria/royalties**: percentual por cliente ativo.</li>
                   </ul>
                   <div className="mt-4 text-xs text-zinc-400">
-                    Sem pressão. Sem urgência falsa. Você decide se faz sentido.
+                    Sem promessas vazias. Só execução e resultado.
                   </div>
                 </Card>
               </div>

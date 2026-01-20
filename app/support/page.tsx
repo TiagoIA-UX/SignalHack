@@ -41,7 +41,7 @@ export default function SupportPage() {
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Apoio financeiro (externo)</div>
                   <p className="mt-2 text-sm text-zinc-200">
                     Se você quiser apoiar, use um link externo (Hotmart / Gumroad / Stripe Link / Mercado Livre) — o software continua
-                    liberado do mesmo jeito.
+                    liberado do mesmo jeito. Se quiser parceria/royalties, fale conosco.
                   </p>
                   <ul className="mt-4 space-y-2 text-sm text-zinc-200">
                     <li>• PIX: {pixKey ? <strong>{pixKey}</strong> : "Disponível mediante contato"}.</li>

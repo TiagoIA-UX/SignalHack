@@ -18,13 +18,13 @@ export function AppHeader() {
               App
             </Link>
             <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/acquire">
-              Adquirir suporte/licença
+              Licença/Parceria
             </Link>
             <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/support">
               Apoio
             </Link>
             <Button href="/app" variant="ghost">
-              Abrir agora
+              Operar agora
             </Button>
           </nav>
         </div>

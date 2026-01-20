@@ -41,7 +41,7 @@ export default function AcquirePage() {
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-zinc-300">
                   <strong>Importante:</strong> comprar não “libera acesso” — porque o acesso já é liberado.
                   <br />
-                  A compra é para <strong>suporte</strong>, <strong>licença</strong> e/ou <strong>serviços</strong> externos.
+                  A compra é para <strong>suporte</strong>, <strong>licença</strong> e/ou <strong>serviços</strong> externos (inclui parceria/royalties).
                 </div>
 
                 {links.length > 0 ? (
@@ -82,6 +82,7 @@ export default function AcquirePage() {
                         <li>Treinamento de uso (operacional)</li>
                         <li>Customização de copy e módulos</li>
                         <li>Integrações (se você quiser)</li>
+                        <li>Parceria com royalties por cliente ativo</li>
                       </ul>
                     </div>
                   </details>

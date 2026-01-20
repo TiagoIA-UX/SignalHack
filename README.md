@@ -42,6 +42,12 @@ O produto foi desenhado para abrir sempre:
 - sem sessão/cookies de autenticação
 - sem banco obrigatório (tudo funciona com estado local + LocalStorage)
 
+## Como monetizar (realista, sem grana)
+
+- **Licença comercial**: empresas pagam para uso contínuo.
+- **Parceria com royalties**: você entrega o sistema para um parceiro (agência/consultoria) e recebe % por cliente ativo.
+- **Serviços externos**: implantação, operação e treinamento (fora do app).
+
 ## Demanda (números do projeto)
 
 > **Preencha com dados reais da sua operação** (não invente números no repositório).

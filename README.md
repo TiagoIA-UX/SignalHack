@@ -70,6 +70,7 @@ O produto foi desenhado para abrir sempre:
 
 - **Patrocínio (investimento/apoio)**: veja `SPONSORSHIP.md`
 - **Parceria com devs (plugins/módulos/integrações)**: veja `PARTNERSHIPS.md`
+- **Parceria com royalties (vendas rápidas)**: veja `PARTNERSHIP_ROYALTIES.md`
 
 ## Contribuindo
 

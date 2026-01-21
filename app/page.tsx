@@ -113,6 +113,36 @@ export default function HomePage() {
           </Container>
         </section>
 
+        {/* ORQUESTRAÇÃO DE AGENTES */}
+        <section id="agentes" className="py-10 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-5xl space-y-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Orquestração de agentes de IA</div>
+              <div className="grid gap-4 md:grid-cols-4">
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Scout</div>
+                  <div className="mt-2 text-sm text-zinc-300">Captura o sinal e registra o contexto.</div>
+                </Card>
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Decoder</div>
+                  <div className="mt-2 text-sm text-zinc-300">Traduz o sinal em leitura direta.</div>
+                </Card>
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Noise Killer</div>
+                  <div className="mt-2 text-sm text-zinc-300">Corta ruído e força objetividade.</div>
+                </Card>
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Strategist</div>
+                  <div className="mt-2 text-sm text-zinc-300">Define métrica e próxima ação.</div>
+                </Card>
+              </div>
+              <div className="text-sm text-zinc-400">
+                Você não “conversa com bot”. Você segue um fluxo guiado e sai com decisão.
+              </div>
+            </div>
+          </Container>
+        </section>
+
         {/* PARA QUEM É / PARA QUEM NÃO É */}
         <section id="para-quem-e" className="py-10 border-t border-white/5">
           <Container>

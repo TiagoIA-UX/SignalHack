@@ -345,6 +345,12 @@ export default function AppPage() {
                     <div className="mt-1 text-sm text-zinc-300">
                       Sem login. Três passos. Resultado: potencial + métrica + decisão.
                     </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <Badge>Scout</Badge>
+                      <Badge>Decoder</Badge>
+                      <Badge>Noise Killer</Badge>
+                      <Badge>Strategist</Badge>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" onClick={() => (resetWizard(), setWizardOpen(false))}>
@@ -356,15 +362,15 @@ export default function AppPage() {
                 <div className="mt-6 grid gap-3 md:grid-cols-3">
                   <div className={`rounded-2xl border px-4 py-3 ${wizardStep === 1 ? "border-emerald-500/35 bg-emerald-500/10" : "border-white/10 bg-black/30"}`}>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Passo 1</div>
-                    <div className="mt-1 text-sm font-semibold text-zinc-100">Sinal</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-100">Sinal (Scout)</div>
                   </div>
                   <div className={`rounded-2xl border px-4 py-3 ${wizardStep === 2 ? "border-emerald-500/35 bg-emerald-500/10" : "border-white/10 bg-black/30"}`}>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Passo 2</div>
-                    <div className="mt-1 text-sm font-semibold text-zinc-100">Potencial</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-100">Potencial (Decoder + Noise Killer)</div>
                   </div>
                   <div className={`rounded-2xl border px-4 py-3 ${wizardStep === 3 ? "border-emerald-500/35 bg-emerald-500/10" : "border-white/10 bg-black/30"}`}>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Passo 3</div>
-                    <div className="mt-1 text-sm font-semibold text-zinc-100">Métrica</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-100">Métrica (Strategist)</div>
                   </div>
                 </div>
 
@@ -551,6 +557,7 @@ export default function AppPage() {
                       <Badge>Sem login</Badge>
                       <Badge>Uso imediato</Badge>
                       <Badge>Critério claro</Badge>
+                      <Badge>Orquestração de agentes de IA</Badge>
                     </div>
 
                     <h2 className="mt-4 text-xl font-semibold text-emerald-100">{selected.title}</h2>

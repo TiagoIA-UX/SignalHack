@@ -16,10 +16,10 @@ export default function HomePage() {
                 <Badge>Sistema de decisão</Badge>
               </div>
               <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Transforme sinais reais em resultado em 7 dias.
+                Transforme sinais reais de mercado em decisões de dinheiro em 7 dias
               </h1>
               <p className="text-zinc-300 max-w-2xl">
-                Sem teoria. Sem achismo. Você avalia o potencial, define a métrica e decide.
+                Sem achismo. Sem ideias soltas. Um fluxo simples para saber se algo tem potencial real ou não.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -30,16 +30,16 @@ export default function HomePage() {
               <Card className="p-6">
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Você ganha</div>
-                    <div className="mt-2 text-sm text-zinc-200">Decisão rápida com critério (sem debate infinito).</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Ganho</div>
+                    <div className="mt-2 text-sm text-zinc-200">Clareza + critério + próxima ação.</div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Você evita</div>
-                    <div className="mt-2 text-sm text-zinc-200">Semanas perdidas em ideia fraca e hype.</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Perda evitada</div>
+                    <div className="mt-2 text-sm text-zinc-200">Tempo, energia e dinheiro desperdiçados.</div>
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Regra</div>
-                    <div className="mt-2 text-sm text-zinc-200">Métrica mexeu = continua. Não mexeu = descarta.</div>
+                    <div className="mt-2 text-sm text-zinc-200">Métrica mexeu: dobra/ajusta. Não mexeu: mata.</div>
                   </div>
                 </div>
               </Card>
@@ -54,22 +54,26 @@ export default function HomePage() {
               <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">O que você recebe em 7 dias</div>
               <div className="grid gap-4 md:grid-cols-2">
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Pacote de decisão</div>
+                  <div className="text-sm font-semibold text-emerald-100">Entrega objetiva</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- Sinais registrados (com contexto e fonte).</li>
-                    <li>- Potencial definido (comprador, urgência, orçamento).</li>
-                    <li>- Métrica definida.</li>
-                    <li>- Decisão registrada: continuar / ajustar / descartar.</li>
+                    <li>- Um sinal claro e documentado.</li>
+                    <li>- Avaliação objetiva de potencial.</li>
+                    <li>- Um critério mensurável de validação.</li>
+                    <li>- Uma decisão consciente.</li>
+                    <li>- Um próximo passo executável.</li>
                   </ul>
+                  <div className="mt-4 text-sm text-zinc-300">
+                    Sem promessas mágicas. Apenas clareza.
+                  </div>
                 </Card>
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Redução de risco</div>
-                  <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- Menos semanas perdidas em ideia fraca.</li>
-                    <li>- Menos decisão por opinião.</li>
-                    <li>- Menos “vamos ver semana que vem”.</li>
-                    <li>- Mais critério por métrica.</li>
-                  </ul>
+                  <div className="text-sm font-semibold text-emerald-100">O que o SignalHack é</div>
+                  <p className="mt-3 text-sm text-zinc-300">
+                    Um sistema de decisão. Ele transforma sinais públicos de mercado em clareza, critério e próxima ação.
+                  </p>
+                  <p className="mt-3 text-sm text-zinc-300">
+                    Ou vira potencial real de dinheiro, ou vira aprendizado rápido. Nada fica no meio do caminho.
+                  </p>
                 </Card>
               </div>
             </div>
@@ -84,15 +88,21 @@ export default function HomePage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <Card className="p-6">
                   <div className="text-sm font-semibold text-zinc-100">1) Sinal</div>
-                  <div className="mt-2 text-sm text-zinc-300">Você registra algo observável (mercado, vaga, dor, comportamento).</div>
+                  <div className="mt-2 text-sm text-zinc-300">
+                    Você parte de algo real: buscas, vagas, dores repetidas, comportamentos públicos.
+                  </div>
                 </Card>
                 <Card className="p-6">
                   <div className="text-sm font-semibold text-zinc-100">2) Potencial</div>
-                  <div className="mt-2 text-sm text-zinc-300">Você responde: existe comprador, urgência e orçamento?</div>
+                  <div className="mt-2 text-sm text-zinc-300">
+                    Você avalia se existe comprador real, urgência e possibilidade de pagamento.
+                  </div>
                 </Card>
                 <Card className="p-6">
                   <div className="text-sm font-semibold text-zinc-100">3) Métrica</div>
-                  <div className="mt-2 text-sm text-zinc-300">Você define o que valida ou invalida em 7 dias. E decide.</div>
+                  <div className="mt-2 text-sm text-zinc-300">
+                    Você define o que prova ou mata em 7 dias (respostas, leads, conversas, receita).
+                  </div>
                 </Card>
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
@@ -110,19 +120,21 @@ export default function HomePage() {
               <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Para quem é</div>
               <div className="grid gap-4 md:grid-cols-2">
                 <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Ideal</div>
+                  <div className="text-sm font-semibold text-emerald-100">Para quem é</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- Operador B2B impaciente com ruído.</li>
-                    <li>- Founder/Growth/RevOps/SDR com meta real.</li>
-                    <li>- Quem decide por métrica e executa teste curto.</li>
+                    <li>- Founders.</li>
+                    <li>- Operadores de Growth, Marketing, RevOps.</li>
+                    <li>- Pessoas que querem decidir rápido.</li>
+                    <li>- Quem prefere evidência a opinião.</li>
                   </ul>
                 </Card>
                 <Card className="p-6">
                   <div className="text-sm font-semibold text-emerald-100">Não é</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- Quem quer “inspiração” em vez de experimento.</li>
-                    <li>- Quem busca promessa de milagre.</li>
-                    <li>- Quem não vai medir nada.</li>
+                    <li>- Quem quer “a ideia perfeita”.</li>
+                    <li>- Quem não executa.</li>
+                    <li>- Quem busca garantia sem teste.</li>
+                    <li>- Quem gosta de teoria sem prática.</li>
                   </ul>
                 </Card>
               </div>
@@ -135,9 +147,9 @@ export default function HomePage() {
           <Container>
             <div className="mx-auto max-w-5xl">
               <Card className="p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Próximo passo</div>
-                <div className="mt-2 text-xl font-semibold text-zinc-100">Avalie 1 sinal agora. Em 60 segundos você entende o potencial.</div>
-                <div className="mt-2 text-sm text-zinc-300">Depois você decide em 7 dias com métrica. Sem fricção.</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">CTA</div>
+                <div className="mt-2 text-2xl font-semibold text-zinc-100">Pare de acumular ideias. Comece a tomar decisões.</div>
+                <div className="mt-2 text-sm text-zinc-300">Sem login. Direto para o fluxo guiado.</div>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Button href="/app?wizard=1">Avaliar potencial agora</Button>
                   <Button href="/app" variant="ghost">Entrar</Button>

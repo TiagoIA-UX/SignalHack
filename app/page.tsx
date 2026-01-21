@@ -162,6 +162,14 @@ export default function HomePage() {
             </div>
           </Container>
         </section>
+
+        {/* PARA QUEM É / PARA QUEM NÃO É */}
+        <section id="para-quem-e" className="py-10 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-5xl space-y-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Para quem é</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="p-6">
                   <div className="text-sm font-semibold text-emerald-100">Ideal</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
                     <li>- Founder.</li>

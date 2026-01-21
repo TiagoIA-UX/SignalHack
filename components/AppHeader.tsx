@@ -14,26 +14,23 @@ export function AppHeader() {
             SIGNALHACK
           </Link>
           <nav className="flex items-center gap-4">
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#visao-geral">
-              Visão Geral
+            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#promessa">
+              Promessa
             </Link>
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#como-funciona">
-              Como Funciona
+            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#metodo">
+              Método
             </Link>
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#nichos">
-              Nichos de Uso
+            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#entrega">
+              Entrega
             </Link>
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#agentes">
-              Agentes
+            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#para-quem">
+              Para quem
             </Link>
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#funcionalidades">
-              Funcionalidades
+            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#nao-e">
+              Não é
             </Link>
             <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#comecar">
-              Começar Agora
-            </Link>
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#ajuda">
-              Ajuda
+              Começar
             </Link>
             <Button href="/app" variant="ghost">
               Abrir painel

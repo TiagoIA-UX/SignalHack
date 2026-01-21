@@ -250,10 +250,10 @@ export default function AppPage() {
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">painel interno • sinais ativos • decisão assistida</div>
-                <h1 className="mt-2 text-2xl font-semibold tracking-tight">Operação: sinal → decisão → ação</h1>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">sinal → tese → experimento → métrica → decisão</div>
+                <h1 className="mt-2 text-2xl font-semibold tracking-tight">Painel de decisão em 7 dias</h1>
                 <p className="mt-2 text-sm text-zinc-300">
-                  Sem login, sem cadastro, sem bloqueio. Você entra e usa.
+                  Registre um sinal real, crie uma tese simples e execute um experimento curto. Se não moveu a métrica, descarte.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -269,8 +269,8 @@ export default function AppPage() {
 
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               <Card className="p-6 lg:col-span-1">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">1) Scout (radar de sinais)</div>
-                <p className="mt-2 text-sm text-zinc-300">Capture sinais reais. Evite ruído.</p>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">1) Scout (sinais)</div>
+                <p className="mt-2 text-sm text-zinc-300">Registre o que você viu. Evite opinião solta.</p>
 
                 <div className="mt-5 space-y-2">
                   <label className="text-xs text-zinc-400">Título</label>
@@ -345,9 +345,9 @@ export default function AppPage() {
                 ) : (
                   <>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <Badge>Rede de agentes (metáfora)</Badge>
-                      <Badge>Decisão assistida</Badge>
+                      <Badge>Sem login</Badge>
                       <Badge>Uso imediato</Badge>
+                      <Badge>Critério claro</Badge>
                     </div>
 
                     <h2 className="mt-4 text-xl font-semibold text-emerald-100">{selected.title}</h2>
@@ -366,7 +366,7 @@ export default function AppPage() {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Playbook (7 dias)</div>
-                          <div className="mt-1 text-sm text-zinc-300">Registro operacional mínimo.</div>
+                          <div className="mt-1 text-sm text-zinc-300">Tese, experimento e métrica em uma tela.</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" onClick={loadDefaultPlaybook}>

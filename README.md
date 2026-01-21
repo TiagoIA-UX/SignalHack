@@ -11,6 +11,15 @@
 - **Releases (GitHub)**: `https://github.com/TiagoIA-UX/SignalHack/releases`
 - **Changelog**: veja `CHANGELOG.md`
 
+Criar uma release:
+
+```bash
+git tag v1.0.0
+git push --tags
+```
+
+Se preferir, você também pode rodar o workflow **Release** manualmente no GitHub Actions (ele pede a tag).
+
 ## O que o produto faz (em 1 minuto)
 
 - **Detecta sinais**: buscas, hiring, comunidades, mudanças de stack, movimentos de mercado.

@@ -14,34 +14,32 @@ export default function SupportPage() {
   return (
     <div className="min-h-screen">
       <AppHeader />
-      <main className="py-10">
+      <main className="pt-24 pb-10">
         <Container>
           <div className="mx-auto max-w-3xl">
             <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">apoio ao projeto</div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Apoie o Projeto</h1>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Suporte e contato</h1>
 
             <Card className="mt-6 p-6">
               <div className="space-y-4 text-sm text-zinc-200">
                 <p>
-                  ZAIRIX é uma plataforma independente, construída com foco em clareza, controle e responsabilidade. Para
-                  manter a infraestrutura, evolução contínua e acesso público, disponibilizamos formas transparentes de apoio.
+                  SIGNALHACK é um painel interno com acesso por nível. Suporte cobre implantação, evolução e operação assistida.
                 </p>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como o apoio ajuda</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">O que o suporte cobre</div>
                   <ul className="mt-2 space-y-2">
                     <li>• Infraestrutura: hospedagem, domínio e custos operacionais.</li>
                     <li>• Segurança e monitoramento: rotinas e boas práticas.</li>
                     <li>• Evolução: melhorias, manutenção e testes.</li>
-                    <li>• Apoio é sempre voluntário e nunca condiciona recursos ou privilégios.</li>
+                    <li>• Suporte não substitui o acesso por nível.</li>
                   </ul>
                 </div>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Apoio financeiro (externo)</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Canais externos</div>
                   <p className="mt-2 text-sm text-zinc-200">
-                    Se você quiser apoiar, use um link externo (Hotmart / Gumroad / Stripe Link / Mercado Livre) — o software continua
-                    liberado do mesmo jeito. Se quiser parceria/royalties, fale conosco.
+                    Pagamentos externos podem habilitar níveis de acesso ou suporte. Se quiser parceria/royalties, fale conosco.
                   </p>
                   <ul className="mt-4 space-y-2 text-sm text-zinc-200">
                     <li>• PIX: {pixKey ? <strong>{pixKey}</strong> : "Disponível mediante contato"}.</li>
@@ -77,8 +75,7 @@ export default function SupportPage() {
                 ) : null}
 
                 <div className="mt-4 rounded-2xl border border-white/10 bg-black/40 p-4 text-sm text-zinc-400">
-                  <strong>Importante:</strong> o uso do software não depende de contribuição financeira. Apoios são
-                  voluntários e transparentes.
+                  <strong>Importante:</strong> acesso é sempre validado por código e nível.
                 </div>
 
                 <div className="text-xs text-zinc-500">Agradecemos seu interesse em manter este projeto ativo.</div>

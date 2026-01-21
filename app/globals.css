@@ -2,12 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-
 html {
   font-size: 18px;
   font-family: var(--font-geist-sans), Inter, sans-serif;

@@ -26,22 +26,19 @@ export default function AcquirePage() {
   return (
     <div className="min-h-screen">
       <AppHeader />
-      <main className="py-10">
+      <main className="pt-24 pb-10">
         <Container>
           <div className="mx-auto max-w-3xl">
-            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">aquisição externa (opcional)</div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Suporte e licença (fora do software)</h1>
+            <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">aquisição externa</div>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Acesso por nível</h1>
             <p className="mt-3 text-sm text-zinc-300">
-              Este software é <strong>100% liberado</strong> e não bloqueia nada. Se você quiser suporte, licença comercial,
-              implantação ou parceria, você compra fora (Hotmart / Mercado Livre / Gumroad / Stripe Link / checkout próprio).
+              O acesso é liberado por código. Pagamento externo valida o nível (Observer / Operator / Strategist) e ativa o painel.
             </p>
 
             <Card className="mt-6 p-6">
               <div className="space-y-4 text-sm text-zinc-200">
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-zinc-300">
-                  <strong>Importante:</strong> comprar não “libera acesso” — porque o acesso já é liberado.
-                  <br />
-                  A compra é para <strong>suporte</strong>, <strong>licença</strong> e/ou <strong>serviços</strong> externos (inclui parceria/royalties).
+                  <strong>Fluxo:</strong> pagamento externo → código de acesso → ativação no painel.
                 </div>
 
                 {links.length > 0 ? (
@@ -62,7 +59,7 @@ export default function AcquirePage() {
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-300">
-                    Nenhum link externo foi configurado ainda. Mesmo assim, você pode usar o app normalmente.
+                    Nenhum link externo foi configurado ainda.
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button href="/app">Abrir o app</Button>
                       <Button href="/support" variant="ghost">
@@ -74,15 +71,15 @@ export default function AcquirePage() {
 
                 <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-400">
                   <details>
-                    <summary className="cursor-pointer text-zinc-200 font-semibold">O que entra em “suporte/licença”?</summary>
+                    <summary className="cursor-pointer text-zinc-200 font-semibold">O que entra no acesso?</summary>
                     <div className="mt-3 space-y-2 text-sm text-zinc-300">
-                      <p>Você escolhe o nível de ajuda fora do sistema (sem travas internas).</p>
+                      <p>Você escolhe o nível e o formato de ajuda.</p>
                       <ul className="list-disc pl-5 space-y-1">
-                        <li>Instalação em VPS/KVM e hardening</li>
-                        <li>Treinamento de uso (operacional)</li>
-                        <li>Customização de copy e módulos</li>
-                        <li>Integrações (se você quiser)</li>
-                        <li>Parceria com royalties por cliente ativo</li>
+                        <li>Código de acesso por nível</li>
+                        <li>Implantação e operação assistida</li>
+                        <li>Customização de módulos</li>
+                        <li>Integrações sob demanda</li>
+                        <li>Parceria com royalties</li>
                       </ul>
                     </div>
                   </details>

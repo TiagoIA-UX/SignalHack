@@ -23,6 +23,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_ACQUIRE_GUMROAD_URL: z.string().url().optional(),
   NEXT_PUBLIC_ACQUIRE_STRIPE_LINK_URL: z.string().url().optional(),
   NEXT_PUBLIC_ACQUIRE_CHECKOUT_URL: z.string().url().optional(),
+
 });
 
 export function getPixKey(): string | undefined {
@@ -32,17 +33,7 @@ export function getPixKey(): string | undefined {
 export type Env = z.infer<typeof envSchema>;
 
 export function getEnv(): Env {
-  // Normalize environment values to avoid invalid data caused by accidental
-  // trailing CR/LF or literal `\r`/`\n` sequences introduced via UI/CLI.
-  const raw: Record<string, unknown> = { ...process.env };
-  for (const key of Object.keys(raw)) {
-    const v = raw[key];
-    if (typeof v === "string") {
-      raw[key] = v.replace(/\\r/g, "").replace(/\\n/g, "").replace(/\r/g, "").replace(/\n/g, "").trim();
-    }
-  }
-
-  const parsed = envSchema.safeParse(raw);
+  const parsed = envSchema.safeParse(process.env);
   // Nunca derrube o app por env inválido/ausente: modo FULL precisa abrir sempre.
   return parsed.success ? parsed.data : ({} as Env);
 }

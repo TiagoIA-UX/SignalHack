@@ -5,158 +5,240 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <AppHeader />
-      <main>
-        <section className="py-14">
+      <main className="pt-24 pb-16">
+        <section id="visao-geral" className="py-10">
           <Container>
-            <div className="mx-auto max-w-5xl">
+            <div className="mx-auto max-w-5xl space-y-5">
               <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
-                <span className="uppercase tracking-[0.2em]">demanda pagante • compradores reais • uso imediato</span>
+                <span className="uppercase tracking-[0.2em]">sem login • sem cadastro • uso imediato</span>
                 <span className="text-zinc-600">•</span>
-                <Badge>Orquestração de agentes de IA</Badge>
+                <Badge>Documentação viva na interface</Badge>
               </div>
-
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-                Descubra o que vende de verdade — antes de gastar tempo e dinheiro.
-              </h1>
-              <p className="mt-4 text-zinc-300">
-                ZAIRIX é um sistema de agentes (Radar → Validador → Estrategista → Operador) que corta o “achismo” e te coloca direto na
-                decisão: demanda → tese → experimento → receita.
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">SIGNALHACK é um sistema de trabalho, não um SaaS.</h1>
+              <p className="text-zinc-300">
+                Ele organiza sinais, reduz ruído e ajuda você a decidir o próximo passo sem depender de ninguém.
+                Tudo é explicado dentro do próprio sistema.
               </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button href="/app">Operar agora</Button>
-                <Button href="/acquire" variant="ghost">
-                  Licença/Parceria (opcional)
-                </Button>
-              </div>
-
-              <Card className="mt-10 p-6">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Sem desculpa para travar</div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-200">
-                    <strong>Você usa sem pedir permissão.</strong>
-                    <div className="mt-2 text-zinc-300">Sem login, sem bloqueio, sem desculpa técnica.</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-200">
-                    <strong>Você testa receita em 7 dias.</strong>
-                    <div className="mt-2 text-zinc-300">Hipótese, experimento e métrica claros.</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-200">
-                    <strong>Você controla o risco.</strong>
-                    <div className="mt-2 text-zinc-300">Dados locais no navegador, offline quando possível.</div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </Container>
-        </section>
-
-        <section className="py-12 border-t border-white/5">
-          <Container>
-            <div className="mx-auto max-w-5xl">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Foco em compradores</div>
-              <div className="mt-5 grid gap-6 md:grid-cols-2">
-                <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">O que o software entrega</div>
-                  <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- **Radar**: sinais com intenção + orçamento (dor real).</li>
-                    <li>- **Validador**: leitura direta do “por que comprariam”.</li>
-                    <li>- **Estrategista**: playbook curto com foco em receita.</li>
-                    <li>- **Operador**: execução e decisão objetiva em 7 dias.</li>
-                  </ul>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Card className="p-4">
+                  <div className="text-sm font-semibold text-zinc-100">O que é</div>
+                  <div className="mt-2 text-sm text-zinc-300">Um painel simples para registrar sinais, entender e agir.</div>
                 </Card>
-                <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Para quem tem orçamento</div>
-                  <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- **Founder / Solopreneur**: parar de apostar e vender.</li>
-                    <li>- **Growth / Performance**: cortar ruído e priorizar ROI.</li>
-                    <li>- **SDR / RevOps**: atacar alvo com motivo real.</li>
-                    <li>- **Agência / Consultoria**: empacotar oferta que fecha.</li>
-                  </ul>
+                <Card className="p-4">
+                  <div className="text-sm font-semibold text-zinc-100">Para quem serve</div>
+                  <div className="mt-2 text-sm text-zinc-300">Quem precisa decidir rápido com pouca informação.</div>
+                </Card>
+                <Card className="p-4">
+                  <div className="text-sm font-semibold text-zinc-100">O que resolve</div>
+                  <div className="mt-2 text-sm text-zinc-300">Dúvida, dispersão e ações sem direção.</div>
                 </Card>
               </div>
             </div>
           </Container>
         </section>
 
-        <section className="py-12 border-t border-white/5">
+        <section id="como-funciona" className="py-10 border-t border-white/5">
           <Container>
             <div className="mx-auto max-w-5xl">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como vira dinheiro (passo a passo)</div>
-              <div className="mt-5 grid gap-4 md:grid-cols-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Como funciona (passo a passo)</div>
+              <div className="mt-5 grid gap-4 md:grid-cols-5">
                 {[
-                  { t: "1) Você abre", d: "Sem login. Zero bloqueio." },
-                  { t: "2) Você escolhe o sinal", d: "Intenção + orçamento." },
-                  { t: "3) Você gera o playbook", d: "Plano curto e métrica dura." },
-                  { t: "4) Você executa em 7 dias", d: "Decisão fria: continua ou mata." },
+                  { t: "1) Acessa o sistema", d: "Sem login ou cadastro." },
+                  { t: "2) Escolhe um nicho", d: "Negócio, conteúdo, estudo, etc." },
+                  { t: "3) Escolhe uma função", d: "Registrar sinal, analisar, planejar." },
+                  { t: "4) Usa imediatamente", d: "Tudo está liberado." },
+                  { t: "5) Obtém resultado", d: "Decisão clara e ação definida." },
                 ].map((s) => (
-                  <Card key={s.t} className="p-5">
+                  <Card key={s.t} className="p-4">
                     <div className="text-sm font-semibold text-zinc-100">{s.t}</div>
                     <div className="mt-2 text-sm text-zinc-300">{s.d}</div>
                   </Card>
                 ))}
               </div>
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-300">
+                Reforço: <strong>não existe login</strong>, <strong>não existe cadastro</strong>, <strong>não existe bloqueio</strong>.
+              </div>
+            </div>
+          </Container>
+        </section>
 
-              <Card className="mt-8 p-6">
-                <div className="text-sm font-semibold text-emerald-100">Explicação rápida por nível</div>
-                <div className="mt-4 grid gap-4">
-                  <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Leigo</div>
-                    <div className="mt-2 text-sm text-zinc-200">
-                      Você escolhe um assunto, o sistema mostra se tem comprador e te dá um plano simples para testar.
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Intermediário</div>
-                    <div className="mt-2 text-sm text-zinc-200">
-                      Você pega sinais públicos, transforma em tese e roda experimento curto (7 dias) com métrica clara.
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-300">
-                    <details>
-                      <summary className="cursor-pointer text-zinc-200 font-semibold">Técnico (opcional)</summary>
-                      <div className="mt-3 space-y-2 text-sm">
-                        <p>App Next.js (App Router) com estado local e persistência via LocalStorage.</p>
-                        <p>Sem dependência de sessão, cookies, tokens, roles ou banco para abrir.</p>
-                        <p>Quando possível, funciona offline (PWA).</p>
-                      </div>
-                    </details>
-                  </div>
+        <section id="nichos" className="py-10 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-5xl space-y-6">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Nichos de uso</div>
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">🔹 NICHO: NEGÓCIOS / EMPREENDEDORES</div>
+                <div className="mt-2 text-sm text-zinc-300">Precisa decidir onde investir tempo e dinheiro.</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Registrar sinais de demanda real.</li>
+                  <li>- Analisar o porquê agora.</li>
+                  <li>- Criar um plano de 7 dias com métrica.</li>
+                  <li>- Agente relacionado: <strong>Strategist</strong> (define a próxima ação).</li>
+                </ul>
+                <div className="mt-4">
+                  <Button href="/app">Usar agora</Button>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">🔹 NICHO: CRIADORES DE CONTEÚDO</div>
+                <div className="mt-2 text-sm text-zinc-300">Precisa escolher tema com interesse real.</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Registrar sinais de audiência.</li>
+                  <li>- Transformar sinal em decisão de pauta.</li>
+                  <li>- Definir experimento de 7 dias.</li>
+                  <li>- Agente relacionado: <strong>Scout</strong> (encontra sinais).</li>
+                </ul>
+                <div className="mt-4">
+                  <Button href="/app">Abrir ferramenta</Button>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">🔹 NICHO: EDUCAÇÃO / ESTUDO</div>
+                <div className="mt-2 text-sm text-zinc-300">Precisa organizar estudo e avaliar progresso.</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Registrar temas e sinais de dificuldade.</li>
+                  <li>- Analisar onde focar.</li>
+                  <li>- Criar plano curto com meta.</li>
+                  <li>- Agente relacionado: <strong>Decoder</strong> (interpreta o que o sinal significa).</li>
+                </ul>
+                <div className="mt-4">
+                  <Button href="/app">Começar</Button>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">🔹 NICHO: MARKETING / COMUNICAÇÃO</div>
+                <div className="mt-2 text-sm text-zinc-300">Precisa priorizar o que comunicar agora.</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Registrar sinais de mercado.</li>
+                  <li>- Entender intenção e urgência.</li>
+                  <li>- Definir mensagem e canal.</li>
+                  <li>- Agente relacionado: <strong>Noise Killer</strong> (remove o que não importa).</li>
+                </ul>
+                <div className="mt-4">
+                  <Button href="/app">Usar função</Button>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">🔹 NICHO: USO GERAL / PESSOAL</div>
+                <div className="mt-2 text-sm text-zinc-300">Precisa clareza em decisões do dia a dia.</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Registrar sinais simples.</li>
+                  <li>- Analisar e decidir sem complicar.</li>
+                  <li>- Definir uma ação objetiva.</li>
+                  <li>- Agente relacionado: <strong>Strategist</strong> (decisão prática).</li>
+                </ul>
+                <div className="mt-4">
+                  <Button href="/app">Executar</Button>
                 </div>
               </Card>
             </div>
           </Container>
         </section>
 
-        <section className="py-12 border-t border-white/5">
+        <section id="agentes" className="py-10 border-t border-white/5">
           <Container>
-            <div className="mx-auto max-w-5xl">
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Monetização (fora do app)</div>
-              <div className="mt-4 grid gap-6 md:grid-cols-2">
-                <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">Uso livre. Receita vem de fora.</div>
-                  <p className="mt-2 text-sm text-zinc-300">
-                    A compra não muda o acesso. O software <strong>não tem bloqueio</strong>. Receita entra via suporte, licença ou parceria externa.
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <Button href="/app">Operar agora</Button>
-                    <Button href="/acquire" variant="ghost">
-                      Ver licença/parceria
-                    </Button>
-                  </div>
+            <div className="mx-auto max-w-5xl space-y-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Agentes (explicados como pessoas)</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Scout</div>
+                  <div className="mt-2 text-sm text-zinc-300">Observa sinais e traz o que parece relevante.</div>
+                  <div className="mt-2 text-xs text-zinc-400">Use quando você precisa encontrar “o que está acontecendo”.</div>
                 </Card>
-                <Card className="p-6">
-                  <div className="text-sm font-semibold text-emerald-100">O que vira dinheiro</div>
-                  <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>- **Suporte**: implantação e operação para clientes.</li>
-                    <li>- **Licença comercial**: empresas pagam para usar.</li>
-                    <li>- **Parceria/royalties**: percentual por cliente ativo.</li>
-                  </ul>
-                  <div className="mt-4 text-xs text-zinc-400">
-                    Sem promessas vazias. Só execução e resultado.
-                  </div>
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Decoder</div>
+                  <div className="mt-2 text-sm text-zinc-300">Traduz o sinal em significado simples.</div>
+                  <div className="mt-2 text-xs text-zinc-400">Use quando você precisa entender o “por quê”.</div>
+                </Card>
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Noise Killer</div>
+                  <div className="mt-2 text-sm text-zinc-300">Remove o que distrai e mantém o essencial.</div>
+                  <div className="mt-2 text-xs text-zinc-400">Use quando há informação demais.</div>
+                </Card>
+                <Card className="p-5">
+                  <div className="text-sm font-semibold text-emerald-100">Strategist</div>
+                  <div className="mt-2 text-sm text-zinc-300">Transforma o sinal em um próximo passo claro.</div>
+                  <div className="mt-2 text-xs text-zinc-400">Use quando você precisa decidir e agir.</div>
                 </Card>
               </div>
+            </div>
+          </Container>
+        </section>
+
+        <section id="funcionalidades" className="py-10 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-5xl space-y-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Funcionalidades</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { t: "Registrar sinal", d: "Anote algo que você observou no mercado ou no cotidiano.", w: "Quando surge uma dúvida real." },
+                  { t: "Analisar sinal", d: "Veja contexto, risco e oportunidade em linguagem simples.", w: "Quando precisa entender o que fazer." },
+                  { t: "Criar playbook (7 dias)", d: "Defina hipótese, experimento e métrica.", w: "Quando quer testar rápido." },
+                  { t: "Exportar dados", d: "Baixe seus registros em JSON.", w: "Quando precisa levar para outro lugar." },
+                ].map((f) => (
+                  <Card key={f.t} className="p-5">
+                    <div className="text-sm font-semibold text-emerald-100">{f.t}</div>
+                    <div className="mt-2 text-sm text-zinc-300">{f.d}</div>
+                    <div className="mt-2 text-xs text-zinc-400">Use quando: {f.w}</div>
+                    <div className="mt-3">
+                      <Button href="/app">Usar agora</Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        <section id="comecar" className="py-10 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-5xl">
+              <Card className="p-6">
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Começar agora</div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <Button href="/#nichos">Escolher um nicho</Button>
+                  <Button href="/#agentes" variant="ghost">
+                    Usar um agente
+                  </Button>
+                  <Button href="/app" variant="ghost">
+                    Abrir o painel
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          </Container>
+        </section>
+
+        <section id="ajuda" className="py-10 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-5xl space-y-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Ajuda / orientação</div>
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">Como usar melhor</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Comece com um sinal real, não com suposição.</li>
+                  <li>- Escreva em frases simples, sem termos técnicos.</li>
+                  <li>- Use o playbook de 7 dias para decidir rápido.</li>
+                </ul>
+              </Card>
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">O que o sistema NÃO faz</div>
+                <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <li>- Não prevê o futuro.</li>
+                  <li>- Não substitui decisão humana.</li>
+                  <li>- Não executa ações sozinho.</li>
+                </ul>
+              </Card>
+              <Card className="p-6">
+                <div className="text-sm font-semibold text-emerald-100">Limites claros</div>
+                <p className="mt-2 text-sm text-zinc-300">
+                  O sistema organiza e orienta. Ele não garante resultados e não depende de banco, login ou integração externa.
+                </p>
+              </Card>
             </div>
           </Container>
         </section>

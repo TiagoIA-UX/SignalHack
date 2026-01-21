@@ -25,8 +25,8 @@ type Playbook = {
   updatedAt: string;
 };
 
-const STORAGE_SIGNALS = "zairix_signals_v1";
-const STORAGE_PLAYBOOK = "zairix_playbook_v1";
+const STORAGE_SIGNALS = "signalhack_signals_v1";
+const STORAGE_PLAYBOOK = "signalhack_playbook_v1";
 
 const DEMO_SIGNALS: Signal[] = [
   {
@@ -175,6 +175,7 @@ export default function AppPage() {
     if (playbook) localStorage.setItem(STORAGE_PLAYBOOK, JSON.stringify(playbook));
   }, [playbook]);
 
+
   const selected = useMemo(() => signals.find((s) => s.id === selectedId) ?? null, [signals, selectedId]);
   const insight = useMemo(() => (selected ? buildInsight(selected) : null), [selected]);
 
@@ -227,7 +228,7 @@ export default function AppPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "zairix-export.json";
+    a.download = "signalhack-export.json";
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -244,15 +245,15 @@ export default function AppPage() {
   return (
     <div className="min-h-screen">
       <AppHeader />
-      <main className="py-10">
+      <main className="pt-24 pb-10">
         <Container>
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">app liberado • sem login • sem bloqueio</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">painel interno • sinais ativos • decisão assistida</div>
                 <h1 className="mt-2 text-2xl font-semibold tracking-tight">Operação: sinal → decisão → ação</h1>
                 <p className="mt-2 text-sm text-zinc-300">
-                  Você pode usar agora. Seus dados ficam no seu navegador (local). Se estiver offline, o app continua funcionando.
+                  Sem login, sem cadastro, sem bloqueio. Você entra e usa.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -268,10 +269,8 @@ export default function AppPage() {
 
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               <Card className="p-6 lg:col-span-1">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">1) Radar (sinais)</div>
-                <p className="mt-2 text-sm text-zinc-300">
-                  Escolha um sinal e siga o passo a passo. Se quiser, adicione o seu próprio sinal.
-                </p>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">1) Scout (radar de sinais)</div>
+                <p className="mt-2 text-sm text-zinc-300">Capture sinais reais. Evite ruído.</p>
 
                 <div className="mt-5 space-y-2">
                   <label className="text-xs text-zinc-400">Título</label>
@@ -340,15 +339,15 @@ export default function AppPage() {
               </Card>
 
               <Card className="p-6 lg:col-span-2">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">2) Validador + 3) Estratégia</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">2) Decoder + 3) Strategist</div>
                 {!selected ? (
                   <p className="mt-3 text-sm text-zinc-300">Escolha um sinal à esquerda.</p>
                 ) : (
                   <>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <Badge>Orquestração de agentes</Badge>
-                      <Badge>Zero login</Badge>
-                      <Badge>Dados locais</Badge>
+                      <Badge>Rede de agentes (metáfora)</Badge>
+                      <Badge>Decisão assistida</Badge>
+                      <Badge>Uso imediato</Badge>
                     </div>
 
                     <h2 className="mt-4 text-xl font-semibold text-emerald-100">{selected.title}</h2>
@@ -367,13 +366,15 @@ export default function AppPage() {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Playbook (7 dias)</div>
-                          <div className="mt-1 text-sm text-zinc-300">Escreva simples. Depois refine com a realidade.</div>
+                          <div className="mt-1 text-sm text-zinc-300">Registro operacional mínimo.</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" onClick={loadDefaultPlaybook}>
                             Preencher exemplo
                           </Button>
-                          <Button onClick={savePlaybook}>Salvar</Button>
+                          <Button onClick={savePlaybook}>
+                            Salvar
+                          </Button>
                         </div>
                       </div>
 
@@ -413,19 +414,9 @@ export default function AppPage() {
                         </div>
                       ) : (
                         <div className="mt-5 rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-400">
-                          Nada salvo ainda. Quando você clicar em <strong>Salvar</strong>, fica guardado no seu navegador.
+                          Nada salvo ainda.
                         </div>
                       )}
-
-                      <div className="mt-6 rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-300">
-                        <strong>Garantia psicológica:</strong> aqui não existe bloqueio. Você usa tudo agora. Se quiser suporte/licença,
-                        é fora do sistema — e você decide.
-                        <div className="mt-2">
-                          <Button href="/acquire" variant="ghost">
-                            Ver opções externas
-                          </Button>
-                        </div>
-                      </div>
                     </div>
                   </>
                 )}

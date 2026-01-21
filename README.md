@@ -6,6 +6,11 @@
 
 > Objetivo: reduzir ruído e acelerar decisões com output acionável (potencial + plano de teste + métrica de 7 dias).
 
+## Releases
+
+- **Releases (GitHub)**: `https://github.com/TiagoIA-UX/SignalHack/releases`
+- **Changelog**: veja `CHANGELOG.md`
+
 ## O que o produto faz (em 1 minuto)
 
 - **Detecta sinais**: buscas, hiring, comunidades, mudanças de stack, movimentos de mercado.

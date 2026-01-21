@@ -19,12 +19,15 @@ export default function HomePage() {
                 Transforme sinais em decisão (e dinheiro) em 7 dias — sem achismo.
               </h1>
               <p className="text-zinc-300 max-w-3xl">
-                Para operadores B2B que precisam decidir rápido: você registra um sinal real, escreve uma tese, roda um teste curto e mede.
+                Para operadores B2B que precisam decidir rápido: você registra um sinal real, define o potencial, escolhe a métrica e decide.
                 Se não mexeu a métrica, você descarta. Se mexeu, você dobra a aposta.
               </p>
 
               <div className="flex flex-wrap gap-3">
-                <Button href="/app">Entrar e começar</Button>
+                <Button href="/app?wizard=1">Avaliar potencial agora</Button>
+                <Button href="/app" variant="ghost">
+                  Entrar
+                </Button>
                 <Button href="/#como-funciona" variant="ghost">
                   Ver como funciona
                 </Button>
@@ -91,9 +94,9 @@ export default function HomePage() {
               <div className="mt-4 grid gap-4 md:grid-cols-4">
                 {[
                   { t: "1) Registre um sinal", d: "Algo observável: mercado, buyer, time, operação." },
-                  { t: "2) Escreva a tese", d: "Uma frase: por que isso vira dinheiro agora." },
-                  { t: "3) Rode um teste", d: "Menor experimento possível em 7 dias." },
-                  { t: "4) Meça e decida", d: "Métrica mexeu? continua. Não mexeu? descarta." },
+                  { t: "2) Defina o potencial", d: "Existe comprador, urgência e orçamento?" },
+                  { t: "3) Escolha a métrica", d: "O que valida ou invalida em 7 dias." },
+                  { t: "4) Decida", d: "Métrica mexeu? continua. Não mexeu? descarta." },
                 ].map((s) => (
                   <Card key={s.t} className="p-5">
                     <div className="text-sm font-semibold text-zinc-100">{s.t}</div>
@@ -107,8 +110,7 @@ export default function HomePage() {
                 <div className="mt-3 grid gap-3 md:grid-cols-5">
                   {[
                     { t: "SINAL", d: "O que você viu." },
-                    { t: "TESE", d: "Por que isso compra agora." },
-                    { t: "TESTE", d: "Como validar rápido." },
+                    { t: "POTENCIAL", d: "Comprador, urgência, orçamento." },
                     { t: "MÉTRICA", d: "Como medir objetivamente." },
                     { t: "DECISÃO", d: "Continuar ou matar." },
                   ].map((s) => (
@@ -133,7 +135,7 @@ export default function HomePage() {
                   <div className="text-sm font-semibold text-emerald-100">Pacote de decisão</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
                     <li>- Sinais registrados (com contexto e fonte).</li>
-                    <li>- Tese em 1 frase (sem jargão).</li>
+                    <li>- Potencial definido (comprador, urgência, orçamento).</li>
                     <li>- Teste mínimo (7 dias).</li>
                     <li>- Métrica definida.</li>
                     <li>- Decisão registrada: continuar / ajustar / descartar.</li>
@@ -209,10 +211,10 @@ export default function HomePage() {
                 <div className="mt-3 flex flex-wrap gap-3">
                   <Button href="/app">Registrar um sinal</Button>
                   <Button href="/app" variant="ghost">
-                    Criar tese
+                    Avaliar potencial
                   </Button>
                   <Button href="/app" variant="ghost">
-                    Rodar experimento
+                    Definir métrica
                   </Button>
                 </div>
               </Card>
@@ -227,7 +229,7 @@ export default function HomePage() {
               <Card className="p-6">
                 <div className="text-sm font-semibold text-emerald-100">Como usar melhor</div>
                 <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                  <li>- Use sinais reais, não hipóteses vagas.</li>
+                  <li>- Use sinais reais, não suposições vagas.</li>
                   <li>- Defina um teste que caiba em 7 dias.</li>
                   <li>- Se a métrica não mexer, descarte sem apego.</li>
                 </ul>

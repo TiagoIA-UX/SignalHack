@@ -130,6 +130,14 @@ export default function AppPage() {
   const [signals, setSignals] = useState<Signal[]>(DEMO_SIGNALS);
   const [selectedId, setSelectedId] = useState<string>(DEMO_SIGNALS[0]?.id ?? "");
 
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [wizSignal, setWizSignal] = useState("");
+  const [wizBuyer, setWizBuyer] = useState<"SIM" | "NÃO" | "">("");
+  const [wizUrgency, setWizUrgency] = useState<"SIM" | "NÃO" | "">("");
+  const [wizBudget, setWizBudget] = useState<"SIM" | "NÃO" | "">("");
+  const [wizMetric, setWizMetric] = useState("");
+
   const [newTitle, setNewTitle] = useState("");
   const [newSummary, setNewSummary] = useState("");
   const [newSource, setNewSource] = useState("Manual");
@@ -152,6 +160,16 @@ export default function AppPage() {
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
     };
+  }, []);
+
+  useEffect(() => {
+    // Wizard por intenção: /app?wizard=1
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("wizard") === "1") {
+      setWizardOpen(true);
+      setWizardStep(1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }, []);
 
   useEffect(() => {
@@ -178,6 +196,54 @@ export default function AppPage() {
 
   const selected = useMemo(() => signals.find((s) => s.id === selectedId) ?? null, [signals, selectedId]);
   const insight = useMemo(() => (selected ? buildInsight(selected) : null), [selected]);
+
+  function resetWizard() {
+    setWizardStep(1);
+    setWizSignal("");
+    setWizBuyer("");
+    setWizUrgency("");
+    setWizBudget("");
+    setWizMetric("");
+  }
+
+  function yesCount() {
+    return [wizBuyer, wizUrgency, wizBudget].filter((v) => v === "SIM").length;
+  }
+
+  function inferredIntent(): Intent {
+    const c = yesCount();
+    if (c >= 3) return "ALTA";
+    if (c === 2) return "MÉDIA";
+    return "BAIXA";
+  }
+
+  function finishWizard() {
+    const signalText = wizSignal.trim();
+    const metricText = wizMetric.trim();
+    if (signalText.length < 12) return;
+    if (!wizBuyer || !wizUrgency || !wizBudget) return;
+    if (metricText.length < 8) return;
+
+    const title = signalText.length > 72 ? `${signalText.slice(0, 72).trim()}…` : signalText;
+    const potential = `Potencial: comprador=${wizBuyer}; urgência=${wizUrgency}; orçamento=${wizBudget}.`;
+    const summary = `${signalText}\n\n${potential}\nMétrica (7 dias): ${metricText}`;
+    const intent = inferredIntent();
+    const s: Signal = {
+      id: uid("signal"),
+      title,
+      summary,
+      source: "Wizard",
+      intent,
+      score: scoreFromText(title, summary, intent),
+      growthPct: clamp(Math.round(10 + Math.random() * 45), 10, 55),
+    };
+
+    setSignals((prev) => [s, ...prev]);
+    setSelectedId(s.id);
+    setDraft((p) => ({ ...p, hypothesis: potential, metric: metricText }));
+    setWizardOpen(false);
+    resetWizard();
+  }
 
   function addSignal() {
     const title = newTitle.trim();
@@ -250,14 +316,17 @@ export default function AppPage() {
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">sinal → tese → experimento → métrica → decisão</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">sinal → potencial → métrica → decisão</div>
                 <h1 className="mt-2 text-2xl font-semibold tracking-tight">Painel de decisão em 7 dias</h1>
                 <p className="mt-2 text-sm text-zinc-300">
-                  Registre um sinal real, crie uma tese simples e execute um experimento curto. Se não moveu a métrica, descarte.
+                  Registre um sinal real, avalie o potencial, defina a métrica e decida. Se não moveu a métrica, descarte.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge>{online ? "Online" : "Offline"}</Badge>
+                <Button variant="ghost" onClick={() => setWizardOpen(true)}>
+                  Avaliar potencial agora
+                </Button>
                 <Button variant="ghost" onClick={exportJson}>
                   Exportar
                 </Button>
@@ -266,6 +335,140 @@ export default function AppPage() {
                 </Button>
               </div>
             </div>
+
+            {wizardOpen ? (
+              <Card className="mt-6 p-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">wizard (60s)</div>
+                    <div className="mt-1 text-lg font-semibold text-zinc-100">Avaliar potencial</div>
+                    <div className="mt-1 text-sm text-zinc-300">
+                      Sem login. Três passos. Resultado: potencial + métrica + decisão.
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" onClick={() => (resetWizard(), setWizardOpen(false))}>
+                      Fechar
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid gap-3 md:grid-cols-3">
+                  <div className={`rounded-2xl border px-4 py-3 ${wizardStep === 1 ? "border-emerald-500/35 bg-emerald-500/10" : "border-white/10 bg-black/30"}`}>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Passo 1</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-100">Sinal</div>
+                  </div>
+                  <div className={`rounded-2xl border px-4 py-3 ${wizardStep === 2 ? "border-emerald-500/35 bg-emerald-500/10" : "border-white/10 bg-black/30"}`}>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Passo 2</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-100">Potencial</div>
+                  </div>
+                  <div className={`rounded-2xl border px-4 py-3 ${wizardStep === 3 ? "border-emerald-500/35 bg-emerald-500/10" : "border-white/10 bg-black/30"}`}>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Passo 3</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-100">Métrica</div>
+                  </div>
+                </div>
+
+                {wizardStep === 1 ? (
+                  <div className="mt-6">
+                    <label className="text-xs text-zinc-400">Descreva o sinal observado</label>
+                    <textarea
+                      value={wizSignal}
+                      onChange={(e) => setWizSignal(e.target.value)}
+                      placeholder="Ex: aumento de vagas para RevOps + posts pedindo automação de follow-up"
+                      className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
+                    />
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        onClick={() => setWizardStep(2)}
+                        disabled={wizSignal.trim().length < 12}
+                      >
+                        Próximo: potencial
+                      </Button>
+                      <Button variant="ghost" onClick={resetWizard}>
+                        Limpar
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {wizardStep === 2 ? (
+                  <div className="mt-6">
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Perguntas objetivas</div>
+                    <div className="mt-4 grid gap-4 md:grid-cols-3">
+                      <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">Existe comprador?</div>
+                        <div className="mt-3 flex gap-2">
+                          <Button variant={wizBuyer === "SIM" ? "primary" : "ghost"} onClick={() => setWizBuyer("SIM")}>Sim</Button>
+                          <Button variant={wizBuyer === "NÃO" ? "primary" : "ghost"} onClick={() => setWizBuyer("NÃO")}>Não</Button>
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">Existe urgência?</div>
+                        <div className="mt-3 flex gap-2">
+                          <Button variant={wizUrgency === "SIM" ? "primary" : "ghost"} onClick={() => setWizUrgency("SIM")}>Sim</Button>
+                          <Button variant={wizUrgency === "NÃO" ? "primary" : "ghost"} onClick={() => setWizUrgency("NÃO")}>Não</Button>
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
+                        <div className="text-sm font-semibold text-zinc-100">Existe orçamento?</div>
+                        <div className="mt-3 flex gap-2">
+                          <Button variant={wizBudget === "SIM" ? "primary" : "ghost"} onClick={() => setWizBudget("SIM")}>Sim</Button>
+                          <Button variant={wizBudget === "NÃO" ? "primary" : "ghost"} onClick={() => setWizBudget("NÃO")}>Não</Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-sm text-zinc-300">
+                      Potencial atual: <strong>{yesCount()}</strong>/3 sinais positivos.
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button variant="ghost" onClick={() => setWizardStep(1)}>
+                        Voltar
+                      </Button>
+                      <Button onClick={() => setWizardStep(3)} disabled={!wizBuyer || !wizUrgency || !wizBudget}>
+                        Próximo: métrica
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {wizardStep === 3 ? (
+                  <div className="mt-6">
+                    <label className="text-xs text-zinc-400">Qual métrica valida ou invalida em 7 dias?</label>
+                    <input
+                      value={wizMetric}
+                      onChange={(e) => setWizMetric(e.target.value)}
+                      placeholder="Ex: 20 contatos → 6 respostas → 3 calls (ou 1 venda)"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
+                    />
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-300">
+                      <strong>Resumo:</strong> sinal + potencial + métrica vão virar um item no seu painel.
+                      <div className="mt-2">
+                        Próxima ação sugerida:{" "}
+                        {yesCount() >= 2 ? (
+                          <strong>rodar o teste nas próximas 48h.</strong>
+                        ) : (
+                          <strong>refinar o sinal (comprador/urgência/orçamento) antes de insistir.</strong>
+                        )}
+                      </div>
+                      <div className="mt-2 text-xs text-zinc-400">
+                        Conta/sincronização pode vir depois do valor percebido. Por enquanto, tudo fica no seu navegador e você pode exportar.
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button variant="ghost" onClick={() => setWizardStep(2)}>
+                        Voltar
+                      </Button>
+                      <Button onClick={finishWizard} disabled={wizMetric.trim().length < 8}>
+                        Criar no painel
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+              </Card>
+            ) : null}
 
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               <Card className="p-6 lg:col-span-1">
@@ -366,7 +569,7 @@ export default function AppPage() {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Playbook (7 dias)</div>
-                          <div className="mt-1 text-sm text-zinc-300">Tese, experimento e métrica em uma tela.</div>
+                          <div className="mt-1 text-sm text-zinc-300">Potencial, teste e métrica em uma tela.</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" onClick={loadDefaultPlaybook}>
@@ -380,7 +583,7 @@ export default function AppPage() {
 
                       <div className="mt-4 grid gap-3">
                         <div>
-                          <label className="text-xs text-zinc-400">Hipótese</label>
+                          <label className="text-xs text-zinc-400">Potencial</label>
                           <textarea
                             value={draft.hypothesis}
                             onChange={(e) => setDraft((p) => ({ ...p, hypothesis: e.target.value }))}
@@ -388,7 +591,7 @@ export default function AppPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-400">Experimento</label>
+                          <label className="text-xs text-zinc-400">Teste (7 dias)</label>
                           <textarea
                             value={draft.experiment}
                             onChange={(e) => setDraft((p) => ({ ...p, experiment: e.target.value }))}

@@ -7,7 +7,7 @@ Se você quer apoiar o ZAIRIX (SignalHack), aqui está o “como” e o “por q
 ZAIRIX é uma **orquestração de agentes de IA** para transformar sinais públicos em execução:
 - **Radar**: coleta sinais e detecta intenção
 - **Validador**: filtra ruído e confirma “sinal de compra”
-- **Estrategista**: gera tese + plano
+- **Estrategista**: avalia potencial + define teste
 - **Operador**: transforma em playbook de 7 dias (com métrica)
 
 ## Por que isso tem demanda

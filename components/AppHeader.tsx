@@ -14,11 +14,8 @@ export function AppHeader() {
             SIGNALHACK
           </Link>
           <nav className="flex items-center gap-4">
-            <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/">
-              Home
-            </Link>
             <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#como-funciona">
-              Método
+              Como funciona
             </Link>
             <Link className="h2 text-zinc-300 hover:text-white font-semibold" href="/#o-que-recebe">
               O que você recebe
@@ -29,6 +26,7 @@ export function AppHeader() {
             <Button href="/app" variant="ghost">
               Entrar
             </Button>
+            <Button href="/app?wizard=1">Avaliar potencial</Button>
           </nav>
         </div>
       </Container>

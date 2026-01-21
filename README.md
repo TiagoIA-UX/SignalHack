@@ -2,13 +2,13 @@
 
 **ZAIRIX é um software de orquestração de agentes de IA** para transformar sinais públicos de mercado em execução: **Radar → Validador → Estrategista → Operador**.
 
-> Objetivo: reduzir ruído e acelerar decisões com output acionável (tese + plano de execução + métrica de 7 dias).
+> Objetivo: reduzir ruído e acelerar decisões com output acionável (potencial + plano de teste + métrica de 7 dias).
 
 ## O que o produto faz (em 1 minuto)
 
 - **Detecta sinais**: buscas, hiring, comunidades, mudanças de stack, movimentos de mercado.
 - **Valida e prioriza**: intenção, urgência, risco e potencial de retorno.
-- **Gera estratégia executável**: hipótese + experimento + métrica (7 dias).
+- **Gera decisão executável**: potencial + teste + métrica (7 dias).
 - **Orquestra agentes**: cada agente faz uma parte específica do fluxo (não é só “um chat”).
 
 ## Para quem é (linguajar do cliente)

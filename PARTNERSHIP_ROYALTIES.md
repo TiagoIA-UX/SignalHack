@@ -17,7 +17,7 @@
 ## O que o parceiro recebe
 
 - Sistema pronto (app liberado, sem login)
-- Método claro: **demanda → tese → experimento → receita**
+- Método claro: **demanda → potencial → métrica → decisão**
 - Copy e materiais para vender
 - Suporte estratégico para fechar os primeiros clientes
 

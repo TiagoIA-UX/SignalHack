@@ -1,6 +1,8 @@
-# ZAIRIX (SignalHack)
+# SIGNALHACK
 
-**ZAIRIX é um software de orquestração de agentes de IA** para transformar sinais públicos de mercado em execução: **Radar → Validador → Estrategista → Operador**.
+**Produção:** `https://signalhack.vercel.app/`
+
+**SIGNALHACK é um software de orquestração de agentes de IA** para transformar sinais públicos de mercado em execução: **Sinal → Potencial → Métrica → Decisão**.
 
 > Objetivo: reduzir ruído e acelerar decisões com output acionável (potencial + plano de teste + métrica de 7 dias).
 

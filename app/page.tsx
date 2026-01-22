@@ -1,58 +1,26 @@
+
 import { AppHeader } from "@/components/AppHeader";
-import { Badge, Button, Card, Container } from "@/components/ui";
+import { Button, Card, Container } from "@/components/ui";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
+
+    <div className="min-h-screen bg-black">
       <AppHeader />
-      <main className="pt-24 pb-16">
-        {/* HERO (promessa + resultado) */}
-        <section id="home" className="py-12">
+      <main className="pt-32 pb-16">
+        <section className="py-16">
           <Container>
-            <div className="mx-auto max-w-5xl space-y-6">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
-                <span className="uppercase tracking-[0.2em]">sem login • sem cadastro • sem bloqueio</span>
-                <span className="text-zinc-600">•</span>
-                <Badge>Sistema de decisão</Badge>
-                <span className="text-zinc-600">•</span>
-                <Badge>Orquestração de agentes de IA</Badge>
-              </div>
-
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Você ganha uma decisão de dinheiro em 7 dias — medida por métrica.
-              </h1>
-              <p className="text-zinc-300 max-w-2xl">
-                Reduz incerteza e aumenta velocidade de decisão: sinal → potencial → métrica → decisão.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <Button href="/app?wizard=1">Avaliar potencial agora</Button>
-                <Button href="/#como-funciona" variant="ghost">Como funciona</Button>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card className="p-6">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Benefício mensurável</div>
-                  <div className="mt-2 text-sm text-zinc-200">
-                    A métrica que você define manda. Sem “opinião vencedora”.
-                  </div>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Aversão à perda</div>
-                  <div className="mt-2 text-sm text-zinc-200">
-                    Menos semanas queimadas em potencial fraco.
-                  </div>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Critério</div>
-                  <div className="mt-2 text-sm text-zinc-200">
-                    Mexeu a métrica: dobra/ajusta. Não mexeu: mata.
-                  </div>
-                </Card>
-              </div>
+            <div className="mx-auto max-w-2xl text-center space-y-10">
+              <h1 className="text-5xl font-bold tracking-tight text-zinc-100">Encontre quem paga. Venda. Repita.</h1>
+              <div className="text-lg text-red-400 font-semibold">Você está perdendo dinheiro agora.</div>
+              <div className="text-xl text-emerald-400 font-bold">Em 7 dias: demanda validada, oferta pronta, receita real.</div>
+              <div className="text-base text-zinc-400">Sem achismo. Sem enrolação. Só resultado.</div>
+              <Button href="/app?wizard=1" className="mt-8 w-full max-w-xs mx-auto text-lg py-4">Quero meu sinal agora</Button>
             </div>
           </Container>
         </section>
+      </main>
+    </div>
 
         {/* PROBLEMA (dor real em 3 frases) */}
         <section id="problema" className="py-10 border-t border-white/5">

@@ -63,10 +63,42 @@ const NICHOS = [
 ];
 
 const AGENTS = [
-  { name: "Buscador", what: "Encontra sinais e gera listas de leads com links e evidência.", when: "Use para achar oportunidades reais." },
-  { name: "Tradutor", what: "Transforma sinais em perfis de comprador e mensagens que convertem.", when: "Use para preparar outreach que gera respostas." },
-  { name: "Filtro", what: "Remove ruído, dedupe e destaca sinais repetidos e confiáveis.", when: "Use para evitar falso interesse." },
-  { name: "Planejador", what: "Monta um playbook com próximos passos e métricas acionáveis.", when: "Use para transformar sinais em ações imediatas." },
+  {
+    name: "Buscador",
+    what: "Encontra sinais e gera listas de leads com links e evidência.",
+    when: "Use para achar oportunidades reais.",
+    deliverables: [
+      "CSV: 50 leads (nome, contato, link, motivo)",
+      "Resumo de evidências com links e nota curta",
+    ],
+  },
+  {
+    name: "Tradutor",
+    what: "Transforma sinais em perfis de comprador e mensagens que convertem.",
+    when: "Use para preparar outreach que gera respostas.",
+    deliverables: [
+      "2 variações de mensagem prontas para enviar (A/B)",
+      "Scripts de follow-up prontos para 48h e 7 dias",
+    ],
+  },
+  {
+    name: "Filtro",
+    what: "Remove ruído, dedupe e destaca sinais repetidos e confiáveis.",
+    when: "Use para evitar falso interesse.",
+    deliverables: [
+      "Lista filtrada e pontuada (CSV)",
+      "Relatório de confiança por lead (alta/média/baixa)",
+    ],
+  },
+  {
+    name: "Planejador",
+    what: "Monta um playbook com próximos passos e métricas acionáveis.",
+    when: "Use para transformar sinais em ações imediatas.",
+    deliverables: [
+      "Playbook de 1 página com passos de 7 dias",
+      "Métrica alvo sugerida e checklist de execução",
+    ],
+  },
 ];
 
 export default function FunctionPage() {

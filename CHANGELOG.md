@@ -10,6 +10,7 @@ O formato segue (aproximadamente) **Keep a Changelog**, e usamos **SemVer** para
 - Wizard “Avaliar potencial” (Sinal → Potencial → Métrica → Decisão)
 - Destaque de orquestração de agentes (Scout/Decoder/Noise Killer/Strategist)
 - Speed Insights (Vercel)
+- Ocultar campos do Playbook no fluxo principal; **Modo Avançado** para edição manual; botão “Auto-recomendar playbook” preenche playbook automaticamente
 
 ### Changed
 - Home reestruturada para conversão (promessa direta + blocos curtos)

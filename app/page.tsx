@@ -18,7 +18,7 @@ const NICHOS = [
       { name: "Piloto de 7 dias", desc: "Validação rápida com métrica clara.", href: "/acquire" },
       { name: "Templates de outreach", desc: "Modelos prontos para 20 contatos." },
     ],
-    agents: ["Scout", "Strategist"],
+    agents: ["Buscador", "Planejador"],
   },
   {
     id: "criadores",
@@ -28,7 +28,7 @@ const NICHOS = [
       { name: "Análise de sinal", desc: "Identifique tópicos com tração." },
       { name: "Playbook curto", desc: "Plano de teste para conteúdo que converte." },
     ],
-    agents: ["Decoder", "Noise Killer"],
+    agents: ["Tradutor", "Filtro"],
   },
   {
     id: "educacao",
@@ -38,7 +38,7 @@ const NICHOS = [
       { name: "Playbooks de curso", desc: "Roteiros para testar módulos." },
       { name: "Agente Educacional", desc: "Apoio para criar exercícios e métricas." },
     ],
-    agents: ["Strategist", "Decoder"],
+    agents: ["Planejador", "Tradutor"],
   },
   {
     id: "marketing",
@@ -48,7 +48,7 @@ const NICHOS = [
       { name: "Priorizador de canais", desc: "Escolha onde investir os primeiros 20 contatos." },
       { name: "Templates de campanha", desc: "Mensagens com motivo e ângulo." },
     ],
-    agents: ["Scout", "Decoder"],
+    agents: ["Buscador", "Tradutor"],
   },
   {
     id: "geral",
@@ -58,15 +58,15 @@ const NICHOS = [
       { name: "Export JSON", desc: "Baixe sinais e playbooks para compartilhar." },
       { name: "Checklist de execução", desc: "Passos claros para ação imediata." },
     ],
-    agents: ["Noise Killer"],
+    agents: ["Filtro"],
   },
 ];
 
 const AGENTS = [
-  { name: "Scout", what: "Encontra sinais e evidências públicas.", when: "Use quando quiser achar oportunidades reais." },
-  { name: "Decoder", what: "Traduz sinais em hipóteses e potenciais compradores.", when: "Use ao precisar entender contexto rapidamente." },
-  { name: "Noise Killer", what: "Filtra ruído e destaca sinais repetidos.", when: "Use para evitar armadilhas de hype." },
-  { name: "Strategist", what: "Define métrica e plano de 7 dias.", when: "Use para transformar sinal em experimento executável." },
+  { name: "Buscador", what: "Encontra sinais e gera listas de leads com links e evidência.", when: "Use para achar oportunidades reais." },
+  { name: "Tradutor", what: "Transforma sinais em perfis de comprador e mensagens que convertem.", when: "Use para preparar outreach que gera respostas." },
+  { name: "Filtro", what: "Remove ruído, dedupe e destaca sinais repetidos e confiáveis.", when: "Use para evitar falso interesse." },
+  { name: "Planejador", what: "Monta um playbook com próximos passos e métricas acionáveis.", when: "Use para transformar sinais em ações imediatas." },
 ];
 
 export default function FunctionPage() {
@@ -83,65 +83,52 @@ export default function FunctionPage() {
         <section id="visao-geral" className="py-12 border-b border-white/5">
           <Container>
             <div className="mx-auto max-w-4xl text-center">
-              <h1 className="text-3xl font-semibold">Teste se clientes reais pagam em 7 dias</h1>
+              <h1 className="text-3xl font-semibold">Orquestre agentes de IA que encontram sinais e geram entregáveis prontos</h1>
               <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
-                Experimento prático: envie 20 contatos, conte respostas, conclua com um número concreto. <strong>Sem conta. Sem teoria. Resultado.</strong>
+                Execute agentes que encontram evidências, filtram ruído, escrevem mensagens e montam playbooks. Entregáveis: listas de leads com evidência, mensagens prontas, e um plano de ação. <strong>Abra e rode os agentes — sem configuração complexa.</strong>
               </p>
 
               <div className="mt-6">
-                <Button href="/acquire" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-emerald-400 text-black font-bold shadow-lg">Começar o piloto de 7 dias</Button>
+                <Button href="/app" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-emerald-400 text-black font-bold shadow-lg">Abrir agentes</Button>
               </div>
 
-              <div className="mt-2 text-xs text-zinc-400">Sem conta. Resultados concretos em 7 dias.</div>
+              <div className="mt-2 text-xs text-zinc-400">Sem conta para começar. Exporte resultados quando quiser.</div>
 
               <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">Decisão</div>
-                  <div className="mt-2 text-sm text-zinc-300">Ao final de 7 dias você decide: continuar, ajustar ou parar — com números.</div>
+                  <div className="text-sm font-semibold text-emerald-100">O que você recebe</div>
+                  <div className="mt-2 text-sm text-zinc-300">Listas de leads com links e evidência, mensagens prontas e um playbook com próximas ações.</div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-sm font-semibold text-emerald-100">Risco reduzido</div>
-                  <div className="mt-2 text-sm text-zinc-300">Teste com ≤20 contatos antes de gastar tempo ou dinheiro.</div>
+                  <div className="mt-2 text-sm text-zinc-300">Teste ideias com entregáveis concretos antes de investir em desenvolvimento.</div>
                 </Card>
                 <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">Ação inicial</div>
-                  <div className="mt-2 text-sm text-zinc-300">Comece agora com templates prontos e um playbook de 7 dias.</div>
+                  <div className="text-sm font-semibold text-emerald-100">Comece rápido</div>
+                  <div className="mt-2 text-sm text-zinc-300">Abra os agentes e obtenha resultados reais em horas — não semanas.</div>
                 </Card>
               </div>
             </div>
           </Container>
-        </section>"
+        </section>
 
         {/* COMO FUNCIONA */}
         <section id="como-funciona" className="py-12 border-b border-white/5">
           <Container>
             <div className="mx-auto max-w-4xl">
-              <h2 className="text-2xl font-semibold">Como funciona — experimento de 7 dias</h2>
-              <ol className="mt-4 list-decimal pl-5 space-y-3 text-sm text-zinc-300">
-                <li><strong>Dia 0:</strong> escolha nicho e mensagem (use um template pronto).</li>
-                <li><strong>Dias 1–2:</strong> envie 20 mensagens (email/DM) — registre respostas na ferramenta.</li>
-                <li><strong>Dias 3–5:</strong> filtre respostas, marque reuniões e registre intenções de compra.</li>
-                <li><strong>Dias 6–7:</strong> conte métricas (respostas qualificadas, reuniões, vendas) e decida: escalar, ajustar ou parar.</li>
-              </ol>
+              <h2 className="text-2xl font-semibold">Como funciona — o que os agentes fazem</h2>
+              <ul className="mt-4 list-disc pl-5 text-sm text-zinc-300">
+                <li><strong>Buscador</strong> — pesquisa pública e gera listas de leads com links e evidência para você contactar.</li>
+                <li><strong>Tradutor</strong> — transforma sinais em perfis de comprador e cria mensagens prontas para enviar.</li>
+                <li><strong>Filtro</strong> — remove ruído, dedupe e destaca sinais repetidos e confiáveis.</li>
+                <li><strong>Planejador</strong> — combina saídas e monta um playbook com priorização e KPIs para execução.</li>
+                <li><strong>Orquestração</strong> — rode agentes em sequência, combine resultados e exporte listas, mensagens e playbooks.</li>
+              </ul>
 
-              <div className="mt-4 text-sm text-zinc-400">Não precisa de conta para testar. Salve/exporte apenas se quiser conservar os resultados.</div>
+              <div className="mt-4 text-sm text-zinc-400">Nada de jargão: cada agente entrega artefatos concretos (lista com links, mensagens, arquivo exportável e um plano de ação).</div>
             </div>
           </Container>
         </section>
-
-        {/* MÉTRICAS */}
-        <section id="metricas" className="py-12 border-b border-white/5">
-          <Container>
-            <div className="mx-auto max-w-4xl">
-              <h2 className="text-2xl font-semibold">Métricas concretas</h2>
-              <ul className="mt-4 list-disc pl-5 text-sm text-zinc-300">
-                <li><strong>Respostas qualificadas:</strong> 3+ em 20 → sinal forte; 0–1 → reavaliar alvo/mensagem.</li>
-                <li><strong>Reuniões marcadas:</strong> ≥1 reunião marcada = progresso operacional.</li>
-                <li><strong>Vendas / Receita:</strong> total de vendas atribuíveis ao teste (valor e número).</li>
-              </ul>
-            </div>
-          </Container>
-        </section>"
 
         {/* NICHOS */}
         <section id="nichos" className="py-12 border-b border-white/5">
@@ -209,7 +196,7 @@ export default function FunctionPage() {
                     </div>
                   </div>
                 ))}
-              </div>"
+              </div>
             </div>
           </Container>
         </section>

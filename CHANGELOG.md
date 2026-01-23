@@ -19,3 +19,13 @@ O formato segue (aproximadamente) **Keep a Changelog**, e usamos **SemVer** para
 ### Fixed
 - Correção de JSX na home que quebrava o build
 
+---
+
+## [0.2.0] - 2026-01-23
+
+### Added
+- Ocultar campos do Playbook no fluxo principal; **Modo Avançado** para edição manual; botão “Auto-recomendar playbook” preenche playbook automaticamente
+
+### Fixed
+- Várias correções de TypeScript e ajustes de UI relacionados ao playbook
+

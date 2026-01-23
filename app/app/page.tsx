@@ -583,42 +583,48 @@ function metricValid(text: string) {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Playbook (7 dias)</div>
-                          <div className="mt-1 text-sm text-zinc-300">Potencial, teste e métrica em uma tela.</div>
+                          <div className="mt-1 text-sm text-zinc-300">Preencha 3 campos claros: oportunidade, ação em 7 dias e métrica que prova o negócio.</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" onClick={loadDefaultPlaybook}>
-                            Preencher exemplo
+                            Carregar exemplo
                           </Button>
                           <Button onClick={savePlaybook}>
-                            Salvar
+                            Salvar playbook
                           </Button>
                         </div>
                       </div>
 
                       <div className="mt-4 grid gap-3">
                         <div>
-                          <label className="text-xs text-zinc-400">Potencial</label>
+                          <label className="text-xs text-zinc-400">Oportunidade (o que vamos vender?)</label>
                           <textarea
                             value={draft.hypothesis}
                             onChange={(e) => setDraft((p) => ({ ...p, hypothesis: e.target.value }))}
+                            placeholder="Ex: serviço de automação de follow‑up para RevOps — reduz churn em 20%"
                             className="mt-2 min-h-20 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
                           />
+                          <div className="mt-1 text-xs text-zinc-400">Descreva o benefício que justifica pagamento (ex.: reduzir churn, gerar receita direta).</div>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-400">Teste (7 dias)</label>
+                          <label className="text-xs text-zinc-400">Ação em 7 dias (passos concretos)</label>
                           <textarea
                             value={draft.experiment}
                             onChange={(e) => setDraft((p) => ({ ...p, experiment: e.target.value }))}
+                            placeholder="Ex: enviar 20 mensagens A/B; filtrar respostas; marcar reuniões"
                             className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
                           />
+                          <div className="mt-1 text-xs text-zinc-400">Passos executáveis — o que exatamente será feito nesta semana.</div>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-400">Métrica</label>
+                          <label className="text-xs text-zinc-400">Métrica alvo (o que prova que funciona)</label>
                           <input
                             value={draft.metric}
                             onChange={(e) => setDraft((p) => ({ ...p, metric: e.target.value }))}
+                            placeholder="Ex: 20 contatos → 6 respostas → 3 calls ou 1 venda"
                             className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
                           />
+                          <div className="mt-1 text-xs text-zinc-400">Use números claros: leads, respostas, reuniões ou vendas atribuíveis.</div>
                         </div>
                       </div>
 
@@ -631,7 +637,8 @@ function metricValid(text: string) {
                         </div>
                       ) : (
                         <div className="mt-5 rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-400">
-                          Nada salvo ainda.
+                          <strong>Nenhum playbook salvo.</strong>
+                          <div className="mt-1 text-xs text-zinc-400">Salve quando tiver uma métrica alvo clara para executar (ex.: 6 respostas em 20 contatos).</div>
                         </div>
                       )}
                     </div>

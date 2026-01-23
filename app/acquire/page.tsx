@@ -108,7 +108,6 @@ export default function AcquirePage() {
               </div>
             </section>
 
-            {/* Contact / Lead capture (simple) */}
             <Card id="contact" className="mt-8 p-6">
               <div className="text-sm font-semibold text-emerald-100">Quer que eu te ajude a escolher o pilot?</div>
               <div className="mt-2 text-sm text-zinc-300">Envie um e-mail ou agende uma conversa. Podemos ajustar o piloto ao seu contexto.</div>

@@ -15,7 +15,7 @@ export default function NicheCard({ niche }: { niche: any }) {
               <div className="text-zinc-400">{f.desc}</div>
             </div>
             <div>
-              <Button as="a" href={f.href ?? "/app"} className="ml-4">Usar agora</Button>
+              <Button href={f.href ?? "/app"} className="ml-4">Usar agora</Button>
             </div>
           </div>
         ))}

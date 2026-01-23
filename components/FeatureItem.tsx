@@ -9,7 +9,7 @@ export default function FeatureItem({ name, desc, href }: { name: string; desc: 
         <div className="text-sm text-zinc-400">{desc}</div>
       </div>
       <div>
-        <Button as="a" href={href ?? "/app"}>Usar agora</Button>
+        <Button href={href ?? "/app"}>Usar agora</Button>
       </div>
     </Card>
   );

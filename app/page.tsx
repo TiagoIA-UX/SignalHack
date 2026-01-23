@@ -186,7 +186,7 @@ export default function FunctionPage() {
                     <div className="text-sm font-semibold text-zinc-100">{n.title}</div>
                     <div className="mt-1 text-sm text-zinc-300">{n.needs}</div>
                     <div className="mt-3">
-                      <Button as={Link} href="/app" className="w-full">Usar agora</Button>
+                      <Button href="/app" className="w-full">Usar agora</Button>
                     </div>
                   </div>
                 ))}

@@ -14,16 +14,19 @@ export function AppHeader() {
             SIGNALHACK
           </Link>
           <nav className="flex items-center gap-3">
-            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/#como-funciona">
-              Como funciona
+            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/app">
+              Detectar Demanda
             </Link>
-            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/#o-que-recebe">
-              O que você recebe
+            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/app#minhas-validacoes">
+              Minhas Validações
             </Link>
-            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/#para-quem-e">
-              Para quem é
+            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/app#resultados">
+              Resultados
             </Link>
-            <Button href="/app?wizard=1">Avaliar potencial agora</Button>
+            <Link className="text-sm text-zinc-300 hover:text-white font-semibold" href="/app#plano">
+              Plano
+            </Link>
+            <Button href="/app?wizard=1">Encontrar Negócios em Potencial Agora</Button>
           </nav>
         </div>
       </Container>

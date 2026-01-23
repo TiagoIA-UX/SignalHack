@@ -139,6 +139,7 @@ export default function HomePage() {
   const [wizardStep, setWizardStep] = useState(1);
   const [wizSignal, setWizSignal] = useState("");
   const [wizBuyer, setWizBuyer] = useState("");
+  const [wizWhy, setWizWhy] = useState("");
   const [wizUrgency, setWizUrgency] = useState("");
   const [wizBudget, setWizBudget] = useState("");
   const [wizMetric, setWizMetric] = useState("");
@@ -204,15 +205,23 @@ export default function HomePage() {
     return "BAIXA";
   }
 
-  function finishWizard() {
+function metricValid(text: string) {
+      const s = text.toLowerCase();
+      const hasNumber = /\d+/.test(s);
+      const keywords = ["contat", "lead", "respost", "reuni", "call", "venda", "sales"]; 
+      const hasKeyword = keywords.some((k) => s.includes(k));
+      return hasNumber || hasKeyword;
+    }
+
+    function finishWizard() {
     const signalText = wizSignal.trim();
     const metricText = wizMetric.trim();
     if (signalText.length < 12) return;
     if (!wizBuyer || !wizUrgency || !wizBudget) return;
-    if (metricText.length < 8) return;
+    if (!metricValid(metricText) || metricText.length < 6) return;
 
     const title = signalText.length > 72 ? `${signalText.slice(0, 72).trim()}…` : signalText;
-    const potential = `Potencial: comprador=${wizBuyer}; urgência=${wizUrgency}; orçamento=${wizBudget}.`;
+    const potential = `Potencial: ${wizWhy.trim()} (comprador=${wizBuyer}; urgência=${wizUrgency}; orçamento=${wizBudget}).`;
     const summary = `${signalText}\n\n${potential}\nMétrica (7 dias): ${metricText}`;
     const intent = inferredIntent();
     const s: Signal = {
@@ -327,16 +336,16 @@ export default function HomePage() {
               <Card className="mt-6 p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">wizard (60s)</div>
-                    <div className="mt-1 text-lg font-semibold text-zinc-100">Avaliar potencial</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">wizard — processo fechado</div>
+                    <div className="mt-1 text-lg font-semibold text-zinc-100">Encontrar Negócios em Potencial</div>
                     <div className="mt-1 text-sm text-zinc-300">
-                      Sem login. Três passos. Resultado: potencial + métrica + decisão.
+                      Três passos objetivos. Saia com uma oportunidade vendável e métricas claras em 7 dias.
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <Badge>Scout</Badge>
-                      <Badge>Decoder</Badge>
-                      <Badge>Noise Killer</Badge>
-                      <Badge>Strategist</Badge>
+                      <Badge>Buscador</Badge>
+                      <Badge>Tradutor</Badge>
+                      <Badge>Filtro</Badge>
+                      <Badge>Planejador</Badge>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -363,19 +372,20 @@ export default function HomePage() {
 
                 {wizardStep === 1 ? (
                   <div className="mt-6">
-                    <label className="text-xs text-zinc-400">Descreva o sinal observado</label>
+                    <label className="text-xs text-zinc-400">Qual problema empresas estão tentando resolver agora?</label>
                     <textarea
                       value={wizSignal}
                       onChange={(e) => setWizSignal(e.target.value)}
-                      placeholder="Ex: aumento de vagas para RevOps + posts pedindo automação de follow-up"
+                      placeholder="Ex: clientes reclamam de churn alto, posts pedindo automação de follow-up — copie este exemplo"
                       className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
                     />
+                    <div className="mt-2 text-xs text-zinc-400">Exemplo copiado acima — ajuste para seu cliente alvo.</div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button
                         onClick={() => setWizardStep(2)}
                         disabled={wizSignal.trim().length < 12}
                       >
-                        Próximo: potencial
+                        Próximo: por que pagam
                       </Button>
                       <Button variant="ghost" onClick={resetWizard}>
                         Limpar
@@ -386,7 +396,7 @@ export default function HomePage() {
 
                 {wizardStep === 2 ? (
                   <div className="mt-6">
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Perguntas objetivas</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Por que empresas pagariam para resolver esse problema?</div>
                     <div className="mt-4 grid gap-4 md:grid-cols-3">
                       <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
                         <div className="text-sm font-semibold text-zinc-100">Existe comprador?</div>
@@ -415,12 +425,23 @@ export default function HomePage() {
                       Potencial atual: <strong>{yesCount()}</strong>/3 sinais positivos.
                     </div>
 
+                    <div className="mt-4">
+                      <label className="text-xs text-zinc-400">Em uma frase comercial — por que empresas pagariam?</label>
+                      <input
+                        value={wizWhy}
+                        onChange={(e) => setWizWhy(e.target.value)}
+                        placeholder="Ex: pagam para reduzir churn e economizar 30% no custo de aquisição"
+                        className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
+                      />
+                      <div className="mt-2 text-xs text-zinc-400">Texto comercial obrigatório (ex.: reduzir churn, economizar X% ou gerar R$).</div>
+                    </div>
+
                     <div className="mt-4 flex flex-wrap gap-2">
                       <Button variant="ghost" onClick={() => setWizardStep(1)}>
                         Voltar
                       </Button>
-                      <Button onClick={() => setWizardStep(3)} disabled={!wizBuyer || !wizUrgency || !wizBudget}>
-                        Próximo: métrica
+                      <Button onClick={() => setWizardStep(3)} disabled={!wizWhy || !wizUrgency || !wizBudget || wizWhy.trim().length < 12}>
+                        Próximo: resultado em 7 dias
                       </Button>
                     </div>
                   </div>
@@ -438,8 +459,7 @@ export default function HomePage() {
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black/35 p-4 text-sm text-zinc-300">
                       <strong>Resumo:</strong> sinal + potencial + métrica vão virar um item no seu painel.
                       <div className="mt-2">
-                        Próxima ação sugerida:{" "}
-                        {yesCount() >= 2 ? (
+                        Próxima ação sugerida: {yesCount() >= 2 ? (
                           <strong>rodar o teste nas próximas 48h.</strong>
                         ) : (
                           <strong>refinar o sinal (comprador/urgência/orçamento) antes de insistir.</strong>
@@ -454,8 +474,8 @@ export default function HomePage() {
                       <Button variant="ghost" onClick={() => setWizardStep(2)}>
                         Voltar
                       </Button>
-                      <Button onClick={finishWizard} disabled={wizMetric.trim().length < 8}>
-                        Criar no painel
+                      <Button onClick={finishWizard} disabled={!metricValid(wizMetric) || wizMetric.trim().length < 6}>
+                        Confirmar Negócio em Potencial
                       </Button>
                     </div>
                   </div>

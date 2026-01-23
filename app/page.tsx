@@ -112,34 +112,86 @@ export default function FunctionPage() {
 
       <main className="pt-24 pb-20">
         {/* VISÃO GERAL */}
-        <section id="visao-geral" className="py-12 border-b border-white/5">
+        <section id="o-que-faz" className="py-12 border-b border-white/5">
           <Container>
             <div className="mx-auto max-w-4xl text-center">
-              <h1 className="text-3xl font-semibold">Orquestre agentes de IA que encontram sinais e geram entregáveis prontos</h1>
+              <h1 className="text-3xl font-semibold">Software de orquestração de agentes de Inteligência Artificial que identifica negócios em potencial a partir de sinais reais do mercado e entrega oportunidades prontas para execução e venda.</h1>
               <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
-                Execute agentes que encontram evidências, filtram ruído, escrevem mensagens e montam playbooks. Entregáveis: listas de leads com evidência, mensagens prontas, e um plano de ação. <strong>Abra e rode os agentes — sem configuração complexa.</strong>
+                Detecte oportunidades com entregáveis prontos (listas de leads com evidência, mensagens prontas e playbooks) — sem tentativa e erro. Use agora e converta em vendas reais. 
               </p>
 
               <div className="mt-6">
-                <Button href="/app" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-emerald-400 text-black font-bold shadow-lg">Abrir agentes</Button>
+                <Button href="/app" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-emerald-400 text-black font-bold shadow-lg">Encontrar Negócios em Potencial Agora</Button>
               </div>
 
-              <div className="mt-2 text-xs text-zinc-400">Sem conta para começar. Exporte resultados quando quiser.</div>
+              <div className="mt-2 text-xs text-zinc-400">Sem cadastro antes de ver valor. Exporte e contrate apenas se quiser escalar.</div>
+            </div>
+          </Container>
+        </section>
 
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">O que você recebe</div>
-                  <div className="mt-2 text-sm text-zinc-300">Listas de leads com links e evidência, mensagens prontas e um playbook com próximas ações.</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">Risco reduzido</div>
-                  <div className="mt-2 text-sm text-zinc-300">Teste ideias com entregáveis concretos antes de investir em desenvolvimento.</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">Comece rápido</div>
-                  <div className="mt-2 text-sm text-zinc-300">Abra os agentes e obtenha resultados reais em horas — não semanas.</div>
-                </Card>
+        {/* O QUE ENTREGA */}
+        <section id="o-que-entrega" className="py-12 border-b border-white/5">
+          <Container>
+            <div className="mx-auto max-w-4xl">
+              <h2 className="text-2xl font-semibold">O que o software entrega</h2>
+              <ul className="mt-4 list-disc pl-5 text-sm text-zinc-300">
+                <li>Lista de negócios em potencial com demanda ativa (CSV com evidência e links).</li>
+                <li>Problemas reais que empresas estão tentando resolver agora (mensagens com contexto).</li>
+                <li>Oportunidades prontas para execução comercial (mensagens + lista + prioridade).</li>
+                <li>Métrica objetiva para validar em 7 dias (leads, reuniões ou vendas atribuíveis).</li>
+              </ul>
+            </div>
+          </Container>
+        </section>
+
+        {/* COMO FUNCIONA */}
+        <section id="como-funciona" className="py-12 border-b border-white/5">
+          <Container>
+            <div className="mx-auto max-w-4xl">
+              <h2 className="text-2xl font-semibold">Como o sistema funciona (4 passos)</h2>
+              <ol className="mt-4 list-decimal pl-5 space-y-3 text-sm text-zinc-300">
+                <li>Agentes analisam sinais públicos do mercado em tempo real.</li>
+                <li>O sistema identifica padrões recorrentes de demanda pagante.</li>
+                <li>A IA consolida oportunidades claras e vendáveis (lista + mensagens + prioridade).</li>
+                <li>Você executa, valida com métricas e decide: escalar ou descartar.</li>
+              </ol>
+            </div>
+          </Container>
+        </section>
+
+        {/* PARA QUEM */}
+        <section id="para-quem" className="py-12 border-b border-white/5">
+          <Container>
+            <div className="mx-auto max-w-4xl">
+              <h2 className="text-2xl font-semibold">Para quem é / para quem não é</h2>
+              <div className="mt-4 text-sm text-zinc-300">
+                <div><strong>É para:</strong> Agências, freelancers e operadores que vendem serviços ou soluções para empresas.</div>
+                <div className="mt-2"><strong>Não é para:</strong> curiosos, estudantes ou pessoas que não vendem nada.</div>
               </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* POR QUE GERA DINHEIRO */}
+        <section id="por-que-gera" className="py-12 border-b border-white/5">
+          <Container>
+            <div className="mx-auto max-w-4xl">
+              <h2 className="text-2xl font-semibold">Por que isso gera dinheiro</h2>
+              <ul className="mt-4 list-disc pl-5 text-sm text-zinc-300">
+                <li>A demanda já existe (sinais mostram intenção de compra).</li>
+                <li>O orçamento para resolver o problema já existe em muitas empresas.</li>
+                <li>Reduzimos risco: você valida com entregáveis antes de investir.</li>
+                <li>Decisões rápidas: métricas claras aceleram a venda e o ROI.</li>
+              </ul>
+            </div>
+          </Container>
+        </section>
+
+        {/* CTA FINAL */}
+        <section id="cta" className="py-12">
+          <Container>
+            <div className="mx-auto max-w-4xl text-center">
+              <Button href="/app" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-emerald-400 text-black font-bold shadow-lg">Encontrar Negócios em Potencial Agora</Button>
             </div>
           </Container>
         </section>

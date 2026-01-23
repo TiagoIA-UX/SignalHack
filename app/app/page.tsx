@@ -485,7 +485,7 @@ function metricValid(text: string) {
 
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               <Card className="p-6 lg:col-span-1">
-                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">1) Scout (sinais)</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">1) Buscador (sinais)</div>
                 <p className="mt-2 text-sm text-zinc-300">Registre o que você viu. Evite opinião solta.</p>
 
                 <div className="mt-5 space-y-2">
@@ -641,6 +641,37 @@ function metricValid(text: string) {
             </div>
           </div>
         </Container>
+
+        {/* MINHAS VALIDAÇÕES */}
+        <section id="minhas-validacoes" className="py-8 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-6xl">
+              <h3 className="text-lg font-semibold">Minhas Validações</h3>
+              <p className="mt-2 text-sm text-zinc-300">Sinais que você confirmou como oportunidades. Clique para exportar ou transformar em playbook.</p>
+            </div>
+          </Container>
+        </section>
+
+        {/* RESULTADOS */}
+        <section id="resultados" className="py-8 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-6xl">
+              <h3 className="text-lg font-semibold">Resultados</h3>
+              <p className="mt-2 text-sm text-zinc-300">Resumo das métricas por validação: respostas, reuniões e receita atribuível.</p>
+            </div>
+          </Container>
+        </section>
+
+        {/* PLANO */}
+        <section id="plano" className="py-8 border-t border-white/5">
+          <Container>
+            <div className="mx-auto max-w-6xl">
+              <h3 className="text-lg font-semibold">Plano</h3>
+              <p className="mt-2 text-sm text-zinc-300">Opções para contratar execução (outreach, monitoramento e relatórios). Contrate apenas quando quiser escalar.</p>
+            </div>
+          </Container>
+        </section>
+
       </main>
     </div>
   );

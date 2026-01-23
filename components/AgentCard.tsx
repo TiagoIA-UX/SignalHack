@@ -18,6 +18,22 @@ export default function AgentCard({ agent }: { agent: any }) {
           </ul>
         </div>
       ) : null}
+
+      {/* Example downloads */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {agent.name === "Buscador" ? (
+          <a href="/examples/buscador-sample.csv" className="text-sm text-emerald-300 hover:underline">Baixar CSV de exemplo</a>
+        ) : null}
+        {agent.name === "Tradutor" ? (
+          <a href="/examples/tradutor-messages.md" className="text-sm text-emerald-300 hover:underline">Baixar mensagens exemplo</a>
+        ) : null}
+        {agent.name === "Filtro" ? (
+          <a href="/examples/filtro-report.md" className="text-sm text-emerald-300 hover:underline">Baixar relatório exemplo</a>
+        ) : null}
+        {agent.name === "Planejador" ? (
+          <a href="/examples/planejador-playbook.md" className="text-sm text-emerald-300 hover:underline">Baixar playbook exemplo</a>
+        ) : null}
+      </div>
     </Card>
   );
 }

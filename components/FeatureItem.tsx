@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Button } from "@/components/ui";
+import Link from "next/link";
+import { Card } from "@/components/ui";
 
 export default function FeatureItem({ name, desc, href }: { name: string; desc: string; href?: string }) {
   return (
@@ -9,7 +10,7 @@ export default function FeatureItem({ name, desc, href }: { name: string; desc: 
         <div className="text-sm text-zinc-400">{desc}</div>
       </div>
       <div>
-        <Button href={href ?? "/app"}>Usar agora</Button>
+        <Link href={href ?? "/app"} className="text-sm text-emerald-300 hover:underline">Abrir ferramentas</Link>
       </div>
     </Card>
   );

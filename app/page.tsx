@@ -82,47 +82,66 @@ export default function FunctionPage() {
         {/* VISÃO GERAL */}
         <section id="visao-geral" className="py-12 border-b border-white/5">
           <Container>
-            <div className="mx-auto max-w-4xl">
-              <h1 className="text-3xl font-semibold">O que é isto</h1>
+            <div className="mx-auto max-w-4xl text-center">
+              <h1 className="text-3xl font-semibold">Teste se clientes reais pagam em 7 dias</h1>
               <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
-                Este software ajuda qualquer pessoa a transformar sinais públicos em experimentos de 7 dias com uma métrica clara. Não é necessário criar conta, nem pagar dentro do sistema — entre e use.
+                Experimento prático: envie 20 contatos, conte respostas, conclua com um número concreto. <strong>Sem conta. Sem teoria. Resultado.</strong>
               </p>
+
+              <div className="mt-6">
+                <Button href="/acquire" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-emerald-400 text-black font-bold shadow-lg">Começar o piloto de 7 dias</Button>
+              </div>
+
+              <div className="mt-2 text-xs text-zinc-400">Sem conta. Resultados concretos em 7 dias.</div>
 
               <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">Para quem</div>
-                  <div className="mt-2 text-sm text-zinc-300">Founders, RevOps, criadores, educadores e pessoas que querem testar ideias com pouca fricção.</div>
+                  <div className="text-sm font-semibold text-emerald-100">Decisão</div>
+                  <div className="mt-2 text-sm text-zinc-300">Ao final de 7 dias você decide: continuar, ajustar ou parar — com números.</div>
                 </Card>
                 <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">O que resolve</div>
-                  <div className="mt-2 text-sm text-zinc-300">Evita trabalho no escuro: você identifica demanda, testa e decide em 7 dias.</div>
+                  <div className="text-sm font-semibold text-emerald-100">Risco reduzido</div>
+                  <div className="mt-2 text-sm text-zinc-300">Teste com ≤20 contatos antes de gastar tempo ou dinheiro.</div>
                 </Card>
                 <Card className="p-4">
-                  <div className="text-sm font-semibold text-emerald-100">Primeira ação</div>
-                  <div className="mt-2 text-sm text-zinc-300">Escolha um nicho abaixo e clique em "Usar agora" para começar sem configurações.</div>
+                  <div className="text-sm font-semibold text-emerald-100">Ação inicial</div>
+                  <div className="mt-2 text-sm text-zinc-300">Comece agora com templates prontos e um playbook de 7 dias.</div>
                 </Card>
               </div>
             </div>
           </Container>
-        </section>
+        </section>"
 
         {/* COMO FUNCIONA */}
         <section id="como-funciona" className="py-12 border-b border-white/5">
           <Container>
             <div className="mx-auto max-w-4xl">
-              <h2 className="text-2xl font-semibold">Como funciona — passo a passo</h2>
+              <h2 className="text-2xl font-semibold">Como funciona — experimento de 7 dias</h2>
               <ol className="mt-4 list-decimal pl-5 space-y-3 text-sm text-zinc-300">
-                <li><strong>Acesse</strong> — abra o sistema, não há login.</li>
-                <li><strong>Escolha um nicho</strong> — selecione a categoria que mais se parece com seu problema.</li>
-                <li><strong>Escolha um agente ou funcionalidade</strong> — por exemplo, "Scout" para encontrar sinais.</li>
-                <li><strong>Execute</strong> — rode a função imediatamente e siga o playbook de 7 dias.</li>
-                <li><strong>Decida</strong> — ao final do teste você terá uma métrica para continuar, ajustar ou parar.</li>
+                <li><strong>Dia 0:</strong> escolha nicho e mensagem (use um template pronto).</li>
+                <li><strong>Dias 1–2:</strong> envie 20 mensagens (email/DM) — registre respostas na ferramenta.</li>
+                <li><strong>Dias 3–5:</strong> filtre respostas, marque reuniões e registre intenções de compra.</li>
+                <li><strong>Dias 6–7:</strong> conte métricas (respostas qualificadas, reuniões, vendas) e decida: escalar, ajustar ou parar.</li>
               </ol>
 
-              <div className="mt-4 text-sm text-zinc-400">Reforçando: <strong>sem login</strong>, <strong>sem cadastro</strong>, <strong>sem paywall</strong>. O marketing e vendas acontecem fora do sistema.</div>
+              <div className="mt-4 text-sm text-zinc-400">Não precisa de conta para testar. Salve/exporte apenas se quiser conservar os resultados.</div>
             </div>
           </Container>
         </section>
+
+        {/* MÉTRICAS */}
+        <section id="metricas" className="py-12 border-b border-white/5">
+          <Container>
+            <div className="mx-auto max-w-4xl">
+              <h2 className="text-2xl font-semibold">Métricas concretas</h2>
+              <ul className="mt-4 list-disc pl-5 text-sm text-zinc-300">
+                <li><strong>Respostas qualificadas:</strong> 3+ em 20 → sinal forte; 0–1 → reavaliar alvo/mensagem.</li>
+                <li><strong>Reuniões marcadas:</strong> ≥1 reunião marcada = progresso operacional.</li>
+                <li><strong>Vendas / Receita:</strong> total de vendas atribuíveis ao teste (valor e número).</li>
+              </ul>
+            </div>
+          </Container>
+        </section>"
 
         {/* NICHOS */}
         <section id="nichos" className="py-12 border-b border-white/5">
@@ -186,11 +205,11 @@ export default function FunctionPage() {
                     <div className="text-sm font-semibold text-zinc-100">{n.title}</div>
                     <div className="mt-1 text-sm text-zinc-300">{n.needs}</div>
                     <div className="mt-3">
-                      <Button href="/app" className="w-full">Usar agora</Button>
+                      <Link href="/app" className="text-sm text-emerald-300 hover:underline">Abrir ferramentas</Link>
                     </div>
                   </div>
                 ))}
-              </div>
+              </div>"
             </div>
           </Container>
         </section>

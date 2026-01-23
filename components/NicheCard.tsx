@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Button } from "@/components/ui";
+import Link from "next/link";
+import { Card } from "@/components/ui";
 
 export default function NicheCard({ niche }: { niche: any }) {
   return (
@@ -7,7 +8,7 @@ export default function NicheCard({ niche }: { niche: any }) {
       <div className="text-sm font-semibold text-emerald-100">{niche.title}</div>
       <div className="mt-2 text-sm text-zinc-300">{niche.needs}</div>
 
-      <div className="mt-4 space-y-2 text-sm">
+n      <div className="mt-4 space-y-2 text-sm">
         {niche.features.map((f: any) => (
           <div key={f.name} className="flex items-start justify-between">
             <div>
@@ -15,7 +16,7 @@ export default function NicheCard({ niche }: { niche: any }) {
               <div className="text-zinc-400">{f.desc}</div>
             </div>
             <div>
-              <Button href={f.href ?? "/app"} className="ml-4">Usar agora</Button>
+              <Link href={f.href ?? "/app"} className="text-sm text-emerald-300 hover:underline ml-4">Abrir ferramentas</Link>
             </div>
           </div>
         ))}

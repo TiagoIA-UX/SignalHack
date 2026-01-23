@@ -309,12 +309,25 @@ function metricValid(text: string) {
     return recs;
   }
 
+  function generatePlaybookSuggestion(signal: Signal) {
+    // Returns a playbook suggestion object { opportunity, experiment, metric }
+    const short = signal.title.length > 72 ? `${signal.title.slice(0, 72).trim()}…` : signal.title;
+    const opportunity = `${short} — oferta: serviço que resolve o problema identificado e gera valor claro.`;
+    const experiment = `Enviar 20 mensagens A/B direcionadas; filtrar respostas em 48h; marcar reuniões com interessados.`;
+    let metric = "20 contatos → 3 respostas → 1 reunião";
+    if (signal.intent === "ALTA") metric = "20 contatos → 6 respostas → 3 reuniões (ou 1 venda)";
+    if (signal.intent === "MÉDIA") metric = "20 contatos → 3 respostas → 1 reunião";
+    if (signal.intent === "BAIXA") metric = "20 contatos → 1 resposta → 0 reuniões (usar para narrativa)";
+    return { opportunity, experiment, metric };
+  }
+
   function savePlaybook() {
     if (!selected) return;
     const hypothesis = draft.hypothesis.trim();
     const experiment = draft.experiment.trim();
     const metric = draft.metric.trim();
-    if (hypothesis.length < 8 || experiment.length < 8 || metric.length < 4) return;
+    // require metric to be valid (number or keywords)
+    if (hypothesis.length < 8 || experiment.length < 8 || !metricValid(metric)) return;
     setPlaybook({
       signalId: selected.id,
       signalTitle: selected.title,
@@ -639,9 +652,22 @@ function metricValid(text: string) {
                           <Button variant="ghost" onClick={loadDefaultPlaybook}>
                             Carregar exemplo
                           </Button>
-                          <Button onClick={savePlaybook}>
+                          <Button variant="ghost" onClick={() => {
+                            if (selected) {
+                              const s = generatePlaybookSuggestion(selected);
+                              setDraft({ hypothesis: s.opportunity, experiment: s.experiment, metric: s.metric });
+                            }
+                          }}>
+                            Auto-recomendar playbook
+                          </Button>
+                          <Button onClick={savePlaybook} disabled={!metricValid(draft.metric)}>
                             Salvar playbook
                           </Button>
+                        </div>
+                        <div className="mt-1">
+                          {!metricValid(draft.metric) ? (
+                            <div className="text-xs text-rose-400">Métrica inválida: inclua número ou palavra-chave (ex.: '6 respostas' ou '3 reuniões').</div>
+                          ) : null}
                         </div>
                       </div>
 

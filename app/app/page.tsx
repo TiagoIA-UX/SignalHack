@@ -14,6 +14,9 @@ type Signal = {
   intent: Intent;
   score: number; // 0..100 (heurístico)
   growthPct: number; // 0..100 (heurístico)
+  createdAt: string; // ISO date
+  collectedBy?: string; // quem registrou/credit
+  validUntil?: string; // ISO date - data até quando o sinal é considerado recente
 };
 
 type Playbook = {
@@ -38,6 +41,9 @@ const DEMO_SIGNALS: Signal[] = [
     intent: "ALTA",
     score: 91,
     growthPct: 38,
+    createdAt: new Date().toISOString(),
+    validUntil: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    collectedBy: "Demo",
   },
   {
     id: "demo-2",
@@ -48,6 +54,9 @@ const DEMO_SIGNALS: Signal[] = [
     intent: "MÉDIA",
     score: 76,
     growthPct: 22,
+    createdAt: new Date().toISOString(),
+    validUntil: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    collectedBy: "Demo",
   },
   {
     id: "demo-3",
@@ -58,6 +67,9 @@ const DEMO_SIGNALS: Signal[] = [
     intent: "BAIXA",
     score: 63,
     growthPct: 14,
+    createdAt: new Date().toISOString(),
+    validUntil: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    collectedBy: "Demo",
   },
 ];
 
@@ -76,6 +88,12 @@ function uid(prefix = "s") {
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
+}
+
+function addDays(dateIso: string, days: number) {
+  const d = new Date(dateIso);
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
 }
 
 function scoreFromText(title: string, summary: string, intent: Intent) {
@@ -133,6 +151,7 @@ export default function HomePage() {
   const [newTitle, setNewTitle] = useState("");
   const [newSummary, setNewSummary] = useState("");
   const [newSource, setNewSource] = useState("");
+  const [newCollectedBy, setNewCollectedBy] = useState("");
   const [newIntent, setNewIntent] = useState<Intent>("MÉDIA");
 
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -224,6 +243,7 @@ function metricValid(text: string) {
     const potential = `Potencial: ${wizWhy.trim()} (comprador=${wizBuyer}; urgência=${wizUrgency}; orçamento=${wizBudget}).`;
     const summary = `${signalText}\n\n${potential}\nMétrica (7 dias): ${metricText}`;
     const intent = inferredIntent();
+    const now = new Date().toISOString();
     const s: Signal = {
       id: uid("signal"),
       title,
@@ -232,6 +252,9 @@ function metricValid(text: string) {
       intent,
       score: scoreFromText(title, summary, intent),
       growthPct: clamp(Math.round(10 + Math.random() * 45), 10, 55),
+      createdAt: now,
+      validUntil: addDays(now, 7),
+      collectedBy: "Você",
     };
 
     setSignals((prev) => [s, ...prev]);
@@ -247,6 +270,7 @@ function metricValid(text: string) {
     const source = newSource.trim() || "Manual";
     if (title.length < 6 || summary.length < 10) return;
 
+    const now = new Date().toISOString();
     const s: Signal = {
       id: uid("signal"),
       title,
@@ -255,6 +279,9 @@ function metricValid(text: string) {
       intent: newIntent,
       score: scoreFromText(title, summary, newIntent),
       growthPct: clamp(Math.round(10 + Math.random() * 45), 10, 55),
+      createdAt: now,
+      validUntil: addDays(now, 7),
+      collectedBy: newCollectedBy || "Você",
     };
     setSignals((prev) => [s, ...prev]);
     setSelectedId(s.id);
@@ -266,6 +293,20 @@ function metricValid(text: string) {
     if (!selected) return;
     const base = defaultPlaybookFor(selected);
     setDraft(base);
+  }
+
+  function generateRecommendations(signal: Signal) {
+    const recs: string[] = [];
+    if (signal.intent === "ALTA" && signal.score >= 80) {
+      recs.push("Prioridade ALTA: rodar teste nas próximas 48h; alvo: 20 contatos.");
+      recs.push("Mensagem sugerida: enviar Mensagem A e Mensagem B (A/B) — foco em preço/benefício.");
+    } else if (signal.intent === "MÉDIA") {
+      recs.push("Prioridade MÉDIA: refine ICP e envie 20 contatos para verificar resposta.");
+    } else {
+      recs.push("Prioridade BAIXA: use para narrativa, não para venda imediata.");
+    }
+    if (signal.growthPct > 30) recs.push("Sinal com crescimento forte — priorizar contato rápido.");
+    return recs;
   }
 
   function savePlaybook() {
@@ -548,6 +589,7 @@ function metricValid(text: string) {
                       <div className="mt-2 text-xs text-zinc-400">
                         Fonte: {s.source} • Score: {s.score} • Cresc: {s.growthPct}%
                       </div>
+                      <div className="mt-2 text-xs text-zinc-400">Coletado por: {s.collectedBy ?? '—'} • {new Date(s.createdAt).toLocaleDateString()} até {new Date(s.validUntil ?? s.createdAt).toLocaleDateString()}</div>
                       <div className="mt-2 text-sm text-zinc-300">{s.summary}</div>
                     </button>
                   ))}
@@ -576,6 +618,14 @@ function metricValid(text: string) {
                           <div className="text-xs font-bold text-emerald-200">{b.title}</div>
                           <div className="mt-2 text-sm text-zinc-200">{b.body}</div>
                         </div>
+                      ))}
+                    </div>
+
+                    {/* Recomendações automáticas */}
+                    <div className="mt-6">
+                      <div className="text-xs font-bold text-emerald-200">Recomendações</div>
+                      {generateRecommendations(selected).map((r, i) => (
+                        <div key={i} className="mt-2 rounded-2xl border border-white/10 bg-black/30 p-3 text-sm text-zinc-200">{r}</div>
                       ))}
                     </div>
 

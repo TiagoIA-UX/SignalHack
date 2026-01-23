@@ -31,8 +31,8 @@ export default function AcquirePage() {
         <Container>
           <div className="mx-auto max-w-3xl">
             <div className="text-xs uppercase tracking-[0.2em] text-zinc-400">Oferta</div>
-            <h1 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight text-zinc-100">Pilot: validação de demanda — 7 dias</h1>
-            <p className="mt-3 text-sm text-zinc-300">Implantação curta, métrica clara e decisão objetiva. Ideal para founders, RevOps e agências que precisam testar hipóteses com resultado mensurável.</p>
+            <h1 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight text-zinc-100">Pilot: descubra se clientes pagam em 7 dias</h1>
+            <p className="mt-3 text-sm text-zinc-300">Nós executamos um teste prático: 20 contatos, medimos respostas, reuniões e vendas. No dia 7 você tem números claros para decidir — escalar, ajustar ou parar.</p>
 
             <Card className="mt-6 p-6">
               <div className="grid gap-4 md:grid-cols-2">
@@ -67,11 +67,11 @@ export default function AcquirePage() {
                 <div>
                   <div className="text-emerald-100 font-semibold">O que está incluído</div>
                   <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                    <li>• Identificação e documentação do sinal (contexto e evidência).</li>
-                    <li>• Avaliação de potencial (urgência, comprador, orçamento).</li>
-                    <li>• Experimento de 7 dias com métrica definida.</li>
-                    <li>• Relatório final com decisão e próximos passos.</li>
-                    <li>• Templates de outreach e material de prova (email, pitch).</li>
+                    <li>• Planejamento e template pronto para 20 contatos (mensagem + lista-alvo).</li>
+                    <li>• Envio orientado / suporte (se contratado) e registro de respostas.</li>
+                    <li>• Coleta de métricas: respostas qualificadas, reuniões marcadas, vendas.</li>
+                    <li>• Relatório no dia 7: números brutos (ex.: 20 enviados → 4 respostas qualificadas → 1 reunião → R$X em receita) e recomendação clara (continuar/ajustar/parar).</li>
+                    <li>• Arquivos exportáveis (CSV/JSON) e templates de follow-up prontos.</li>
                   </ul>
                 </div>
               </div>
@@ -88,34 +88,34 @@ export default function AcquirePage() {
                 <Card className="p-4">
                   <details>
                     <summary className="cursor-pointer font-semibold text-zinc-100">Como funciona o pilot?</summary>
-                    <div className="mt-2 text-sm text-zinc-300">Definimos 1 sinal, rodamos um experimento simples por 7 dias com métrica clara (respostas/testes/receita) e entregamos um relatório com decisão.</div>
+                    <div className="mt-2 text-sm text-zinc-300">Definimos o público e a mensagem, enviamos 20 contatos, registramos respostas e reuniões. No dia 7 você recebe números (respostas qualificadas, reuniões, vendas) e uma recomendação direta. Exemplo de interpretação: 3+ respostas qualificadas = sinal forte; 0–1 = reavaliar alvo/mensagem.</div>
                   </details>
                 </Card>
 
                 <Card className="p-4">
                   <details>
                     <summary className="cursor-pointer font-semibold text-zinc-100">Posso pedir customizações?</summary>
-                    <div className="mt-2 text-sm text-zinc-300">Sim — ajustes de escopo são possíveis e cobrados à parte. Se precisar, fale com suporte antes de comprar.</div>
+                    <div className="mt-2 text-sm text-zinc-300">Sim — ajustes (maior alcance, personalização de mensagens ou envio por nós) são cobrados à parte. Indique o escopo ao solicitar e receberá um orçamento antes de começar.</div>
                   </details>
                 </Card>
 
                 <Card className="p-4">
                   <details>
                     <summary className="cursor-pointer font-semibold text-zinc-100">Como recebo o resultado?</summary>
-                    <div className="mt-2 text-sm text-zinc-300">Recebe um relatório claro: o sinal, métricas coletadas, aprendizado e recomendação (continuar/ajustar/parar).</div>
+                    <div className="mt-2 text-sm text-zinc-300">Relatório entregue no dia 7 com: contagem de envios, respostas qualificadas, reuniões agendadas, vendas e recomendação direta (continuar/ajustar/parar). Arquivos exportáveis em CSV/JSON anexados.</div>
                   </details>
                 </Card>
               </div>
             </section>
 
             <Card id="contact" className="mt-8 p-6">
-              <div className="text-sm font-semibold text-emerald-100">Quer que eu te ajude a escolher o pilot?</div>
-              <div className="mt-2 text-sm text-zinc-300">Envie um e-mail ou agende uma conversa. Podemos ajustar o piloto ao seu contexto.</div>
+              <div className="text-sm font-semibold text-emerald-100">Quer ajuda para iniciar?</div>
+              <div className="mt-2 text-sm text-zinc-300">Se preferir conversar antes, marque uma chamada ou envie um e-mail — respondemos com recomendações e orçamento.</div>
               <div className="mt-4 flex gap-3">
                 <a href="mailto:tiagorocha1777@gmail.com">
                   <Button>Enviar e-mail</Button>
                 </a>
-                <Button href="/support" variant="ghost">Falar com suporte</Button>
+                <Button href="/support" variant="ghost">Marcar conversa</Button>
               </div>
             </Card>
 

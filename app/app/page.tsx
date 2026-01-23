@@ -147,6 +147,7 @@ export default function HomePage() {
   const [selectedId, setSelectedId] = useState<string>(DEMO_SIGNALS[0]?.id ?? "");
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
   const [draft, setDraft] = useState<{ hypothesis: string; experiment: string; metric: string }>({ hypothesis: "", experiment: "", metric: "" });
+  const [playbookAdvanced, setPlaybookAdvanced] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
   const [newSummary, setNewSummary] = useState("");
@@ -671,38 +672,68 @@ function metricValid(text: string) {
                         </div>
                       </div>
 
-                      <div className="mt-4 grid gap-3">
-                        <div>
-                          <label className="text-xs text-zinc-400">Oportunidade (o que vamos vender?)</label>
-                          <textarea
-                            value={draft.hypothesis}
-                            onChange={(e) => setDraft((p) => ({ ...p, hypothesis: e.target.value }))}
-                            placeholder="Ex: serviço de automação de follow‑up para RevOps — reduz churn em 20%"
-                            className="mt-2 min-h-20 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
-                          />
-                          <div className="mt-1 text-xs text-zinc-400">Descreva o benefício que justifica pagamento (ex.: reduzir churn, gerar receita direta).</div>
-                        </div>
-                        <div>
-                          <label className="text-xs text-zinc-400">Ação em 7 dias (passos concretos)</label>
-                          <textarea
-                            value={draft.experiment}
-                            onChange={(e) => setDraft((p) => ({ ...p, experiment: e.target.value }))}
-                            placeholder="Ex: enviar 20 mensagens A/B; filtrar respostas; marcar reuniões"
-                            className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
-                          />
-                          <div className="mt-1 text-xs text-zinc-400">Passos executáveis — o que exatamente será feito nesta semana.</div>
-                        </div>
-                        <div>
-                          <label className="text-xs text-zinc-400">Métrica alvo (o que prova que funciona)</label>
-                          <input
-                            value={draft.metric}
-                            onChange={(e) => setDraft((p) => ({ ...p, metric: e.target.value }))}
-                            placeholder="Ex: 20 contatos → 6 respostas → 3 calls ou 1 venda"
-                            className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
-                          />
-                          <div className="mt-1 text-xs text-zinc-400">Use números claros: leads, respostas, reuniões ou vendas atribuíveis.</div>
-                        </div>
-                      </div>
+{/* Primary: summary only (no manual fields) */}
+                        {!playbookAdvanced ? (
+                          <div className="mt-4 grid gap-3">
+                            <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
+                              <div className="text-sm font-semibold text-emerald-100">Playbook pré-preenchido (automático)</div>
+                              <div className="mt-2 text-sm text-zinc-300">A IA pode gerar um playbook automaticamente. Você não precisa digitar nada para obter uma oportunidade vendável.</div>
+                              <div className="mt-3 text-sm text-zinc-200">
+                                <div><strong>Oportunidade:</strong> {draft.hypothesis || 'Nenhuma sugestão gerada ainda.'}</div>
+                                <div className="mt-1"><strong>Ação:</strong> {draft.experiment || 'Use "Auto-recomendar playbook"'}</div>
+                                <div className="mt-1"><strong>Métrica:</strong> {draft.metric || 'Use "Auto-recomendar playbook"'}</div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" onClick={() => { if (selected) { const s = generatePlaybookSuggestion(selected); setDraft({ hypothesis: s.opportunity, experiment: s.experiment, metric: s.metric }); } }}>
+                                Auto-recomendar playbook
+                              </Button>
+                              <Button onClick={savePlaybook} disabled={!metricValid(draft.metric)}>
+                                Confirmar Negócio em Potencial
+                              </Button>
+                              <Button variant="ghost" onClick={() => setPlaybookAdvanced(true)}>
+                                Abrir modo avançado
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-4 grid gap-3">
+                            <div>
+                              <label className="text-xs text-zinc-400">Oportunidade (o que vamos vender?)</label>
+                              <textarea
+                                value={draft.hypothesis}
+                                onChange={(e) => setDraft((p) => ({ ...p, hypothesis: e.target.value }))}
+                                placeholder="Ex: serviço de automação de follow‑up para RevOps — reduz churn em 20%"
+                                className="mt-2 min-h-20 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
+                              />
+                              <div className="mt-1 text-xs text-zinc-400">Descreva o benefício que justifica pagamento (ex.: reduzir churn, gerar receita direta).</div>
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-400">Ação em 7 dias (passos concretos)</label>
+                              <textarea
+                                value={draft.experiment}
+                                onChange={(e) => setDraft((p) => ({ ...p, experiment: e.target.value }))}
+                                placeholder="Ex: enviar 20 mensagens A/B; filtrar respostas; marcar reuniões"
+                                className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
+                              />
+                              <div className="mt-1 text-xs text-zinc-400">Passos executáveis — o que exatamente será feito nesta semana.</div>
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-400">Métrica alvo (o que prova que funciona)</label>
+                              <input
+                                value={draft.metric}
+                                onChange={(e) => setDraft((p) => ({ ...p, metric: e.target.value }))}
+                                placeholder="Ex: 20 contatos → 6 respostas → 3 calls ou 1 venda"
+                                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
+                              />
+                              <div className="mt-1 text-xs text-zinc-400">Use números claros: leads, respostas, reuniões ou vendas atribuíveis.</div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" onClick={() => setPlaybookAdvanced(false)}>Fechar modo avançado</Button>
+                              <Button onClick={savePlaybook} disabled={!metricValid(draft.metric)}>Salvar playbook</Button>
+                            </div>
+                          </div>
+                        )}
 
                       {playbook ? (
                         <div className="mt-5 rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-4 text-sm text-zinc-200">

@@ -15,33 +15,11 @@ permissions:
   contents: write
 
 jobs:
-  github-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ inputs.tag || github.ref_name }}
-          generate_release_notes: true
-name: Release
-
-on:
-  push:
-    tags:
-      - "v*.*.*"
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-jobs:
   release:
+    name: Create release
     runs-on: ubuntu-latest
     env:
-      # Placeholders mínimos para não quebrar validação de env durante build.
+      # Minimal placeholders to allow CI build steps to run in Actions
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edgemind?schema=public
       AUTH_SECRET: ci_ci_ci_ci_ci_ci_ci_ci_ci_ci_ci_ci_ci_ci_ci_ci
       APP_URL: http://localhost:3000
@@ -65,4 +43,5 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
           generate_release_notes: true

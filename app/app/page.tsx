@@ -54,67 +54,132 @@ const DEMO_SIGNALS: Signal[] = [
     title: "Discussões sobre “workflows automatizados” nas comunidades",
     summary:
       "Muita atenção e pouca intenção direta: serve para narrativa e timing, mas exige recorte de ICP para converter.",
+    source: "Comunidades",
+    intent: "BAIXA",
+    score: 63,
+    growthPct: 14,
+  },
+];
 
-            {wizardOpen ? (
-              <Card className="mt-6 p-6 max-w-lg mx-auto">
-                <div className="mb-6 flex items-center justify-between">
-                  <div className="text-xs text-zinc-400">{wizardStep}/3</div>
-                  <Button variant="ghost" onClick={() => (resetWizard(), setWizardOpen(false))}>Fechar</Button>
-                </div>
+function safeJsonParse<T>(value: string | null): T | null {
+  if (!value) return null;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
+}
 
-                {wizardStep === 1 && (
-                  <div>
-                    <div className="text-lg font-bold text-zinc-100 mb-2">O que você vê acontecendo no seu mercado?</div>
-                    <div className="text-sm text-zinc-400 mb-2">Exemplo: Lojas reclamando de queda nas vendas</div>
-                    <textarea
-                      value={wizSignal}
-                      onChange={(e) => setWizSignal(e.target.value)}
-                      placeholder="Ex: Pequenos e-commerces reclamando de abandono de carrinho."
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
-                    />
-                    <div className="mt-4 flex gap-2">
-                      <Button onClick={() => setWizardStep(2)} disabled={wizSignal.trim().length < 8}>Avançar</Button>
-                      <Button variant="ghost" onClick={resetWizard}>Limpar</Button>
-                    </div>
-                  </div>
-                )}
+function uid(prefix = "s") {
+  return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+}
 
-                {wizardStep === 2 && (
-                  <div>
-                    <div className="text-lg font-bold text-zinc-100 mb-2">Quem pagaria para resolver isso?</div>
-                    <div className="text-sm text-zinc-400 mb-2">Exemplo: Donos de e-commerce</div>
-                    <input
-                      value={wizBuyer || ""}
-                      onChange={(e) => setWizBuyer(e.target.value)}
-                      placeholder="Ex: Donos de e-commerce"
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
-                    />
-                    <div className="mt-4 flex gap-2">
-                      <Button variant="ghost" onClick={() => setWizardStep(1)}>Voltar</Button>
-                      <Button onClick={() => setWizardStep(3)} disabled={!wizBuyer || wizBuyer.trim().length < 3}>Avançar</Button>
-                    </div>
-                  </div>
-                )}
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
 
-                {wizardStep === 3 && (
-                  <div>
-                    <div className="text-lg font-bold text-zinc-100 mb-2">Como saber se funcionou?</div>
-                    <div className="text-sm text-zinc-400 mb-2">Exemplo: Vendas recuperadas em 7 dias</div>
-                    <input
-                      value={wizMetric}
-                      onChange={(e) => setWizMetric(e.target.value)}
-                      placeholder="Ex: Vendas recuperadas na primeira semana."
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100"
-                    />
-                    <div className="mt-4 flex gap-2">
-                      <Button variant="ghost" onClick={() => setWizardStep(2)}>Voltar</Button>
-                      <Button onClick={finishWizard} disabled={wizMetric.trim().length < 3}>Validar e Começar</Button>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            )}
+function scoreFromText(title: string, summary: string, intent: Intent) {
+  const text = `${title} ${summary}`.toLowerCase();
+  const kw = ["orçamento", "budget", "revops", "pipeline", "crm", "dunning", "inadimpl", "compliance", "lgpd", "auditoria", "sdr", "outbound"];
+  let hits = 0;
+  for (const k of kw) if (text.includes(k)) hits += 1;
+  const intentW = intent === "ALTA" ? 22 : intent === "MÉDIA" ? 12 : 5;
+  const base = 45 + hits * 7 + intentW;
+  return clamp(Math.round(base), 40, 98);
+}
 
+function defaultPlaybookFor(signal: Signal): Pick<Playbook, "hypothesis" | "experiment" | "metric"> {
+  const hypothesis = `Se eu oferecer uma prova de valor curta para "${signal.title}", parte do público vai responder porque o benefício é claro e o risco é baixo.`;
+  const experiment =
+    "Criar 1 página simples com promessa + caso de uso. Fazer 20 abordagens (email/DM) com motivo e ângulo. Medir resposta e agendar 3 conversas rápidas.";
+  const metric = "Meta em 7 dias: 20 contatos → 6 respostas → 3 calls → 1 piloto.";
+  return { hypothesis, experiment, metric };
+}
+
+function buildInsight(signal: Signal) {
+  const contexto =
+    "Este sinal aponta para gente com dor concreta (tempo, receita ou risco). Quando a dor é concreta, a conversa vira decisão mais rápido.";
+  const indica =
+    signal.intent === "ALTA"
+      ? "Existe urgência e chance real de orçamento. Você pode propor um piloto curto com resultado medível."
+      : signal.intent === "MÉDIA"
+      ? "Existe interesse e comparação ativa. O recorte (ICP + promessa) precisa ser claro para converter."
+      : "Existe curiosidade, mas ainda falta urgência. Use para narrativa e depois faça um recorte mais específico.";
+
+  const risco =
+    "O maior risco é ficar genérico demais (sem recorte). Outro risco é prometer demais sem um teste simples e mensurável.";
+
+  const oportunidade =
+    "Empacotar como oferta de implantação curta (7–14 dias), com um resultado explícito e um critério de decisão: continuar, ajustar ou parar.";
+
+  const proximo =
+    "Escolha 1 micro‑público, escreva 1 promessa, rode 20 contatos em 48h e ajuste pela taxa de resposta (não pela opinião).";
+
+  return [
+    { title: "1) Contexto essencial", body: contexto },
+    { title: "2) O que o sinal realmente indica", body: indica },
+    { title: "3) Risco principal", body: risco },
+    { title: "4) Oportunidade de ganhar dinheiro", body: oportunidade },
+    { title: "5) Próximo passo sugerido", body: proximo },
+  ];
+}
+
+export default function HomePage() {
+  const [signals, setSignals] = useState<Signal[]>(DEMO_SIGNALS);
+  const [selectedId, setSelectedId] = useState<string>(DEMO_SIGNALS[0]?.id ?? "");
+  const [playbook, setPlaybook] = useState<Playbook | null>(null);
+  const [draft, setDraft] = useState<{ hypothesis: string; experiment: string; metric: string }>({ hypothesis: "", experiment: "", metric: "" });
+
+  const [newTitle, setNewTitle] = useState("");
+  const [newSummary, setNewSummary] = useState("");
+  const [newSource, setNewSource] = useState("");
+  const [newIntent, setNewIntent] = useState<Intent>("MÉDIA");
+
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardStep, setWizardStep] = useState(1);
+  const [wizSignal, setWizSignal] = useState("");
+  const [wizBuyer, setWizBuyer] = useState("");
+  const [wizUrgency, setWizUrgency] = useState("");
+  const [wizBudget, setWizBudget] = useState("");
+  const [wizMetric, setWizMetric] = useState("");
+
+  const [online, setOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
+
+  useEffect(() => {
+    const onOnline = () => setOnline(true);
+    const onOffline = () => setOnline(false);
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", onOnline);
+      window.addEventListener("offline", onOffline);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("online", onOnline);
+        window.removeEventListener("offline", onOffline);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const savedSignals = safeJsonParse<Signal[]>(localStorage.getItem(STORAGE_SIGNALS));
+    if (savedSignals && Array.isArray(savedSignals) && savedSignals.length > 0) {
+      setSignals(savedSignals);
+      setSelectedId(savedSignals[0]?.id ?? "");
+    }
+    const savedPlaybook = safeJsonParse<Playbook>(localStorage.getItem(STORAGE_PLAYBOOK));
+    if (savedPlaybook) {
+      setPlaybook(savedPlaybook);
+      setDraft({ hypothesis: savedPlaybook.hypothesis, experiment: savedPlaybook.experiment, metric: savedPlaybook.metric });
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_SIGNALS, JSON.stringify(signals));
+  }, [signals]);
+
+  useEffect(() => {
+    if (playbook) localStorage.setItem(STORAGE_PLAYBOOK, JSON.stringify(playbook));
+  }, [playbook]);
 
   const selected = useMemo(() => signals.find((s) => s.id === selectedId) ?? null, [signals, selectedId]);
   const insight = useMemo(() => (selected ? buildInsight(selected) : null), [selected]);

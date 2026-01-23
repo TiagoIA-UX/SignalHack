@@ -2,7 +2,7 @@
    Objetivo: manter o app abrindo mesmo se a rede cair.
    Regras: não bloquear, não ser crítico, não quebrar se falhar. */
 
-const CACHE_NAME = "zairix-cache-v1";
+const CACHE_NAME = "zairix-cache-v2"; // bumped to invalidate old caches and force clients to fetch the new build
 
 // Mantém pequeno para evitar bugs; o Next já tem seus próprios chunks.
 const CORE_ASSETS = ["/", "/app", "/acquire", "/manifest.webmanifest", "/favicon.ico"];
